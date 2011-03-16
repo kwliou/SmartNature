@@ -1,0 +1,176 @@
+"Garden" screen
+- zoom in/out auto-hidden buttons
+- long press region -> reposition/move to front/move to back/rename/delete
+* Add shape -> Choose name -> ellipse/rect/custom -> Edit mode
+  (custom = press points on screen that are automatically connected)
+* Garden options -> rename/edit dimensions/view list of all regions/manual sync/delete/export data
+* "Share" screen
+* "My Gardens"
+* Look up/Search plant screen
+* Settings
+
+"Edit mode" screen
+* Rotate mode/Drag mode
+* Change color
+* Ellipse <-> Rectangle (if applicable)
+* Done
+
+"Share" screen/dialog
+NOTE: if not enough time, just make this an "e-mail screenshot" feature
+- set password (other people only need password)
+- set permissions (read-only for anyone?)
+- e-mail password (starts default Mail activity)
+
+"Region" screen
+- name edittext
+- map/list of plants w/ pics
+* Add plant
+* Rename (dialog)
+* Delete (confirm dialog)
+* Edit -> "Edit mode" screen
+* Look up/Search plant screen
+* Settings?
+
+"Plant" screen
+- recent pic
+- onscreen: name edittext, camera button, misc info edittext
+* Set default picture (from plant's pics)
+* Attach picture (from SD)
+* Delete (confirm dialog)
+* Info (go to linked entry, otherwise look up in encyclopedia)
+
+"My Gardens" screen (buttons or menu)
+- "gallery" of gardens (horizontal scroll?)
+* New garden
+* Add garden (from internet/SD?) -> enter in password
+* Look up/Search plant screen
+* Settings
+
+"Search plant" screen
+- autocomplete seems too hard
+* Choose encyclopedia source?
+* Bookmarks?
+* History
+
+"Settings" screen
+* Tutorial/How to get started
+* high contrast mode? (thicker lines/black&white)
+* Sync every hour/day, download images to SD automatically, etc.
+* Disable automatic orientation
+* Export data (as xml)?
+
+revision note:
+I put the sleep cycle into gamers/workers category
+I combined farmers & gardeners, photos & photographers  into one category
+
+#Target Users
+ -Problem Descriptions
+
+1. Commuters
+    -reduce boredom
+    -tired -> wake up
+    -network
+2. Office Workers
+    -organization
+    -schedulers
+3. Farmers/Gardeners
+    -map your garden
+    -time/location
+    -plant encyclopedia
+    -plant ID
+4. Athletes
+    -training schedule
+    -diet
+5. School Children
+    a)entertainment
+    b)education
+    -spelling app
+    -multiplication table
+    -trivia
+6. Seniors
+    -medical organizer
+    -senior stories “I remember when”
+7. Parents
+    -noisy children
+    -track your kids
+    -kids’ diets
+    -allergies
+    -babysitter
+    -carpool organizer
+    -healthy food
+8. Gamers/Workers
+    -food delivery
+9. Musicians
+    -gigs
+    -craigslist for music
+    -transcribe from voice
+10. Chefs/Housewives
+    -ingredients->dish
+    -closest place to buy/make
+11. Art Fans
+    -photo identifier (list similar)
+12. Artists
+    -paint simulator
+    -font identifier
+    -calligraphy (sketchpad and how to)
+13. Photos/Photographers
+    -orientation
+    -locate where taken
+14. Hikers
+    -tracking
+    -how much food
+    -sun setting
+    -set up camp
+    -picture (poisonous and edible)
+
+1 a voice chat app that "links up" commuters to chat about random topics to alleviate boredom
+2 a social carpool app that helps busy parents with picking up their children from school
+3 a app for gardeners to help them organize, map out, and take care of their gardens
+4 a plant encyclopedia app for gardeners to learn about plants they currently have and might want
+5 an app that identifies pictures of plants for interested gardeners
+6 an equipment management system for office workers to alert them when inventory runs low
+7 an app that restaurants can utilize to simplify catering for office workers
+8 a diet app for athletes that recommends food/supplement choices and their locations
+9 a diet app for athletes that monitors their caloric intake/diet
+10 a social app that shares nostalgic anecdotes written by seniors
+11 a "nostalgic" app that allows seniors to locate products that were popular in their youth
+12 a medical app that allows the ill to input symptoms for possible illnesses they might have
+13 an app for stressed out parents that produces calming sounds
+14 an app for parents with noisy children that produces sounds to placate their noisy children
+15 a musical app for musicians that transcribes singing into sheet music
+16 a musical app that tunes pitch for musicians/singers
+17 an app for parents with children to hire babysitters with ratings
+18 a barcode scanning app for parents with children to check for allergy information
+19 an app for busy, lousy cooks that suggests healthy, fast recipes based on time
+20 an app for BART users to buy tickets for convenient pickup from the BART attendant
+21 an app for busy grocery shoppers to buy groceries online for pickup at the supermarket
+22 a paint simulator for artists/designers to simulate mixing real paint colors
+23 an app for groups to hire musicians (possibly temporarily)
+24 an app for cooks to input ingredients to get possible recipes/dishes
+25 an app for cooks to find where to buy ingredients and their price
+26 a calligraphy app for calligraphers/people who want to learn calligraphy to simulate using a calligraphy pen
+27 a font identifier app for typographers/graphic designers that identifies the font based on the picture
+28 an app for photographers that shares pictures based on where and when they were taken
+29 an art app that identifies pictures and suggests recommendations based on category
+30 an sunset app for hikers that lets them know when to turn back or set up camp
+31 a hidden scenic spot app that helps scenery enthusiasts to locate and reccomend obscure locations
+32 a car maintenance app for car-ignorant people to help fix their problems
+33 a typographical app for graphic designers to upload their letter sketches
+34 an app for waiters to quickly input in orders that get sent to the kitchen
+35 a drunk texting app that prevents drunk people from texting
+36 a restaurant app that gives hungry people current restaurants that are still open
+37 a tracing app for small children to practice handwriting/cursive
+38 a drawing/tracing app for people who want to learn how to draw
+39 a recycling app for earth-friendly people that tells them how to recycle an item and where to deliver
+40 a location app for people to tell and find out how crowded out the restaurant/place is
+41 a restaurant app to inform people (not at restaurant) about items that are sold out/not available
+42 a physical routine app for tired workers/companies (in the morning) to get energized
+43 a word pronunciation app for people/tourists who don't know how to pronounce the word/language
+44 an app for entrepeneurs to promote their product and get investors
+45 an enhanced market app for android app developers/users to give/receive better feedback
+46 an demonstration app that shows knitters/knotters how to perform a specific stitch/knot
+47 a camping app that teaches campers basic camping/survival skills
+48 a makeup app for girls/makeup artists to suggest/simulate makeup based on skin tone
+49 an app for taxi drivers to calculate fare (not meter)
+50 a gambling app that calculates the odds of winning based on current hand
+51 an app for airplanes to publicize available last-minute seats

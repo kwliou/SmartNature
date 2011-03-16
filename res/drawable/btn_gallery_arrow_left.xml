@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+	android:constantSize="true">
+	<item
+		android:drawable="@drawable/btn_gallery_arrow_left_selected"
+		android:state_focused="true" />
+	<item
+		android:drawable="@drawable/btn_gallery_arrow_left_press"
+		android:state_pressed="true" />
+	<item
+		android:drawable="@drawable/btn_gallery_arrow_left_default" />
+</selector>

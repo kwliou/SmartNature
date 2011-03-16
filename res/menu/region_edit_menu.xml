@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/m_dragmode"
+          android:icon="@android:drawable/ic_menu_rotate"
+          android:visible="false"
+          android:title="Drag mode" />
+	<item android:id="@+id/m_rotatemode"
+          android:icon="@android:drawable/ic_menu_rotate"
+          android:title="Rotate mode" />
+	<item android:id="@+id/m_change_color"
+          android:icon="@drawable/ic_menu_colorpicker"
+          android:title="Change color" />
+	<item android:id="@+id/m_move_forward"
+          android:icon="@drawable/ic_menu_move_forward"
+          android:title="Move to front" />
+	<item android:id="@+id/m_search"
+          android:icon="@android:drawable/ic_menu_save"
+          android:title="Save" />
+</menu>
