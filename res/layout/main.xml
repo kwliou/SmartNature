@@ -1,75 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:padding="10dp"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-
-	<TextView
-		android:text="@string/app_name"
-		android:id="@+id/logo"
-		android:textSize="30sp"
-		android:textStyle="bold"
-		android:padding="15dp"
-		android:layout_marginBottom="10dp"
-		android:layout_gravity="center_horizontal"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
-
-	<Button
-		android:text="@string/new_garden"
-		android:id="@+id/new_garden"
-		android:textSize="17dp"
-		android:layout_gravity="center_horizontal"
-		android:layout_width="wrap_content"
-		android:layout_margin="5dp"
-		android:layout_height="wrap_content" />
-
-	<Button
-		android:text="@string/search_encyclopedia"
-		android:id="@+id/search_encyclopedia"
-		android:textSize="17dp"
-		android:layout_gravity="center_horizontal"
-		android:layout_margin="5dp"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
-
+	
 	<LinearLayout
-	android:orientation="horizontal"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content">
-
-	<Button
-		android:background="@drawable/btn_gallery_arrow_left"
-		android:id="@+id/imageButton1"
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content" />
-
-	<Gallery
-		android:id="@+id/gallery"
-		android:layout_marginTop="20dp"
-		android:layout_marginBottom="20dp"
-		android:spacing="16dp"
-		android:unselectedAlpha="0.5"
-		android:layout_weight="1"
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content" />
-
-	<Button
-		android:background="@drawable/btn_gallery_arrow_right"
-		android:id="@+id/imageButton2"
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content" />
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical"
+		android:padding="10dp"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+	
+		<TextView
+			android:text="@string/app_name"
+			android:id="@+id/logo"
+			android:textSize="30sp"
+			android:textStyle="bold"
+			android:padding="15dp"
+			android:layout_marginBottom="10dp"
+			android:layout_gravity="center_horizontal"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+	
+		<Button
+			android:text="@string/new_garden"
+			android:id="@+id/new_garden"
+			android:textSize="17dp"
+			android:layout_gravity="center_horizontal"
+			android:layout_width="wrap_content"
+			android:layout_margin="5dp"
+			android:layout_height="wrap_content" />
+	
+		<Button
+			android:text="@string/search_encyclopedia"
+			android:id="@+id/search_encyclopedia"
+			android:textSize="17dp"
+			android:layout_gravity="center_horizontal"
+			android:layout_margin="5dp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+	
+		<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+	
+		<Button
+			android:background="@drawable/btn_gallery_arrow_left"
+			android:id="@+id/imageButton1"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content" />
+	
+		<Gallery
+			android:id="@+id/gallery"
+			android:layout_marginTop="20dp"
+			android:layout_marginBottom="20dp"
+			android:spacing="16dp"
+			android:unselectedAlpha="0.5"
+			android:layout_weight="1"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content" />
+	
+		<Button
+			android:background="@drawable/btn_gallery_arrow_right"
+			android:id="@+id/imageButton2"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content" />
+	
+		</LinearLayout>
+		
+		<ImageView
+			android:src="@drawable/preview"
+			android:id="@+id/image_preview"
+			android:layout_gravity="center_horizontal"
+			android:clickable="true"
+			android:layout_height="100dp"
+			android:layout_width="150dp" />
 
 	</LinearLayout>
 	
-	<ImageView
-		android:src="@drawable/preview"
-		android:id="@+id/image_preview"
-		android:layout_gravity="center_horizontal"
-		android:clickable="true"
-		android:layout_height="100dp"
-		android:layout_width="150dp" />
-
-</LinearLayout>
+</ScrollView>
