@@ -36,7 +36,7 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 		setContentView(R.layout.main);
 		
 		gardens = new ArrayList<Garden>();
-		gardens.add(new Garden(R.drawable.preview, "BYA"));
+		gardens.add(new Garden(R.drawable.preview, "Berkeley Youth Alternatives"));
 		gardens.add(new Garden(R.drawable.preview2, "Karl Linn"));
 		gardens.add(new Garden(R.drawable.preview3, "Peralta"));
 		adapter = new GardenAdapter(this, R.layout.list_item, gardens);
