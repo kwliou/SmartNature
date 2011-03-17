@@ -1,8 +1,9 @@
 package edu.berkeley.cs160.smartnature;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ListActivity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,77 +12,72 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Gallery;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
-public class StartScreen extends Activity implements OnClickListener, OnItemClickListener, OnItemSelectedListener {
-	
-	Gallery gardenPreviews;
+import java.util.ArrayList;
 
+public class StartScreen extends ListActivity implements OnClickListener, OnItemClickListener {
+	
+	GardenAdapter adapter;
+	ArrayList<Garden> gardens;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
-		gardenPreviews = (Gallery) findViewById(R.id.gallery);
-		String[] mockGardens = { "BYA", "Karl Linn", "Peralta" };
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.gallery_item, mockGardens);
-		gardenPreviews.setAdapter(adapter);
-		gardenPreviews.setOnItemClickListener(this);
-		gardenPreviews.setOnItemSelectedListener(this);
+		gardens = new ArrayList<Garden>();
+		gardens.add(new Garden(R.drawable.preview, "BYA"));
+		gardens.add(new Garden(R.drawable.preview2, "Karl Linn"));
+		gardens.add(new Garden(R.drawable.preview3, "Peralta"));
+		adapter = new GardenAdapter(this, R.layout.list_item, gardens);
+		setListAdapter(adapter);
+		ListView v = getListView();
+		v.setOnItemClickListener(this);
+		
 
 		((Button) findViewById(R.id.new_garden)).setOnClickListener(this);
-		((Button) findViewById(R.id.imageButton1)).setOnClickListener(this);
-		((Button) findViewById(R.id.imageButton2)).setOnClickListener(this);	
 	}
 
 	@Override
 	public Dialog onCreateDialog(int id) {
 		LayoutInflater factory = LayoutInflater.from(this);
 		final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
+
 		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
-				Intent intent = new Intent(StartScreen.this, Garden.class);
+				EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+				String gardenName = input.getText().toString();
+				input.setText("");
+				Intent intent = new Intent(StartScreen.this, GardenScreen.class);
 				Bundle bundle = new Bundle();
-				String gardenName = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry)).getText().toString();
 				bundle.putString("name", gardenName);
 				intent.putExtras(bundle);
 				startActivity(intent);
 			}
 		};
+		
 		return new AlertDialog.Builder(this)
-			.setTitle(R.string.new_garden_prompt)
-			.setView(textEntryView)
-			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-			.setNegativeButton(R.string.alert_dialog_cancel, null)
-			.create();
+		.setTitle(R.string.new_garden_prompt)
+		.setView(textEntryView)
+		.setPositiveButton(R.string.alert_dialog_ok, confirmed)
+		.setNegativeButton(R.string.alert_dialog_cancel, null)
+		.create();
 	}
 
 	@Override
 	public void onClick(View view) {
-		int position = gardenPreviews.getSelectedItemPosition();
-		switch (view.getId()) {
-			case R.id.new_garden:
-				showDialog(0);
-				break;
-			case R.id.imageButton1:
-				if (position > 0)
-					gardenPreviews.setSelection(position - 1);
-				break;
-			case R.id.imageButton2:
-				if (position < gardenPreviews.getCount() - 1)
-					gardenPreviews.setSelection(position + 1);
-				break;
-		}
+		showDialog(0);
 	}
 
 	@Override
@@ -94,9 +90,9 @@ public class StartScreen extends Activity implements OnClickListener, OnItemClic
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Intent intent = new Intent(this, Garden.class);
+		Intent intent = new Intent(this, GardenScreen.class);
 		Bundle bundle = new Bundle();
-		bundle.putCharSequence("name", ((TextView) view).getText());
+		bundle.putString("name", ((TextView)view.findViewById(R.id.garden_name)).getText().toString());
 		intent.putExtras(bundle);
 		startActivity(intent);
 	}
@@ -110,12 +106,27 @@ public class StartScreen extends Activity implements OnClickListener, OnItemClic
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
-        int previewIds[] = {R.drawable.preview, R.drawable.preview2, R.drawable.preview3}; 
-		((ImageView)findViewById(R.id.image_preview)).setImageResource(previewIds[position]);
+	
+	class GardenAdapter extends ArrayAdapter<Garden> {
+		private ArrayList<Garden> items;
+		private LayoutInflater li;
+
+		public GardenAdapter(Context context, int textViewResourceId, ArrayList<Garden> items) {
+			super(context, textViewResourceId, items);
+			li = ((ListActivity) context).getLayoutInflater();
+			this.items = items;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View v = convertView;
+			if (v == null)
+				v = li.inflate(R.layout.list_item, null);
+			Garden g = items.get(position);
+			((TextView) v.findViewById(R.id.garden_name)).setText(g.getName());
+			((ImageView) v.findViewById(R.id.preview_img)).setImageResource(g.getPreviewId());
+			
+			return v;
+		}
 	}
-
-	@Override
-	public void onNothingSelected(AdapterView<?> parent) { }
-
 }

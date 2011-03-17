@@ -2,7 +2,7 @@
 <resources>
     <string name="hello">Hello World, StartScreen!</string>
     <string name="app_name">GardenGnome</string>
-    <string name="new_garden">Map out a garden</string>
+    <string name="new_garden">Map a garden</string>
     <string name="search_encyclopedia">Plant encyclopedia</string>
     <string name="alert_dialog_ok">Create</string>
     <string name="alert_dialog_cancel">Cancel</string>
