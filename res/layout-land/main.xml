@@ -47,8 +47,8 @@
 
 		<TextView
 			android:background="@android:color/darker_gray"
-			android:text="My Gardens"
-			android:textAppearance="?android:listSeparatorTextViewStyle"
+			android:text="@string/garden_list_title"
+			android:textAppearance="@android:style/TextAppearance.WindowTitle"
 			android:padding="3dp"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />

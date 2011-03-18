@@ -29,7 +29,7 @@
 			android:layout_marginRight="5dp"
 			android:layout_weight="1"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"/>
+			android:layout_height="wrap_content" />
 
 		<Button
 			android:id="@+id/search_encyclopedia"
@@ -44,12 +44,12 @@
 
 	<TextView
 		android:background="@android:color/darker_gray"
-		android:text="My Gardens"
+		android:text="@string/garden_list_title"
 		android:textAppearance="?android:listSeparatorTextViewStyle"
 		android:padding="3dp"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
-	
+
 	<ListView
 		android:id="@+id/android:list"
 		android:layout_width="fill_parent"

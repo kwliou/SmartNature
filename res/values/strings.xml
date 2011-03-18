@@ -8,4 +8,5 @@
     <string name="alert_dialog_cancel">Cancel</string>
     <string name="new_garden_prompt">Enter garden name</string>
     <string name="new_region_prompt">Enter region name</string>
+    <string name="garden_list_title">My Gardens</string>
 </resources>

@@ -14,13 +14,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -29,23 +29,25 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 	
 	GardenAdapter adapter;
 	ArrayList<Garden> gardens;
+	AlertDialog dialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		initMockData();
 		
+		getListView().setOnItemClickListener(this);
+		((Button) findViewById(R.id.new_garden)).setOnClickListener(this);
+	}
+	
+	public void initMockData() {
 		gardens = new ArrayList<Garden>();
 		gardens.add(new Garden(R.drawable.preview, "Berkeley Youth Alternatives"));
 		gardens.add(new Garden(R.drawable.preview2, "Karl Linn"));
 		gardens.add(new Garden(R.drawable.preview3, "Peralta"));
 		adapter = new GardenAdapter(this, R.layout.list_item, gardens);
 		setListAdapter(adapter);
-		ListView v = getListView();
-		v.setOnItemClickListener(this);
-		
-
-		((Button) findViewById(R.id.new_garden)).setOnClickListener(this);
 	}
 
 	@Override
@@ -58,21 +60,32 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 			public void onClick(DialogInterface dialog, int whichButton) {
 				EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 				String gardenName = input.getText().toString();
-				input.setText("");
 				Intent intent = new Intent(StartScreen.this, GardenScreen.class);
 				Bundle bundle = new Bundle();
 				bundle.putString("name", gardenName);
 				intent.putExtras(bundle);
 				startActivity(intent);
+				input.setText("");
 			}
 		};
 		
-		return new AlertDialog.Builder(this)
-		.setTitle(R.string.new_garden_prompt)
-		.setView(textEntryView)
-		.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-		.setNegativeButton(R.string.alert_dialog_cancel, null)
-		.create();
+		dialog = new AlertDialog.Builder(this)
+			.setTitle(R.string.new_garden_prompt)
+			.setView(textEntryView)
+			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
+			.setNegativeButton(R.string.alert_dialog_cancel, null)
+			.create();
+		
+		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+		    @Override
+		    public void onFocusChange(View v, boolean hasFocus) {
+		        if (hasFocus)
+		            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		    }
+		});
+
+		return dialog;
 	}
 
 	@Override
@@ -110,7 +123,7 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 	class GardenAdapter extends ArrayAdapter<Garden> {
 		private ArrayList<Garden> items;
 		private LayoutInflater li;
-
+		
 		public GardenAdapter(Context context, int textViewResourceId, ArrayList<Garden> items) {
 			super(context, textViewResourceId, items);
 			li = ((ListActivity) context).getLayoutInflater();
