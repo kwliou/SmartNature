@@ -9,36 +9,43 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
-import android.view.Display;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.EditText;
+import android.widget.ZoomControls;
 
 import java.util.ArrayList;
 
-public class GardenScreen extends Activity {
+public class GardenScreen extends Activity implements OnTouchListener, OnClickListener {
 	
-	static ArrayList<Plot> plots;
-	GardenCanvas canvas; 
+	final int ZOOM_DURATION = 3000;
+	ArrayList<Plot> plots;
+	AlertDialog dialog;
+	ZoomControls zoom;
+	Handler mHandler;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.garden);
+		mHandler = new Handler();
 		Bundle extras = getIntent().getExtras();
 		setTitle(extras.getString("name"));
+		
 		initMockData();
-		Display display = getWindowManager().getDefaultDisplay(); 
-		int width = display.getWidth();
-		int height = display.getHeight();
-        canvas = new GardenCanvas(this, plots, width, height);
-        setContentView(canvas);
-        canvas.setOnTouchListener(canvas);
-    	//LayoutInflater.from(this).getFactory().
-        //addContentView(canvas, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		setContentView(R.layout.garden);
+		findViewById(R.id.garden_layout).setOnTouchListener(this);
+		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
+		zoom.setVisibility(View.GONE);
+		zoom.setOnZoomInClickListener(this);
+		zoom.setOnZoomOutClickListener(this);
 	}
 	
 	public void initMockData() {
@@ -66,12 +73,23 @@ public class GardenScreen extends Activity {
 				startActivity(intent);
 			}
 		};
-		return new AlertDialog.Builder(this)
+		dialog = new AlertDialog.Builder(this)
 			.setTitle(R.string.new_region_prompt)
 			.setView(textEntryView)
 			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
 			.setNegativeButton(R.string.alert_dialog_cancel, null)
 			.create();
+
+		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+		    @Override
+		    public void onFocusChange(View v, boolean hasFocus) {
+		        if (hasFocus)
+		            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		    }
+		});
+
+		return dialog;
 	}
 
 	@Override
@@ -86,10 +104,40 @@ public class GardenScreen extends Activity {
 		switch (item.getItemId()) {
 			case R.id.m_addregion:
 				showDialog(0);
+				break;
 			case R.id.m_home:
 				finish();
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+	@Override
+	public boolean onTouch(View view, MotionEvent event) {
+		handleZoom();
+		return false;
+	}
+	
+	@Override
+	public void onClick(View view) {
+		handleZoom();
+		
+	}
+	
+	public void handleZoom() {
+		mHandler.removeCallbacks(autoHide);
+		if (!zoom.isShown())
+			zoom.show(); //zoom.setVisibility(View.VISIBLE);
+		mHandler.postDelayed(autoHide, ZOOM_DURATION);
+	}
+	Runnable autoHide = new Runnable() {	
+		@Override
+		public void run() {
+			if (zoom.isShown()) {
+				mHandler.removeCallbacks(autoHide);			
+				zoom.hide(); //zoom.setVisibility(View.GONE);
+			}
+		}
+	};
 
 }
