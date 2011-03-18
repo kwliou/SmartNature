@@ -1,14 +1,25 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/m_addregion"
-          android:icon="@android:drawable/ic_menu_add"
-          android:title="Add plot" />
+		android:icon="@android:drawable/ic_menu_add"
+		android:title="Add plot" />
 	<item android:id="@+id/m_gardenoptions"
-          android:icon="@android:drawable/ic_menu_manage"
-          android:title="Garden options" />
+		android:icon="@android:drawable/ic_menu_manage"
+		android:title="Garden options">
+		<menu>
+			<item android:id="@+id/m_rename_garden"
+				android:title="Rename" />
+			<item android:id="@+id/m_edit_garden_dim"
+				android:title="Edit dimensions" />
+			<item android:id="@+id/m_sync_garden"
+				android:title="Manual sync" />
+			<item android:id="@+id/m_delete_garden"
+				android:title="Delete" />
+		</menu>
+	</item>
 	<item android:id="@+id/m_share"
-          android:icon="@android:drawable/ic_menu_share"
-          android:title="Share" />
-	<item android:id="@+id/m_search"
-          android:icon="@android:drawable/ic_menu_search"
-          android:title="Search" />
+		android:icon="@android:drawable/ic_menu_share"
+		android:title="Share" />
+	<item android:id="@+id/m_home"
+		android:icon="@drawable/ic_menu_home"
+		android:title="Home" />
 </menu>
