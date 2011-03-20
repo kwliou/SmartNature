@@ -46,10 +46,13 @@
 		android:layout_height="fill_parent">
 
 		<TextView
-			android:background="@android:color/darker_gray"
 			android:text="@string/garden_list_title"
-			android:textAppearance="@android:style/TextAppearance.WindowTitle"
-			android:padding="3dp"
+			android:background="#ffd2d2d2"
+			android:textAppearance="?android:listSeparatorTextViewStyle"
+			android:gravity="center_vertical"
+			android:paddingLeft="5sp"
+			android:paddingTop="2sp"
+			android:paddingBottom="2sp"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 

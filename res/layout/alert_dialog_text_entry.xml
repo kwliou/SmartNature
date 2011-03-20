@@ -6,11 +6,11 @@
 
 	<EditText
 		android:id="@+id/dialog_text_entry"
-		android:layout_height="wrap_content"
-		android:layout_width="fill_parent"
+		android:inputType="textAutoCorrect|textCapSentences"
+		android:gravity="fill_horizontal"
 		android:layout_marginLeft="6dp"
 		android:layout_marginRight="6dp"
-		android:inputType="textAutoCorrect|textCapSentences"
-		android:gravity="fill_horizontal" />
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
 
 </LinearLayout>

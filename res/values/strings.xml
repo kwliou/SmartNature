@@ -9,4 +9,6 @@
     <string name="new_garden_prompt">Enter garden name</string>
     <string name="new_region_prompt">Enter region name</string>
     <string name="garden_list_title">My Gardens</string>
+    <string name="global_prefs_name">GardenGnome Settings</string>
+    <string name="show_hints_prompt">Show hints?</string>
 </resources>

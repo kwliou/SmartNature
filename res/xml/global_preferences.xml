@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="Show hints">
+		<CheckBoxPreference
+			android:key="show_hints"
+			android:title="Show hints"
+			android:defaultValue="true"
+			android:summary="Show hints on each page for beginners" />
+
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="Your name">
+		<EditTextPreference
+			android:dialogTitle="Your name"
+			android:key="author_name"
+			android:title="SomeTitle"
+			android:summary="Summary"
+			android:defaultValue="test" />
+
+	</PreferenceCategory>
+
+</PreferenceScreen>

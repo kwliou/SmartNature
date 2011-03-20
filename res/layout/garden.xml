@@ -10,7 +10,22 @@
 		android:id="@+id/garden_layout"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent" />
-
+	
+	<TextView
+		android:id="@+id/garden_hint"
+		android:text="Missing hint..."
+		android:textStyle="bold"
+		android:visibility="gone"
+		android:background="#33000000"
+		android:focusable="false"
+		android:padding="10sp"
+		android:textColor="@android:color/white"
+		android:shadowColor="#BB000000"
+        android:shadowRadius="2.5"		
+		android:layout_gravity="top"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	
 	<ZoomControls
 		android:id="@+id/zoom_controls"
 		android:padding="15dp"
@@ -18,5 +33,5 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />
 
-<!-- center_horizontal|bottom -->
+	<!-- center_horizontal|bottom -->
 </FrameLayout>

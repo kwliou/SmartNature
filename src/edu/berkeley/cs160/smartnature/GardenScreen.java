@@ -3,8 +3,8 @@ package edu.berkeley.cs160.smartnature;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.ZoomControls;
 
 import java.util.ArrayList;
@@ -36,20 +37,30 @@ public class GardenScreen extends Activity implements OnTouchListener, OnClickLi
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mHandler = new Handler();
+		plots = new ArrayList<Plot>();
 		Bundle extras = getIntent().getExtras();
-		setTitle(extras.getString("name"));
-		
-		initMockData();
+		if (extras != null && extras.containsKey("name")) {
+			setTitle(extras.getString("name"));
+			initMockData();
+		} else
+			showDialog(0);
 		setContentView(R.layout.garden);
 		findViewById(R.id.garden_layout).setOnTouchListener(this);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
 		zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(this);
 		zoom.setOnZoomOutClickListener(this);
+		
+		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
+		String hint = "Click on Add Plot in the menu to add a plot\n" +
+		 	"Press on a plot to view its plants/info";
+		if (hintsOn) {
+			((TextView)findViewById(R.id.garden_hint)).setText(hint);
+			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
+			}
 	}
 	
 	public void initMockData() {
-		plots = new ArrayList<Plot>();
 		ShapeDrawable s1 = new ShapeDrawable(new RectShape());
 		s1.setBounds(20, 60, 80, 200);
 		ShapeDrawable s2 = new ShapeDrawable(new OvalShape());
@@ -65,19 +76,26 @@ public class GardenScreen extends Activity implements OnTouchListener, OnClickLi
 		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
-				Intent intent = new Intent(GardenScreen.this, EditRegion.class);
+				/*Intent intent = new Intent(GardenScreen.this, EditPlot.class);
 				Bundle bundle = new Bundle();
-				String regionName = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry)).getText().toString();
-				bundle.putString("name", regionName);
+				bundle.putString("name", gardenName);
 				intent.putExtras(bundle);
-				startActivity(intent);
+				startActivity(intent);*/
+				String gardenName = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry)).getText().toString();
+				setTitle(gardenName);
+			}
+		};
+		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int whichButton) {
+				finish();
 			}
 		};
 		dialog = new AlertDialog.Builder(this)
-			.setTitle(R.string.new_region_prompt)
+			.setTitle(R.string.new_garden_prompt)
 			.setView(textEntryView)
 			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-			.setNegativeButton(R.string.alert_dialog_cancel, null)
+			.setNegativeButton(R.string.alert_dialog_cancel, canceled)
 			.create();
 
 		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
@@ -102,9 +120,6 @@ public class GardenScreen extends Activity implements OnTouchListener, OnClickLi
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.m_addregion:
-				showDialog(0);
-				break;
 			case R.id.m_home:
 				finish();
 				break;

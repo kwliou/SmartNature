@@ -58,9 +58,14 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
+				/*
+				SharedPreferences globalPrefs = getSharedPreferences("global", Context.MODE_PRIVATE);
+				Editor e = globalPrefs.edit();
+				e.putBoolean("sf", true);
+				*/
+				Intent intent = new Intent(StartScreen.this, GardenScreen.class);
 				EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 				String gardenName = input.getText().toString();
-				Intent intent = new Intent(StartScreen.this, GardenScreen.class);
 				Bundle bundle = new Bundle();
 				bundle.putString("name", gardenName);
 				intent.putExtras(bundle);
@@ -90,7 +95,8 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 
 	@Override
 	public void onClick(View view) {
-		showDialog(0);
+		//showDialog(0);
+		startActivity(new Intent(this, GardenScreen.class));
 	}
 
 	@Override
@@ -113,9 +119,11 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.m_contact:
-		case R.id.m_options:
-		case R.id.m_help:
+			case R.id.m_contact:
+			case R.id.m_global_options:
+				startActivity(new Intent(this, GlobalSettings.class));
+				break;
+			case R.id.m_help:
 		}
 		return super.onOptionsItemSelected(item);
 	}

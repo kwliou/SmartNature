@@ -2,7 +2,7 @@
 	<item android:id="@+id/m_contact"
           android:icon="@drawable/ic_menu_comment"
           android:title="Feedback" />
-	<item android:id="@+id/m_options"
+	<item android:id="@+id/m_global_options"
           android:icon="@android:drawable/ic_menu_preferences"
           android:title="Settings" />
 	<item android:id="@+id/m_help"

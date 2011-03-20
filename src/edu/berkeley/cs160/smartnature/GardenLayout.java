@@ -18,6 +18,7 @@ public class GardenLayout extends FrameLayout implements OnTouchListener {
 	Paint textPaint;
 	ArrayList<Plot> plots;
 	Context context;
+	
 	public GardenLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = context;

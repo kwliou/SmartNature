@@ -1,3 +1,8 @@
+Kevin - start screen,  garden screen
+Joe - edit region/plot screen, new region/plot dialog
+Ben - region/plot screen, new plant dialog
+Deepti - plant entry screen, search screen, search result screen
+
 "Main"/home screen
 - start a new garden (Button)
 - view encyclopedia (Button)
@@ -8,7 +13,7 @@
 
 "Garden" screen
 - zoom in/out auto-hidden buttons (ZoomControls)
-- long press region -> reposition/move to front/move to back/rename/delete
+- long press region -> context menu (reposition/move to front/move to back/rename/delete)
 * Add plot -> dialog -> Choose name (EditText), ellipse/rect/custom (RadioButton) -> Edit mode
   (custom = press points on screen that are automatically connected)
 * Garden options -> rename/edit dimensions/manual sync/delete/export data
@@ -29,7 +34,7 @@ NOTE: if not enough time, just make this an "e-mail screenshot" feature
 - set permissions (read-only for anyone?)
 - e-mail password (starts default Mail activity)
 
-"Region" screen
+"Plot" screen
 - name edittext
 - map/list of plants w/ pics
 * Add plant

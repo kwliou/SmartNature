@@ -5,12 +5,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 
-public class EditRegion extends Activity {
+public class EditPlot extends Activity {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.region_edit);
+		setContentView(R.layout.plot_edit);
 		Bundle extras = getIntent().getExtras();
 		setTitle(extras.getString("name") + " (Edit mode)");
 	}
@@ -18,7 +18,7 @@ public class EditRegion extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.region_edit_menu, menu);
+		inflater.inflate(R.menu.plot_edit_menu, menu);
 		return true;
 	}
 
