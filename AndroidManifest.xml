@@ -17,19 +17,23 @@
 			</intent-filter>
 		</activity>
 
+		<activity android:name=".GlobalSettings"
+			android:label="@string/global_prefs_name">
+			<intent-filter>
+				<category android:name="android.intent.category.PREFERENCE" />
+			</intent-filter>
+		</activity>
+
 		<activity android:name=".GardenScreen"
 			android:label="@string/app_name">
 		</activity>
 
-		<activity android:name=".GlobalSettings"
-			android:label="@string/global_prefs_name">
+		<activity android:name=".ShareGarden"
+			android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
 
-		<activity android:name=".EditRegion"
+		<activity android:name=".EditPlot"
 			android:label="@string/app_name">
-			<intent-filter>
-				<category android:name="android.intent.category.PREFERENCE" />
-			</intent-filter>
 		</activity>
 
 	</application>

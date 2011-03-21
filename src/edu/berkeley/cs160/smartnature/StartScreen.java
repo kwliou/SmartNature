@@ -1,10 +1,8 @@
 package edu.berkeley.cs160.smartnature;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,19 +11,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class StartScreen extends ListActivity implements OnClickListener, OnItemClickListener {
+public class StartScreen extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 	
 	GardenAdapter adapter;
 	ArrayList<Garden> gardens;
@@ -51,51 +45,7 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 	}
 
 	@Override
-	public Dialog onCreateDialog(int id) {
-		LayoutInflater factory = LayoutInflater.from(this);
-		final View textEntryView = factory.inflate(R.layout.text_entry_dialog, null);
-
-		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				/*
-				SharedPreferences globalPrefs = getSharedPreferences("global", Context.MODE_PRIVATE);
-				Editor e = globalPrefs.edit();
-				e.putBoolean("sf", true);
-				*/
-				Intent intent = new Intent(StartScreen.this, GardenScreen.class);
-				EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-				String gardenName = input.getText().toString();
-				Bundle bundle = new Bundle();
-				bundle.putString("name", gardenName);
-				intent.putExtras(bundle);
-				startActivity(intent);
-				input.setText("");
-			}
-		};
-		
-		dialog = new AlertDialog.Builder(this)
-			.setTitle(R.string.new_garden_prompt)
-			.setView(textEntryView)
-			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-			.setNegativeButton(R.string.alert_dialog_cancel, null)
-			.create();
-		
-		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-		    @Override
-		    public void onFocusChange(View v, boolean hasFocus) {
-		        if (hasFocus)
-		            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-		    }
-		});
-
-		return dialog;
-	}
-
-	@Override
 	public void onClick(View view) {
-		//showDialog(0);
 		startActivity(new Intent(this, GardenScreen.class));
 	}
 
@@ -106,7 +56,6 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 		return true;
 	}
 	
-
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
@@ -120,6 +69,12 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.m_contact:
+				Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+				intent.setType("plain/text");
+				intent.putExtra(android.content.Intent.EXTRA_EMAIL, getResources().getStringArray(R.array.dev_email));
+				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Garden Gnome feedback");
+				startActivity(intent); //startActivity(Intent.createChooser(intent, "Send mail..."));
+				break;
 			case R.id.m_global_options:
 				startActivity(new Intent(this, GlobalSettings.class));
 				break;

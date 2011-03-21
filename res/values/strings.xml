@@ -12,4 +12,13 @@
     <string name="garden_list_title">My Gardens</string>
     <string name="global_prefs_name">GardenGnome Settings</string>
     <string name="show_hints_prompt">Show hints?</string>
+    <style name="Theme.Dialog.NoTitleBar" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    <string-array name="dev_email">
+        <item>ben8043@gmail.com</item>
+        <item>deeptiraj7@gmail.com</item>
+        <item>dicz.hack@gmail.com</item>
+        <item>kwliou@gmail.com</item>
+    </string-array>
 </resources>
