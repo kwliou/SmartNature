@@ -1,4 +1,4 @@
-Kevin - start screen,  garden screen
+Kevin - start screen, garden screen
 Joe - edit region/plot screen, new region/plot dialog
 Ben - region/plot screen, new plant dialog
 Deepti - plant entry screen, search screen, search result screen
@@ -16,17 +16,18 @@ Deepti - plant entry screen, search screen, search result screen
 - long press region -> context menu (reposition/move to front/move to back/rename/delete)
 * Add plot -> dialog -> Choose name (EditText), ellipse/rect/custom (RadioButton) -> Edit mode
   (custom = press points on screen that are automatically connected)
-* Garden options -> rename/edit dimensions/manual sync/delete/export data
+* Garden options -> rename/edit dimensions/manual sync/delete/export data?
 * View list of all regions
-* "Share" screen
+* "Share" screen/dialog?
 * Home
 * Settings
 
 "Edit mode" screen
-* Rotate mode/Drag mode
+- Rotate mode
+- Drag mode 
+- Save
 * Change color
-* Ellipse <-> Rectangle (if applicable)
-* Done
+* Change shape (might be disabled for custom shapes)
 
 "Share" screen/dialog
 NOTE: if not enough time, just make this an "e-mail screenshot" feature
@@ -36,38 +37,49 @@ NOTE: if not enough time, just make this an "e-mail screenshot" feature
 
 "Plot" screen
 - name edittext
+- Add plant
 - map/list of plants w/ pics
-* Add plant
-* Rename (dialog)
+* Rename (EditText dialog)
 * Delete (confirm dialog)
 * Edit -> "Edit mode" screen
-* Look up/Search plant screen
-* Settings?
 
-"Plant" screen
+"Plant entry" screen
 - recent pic
-- onscreen: name edittext, camera button, misc info edittext
+- name EditText
+- misc info edittext
 * Set default picture (from plant's pics)
-* Attach picture (from SD)
+* Take picture (camera intent)
 * Delete (confirm dialog)
 * Info (go to linked entry, otherwise look up in encyclopedia)
 
-"My Gardens" screen (buttons or menu)
-- "gallery" of gardens (horizontal scroll?)
-* New garden
-* Add garden (from internet/SD?) -> enter in password
-* Look up/Search plant screen
-* Settings
-
-"Search plant" screen
-- autocomplete seems too hard
+"Search" screen
+- EditText with "Search" Button
+- ListView of previous searches?
 * Choose encyclopedia source?
 * Bookmarks?
-* History
+* History?
+
+"Search results" screen
+- EditText with "Search" Button
+- ListView of results each with pic at right and name at left
+* Choose encyclopedia source?
+* History?
+
+"Search result entry" screen
+- EditText with "Search" Button on top
+- Plant picture at left with Common name, Scientific name, other names on the right
+- Information at right with a label followed by data
+  - USDA planting zone
+  - watering requirements
+  - time to harvest
+  - expected size when ready to harvest
+  - basic info/trivia (ex. edible even though most people don't know it)
+* Save to plot?
 
 "Settings" screen
-* Tutorial/How to get started
-* high contrast mode? (thicker lines/black&white)
-* Sync every hour/day, download images to SD automatically, etc.
-* Disable automatic orientation
-* Export data (as xml)?
+- Disable/enable hints
+- Tutorial/How to get started
+- high contrast mode? (thicker lines/black&white/bigger font)
+- Sync every hour/day, download images to SD automatically, etc.
+- Disable automatic orientation
+- Export data (as xml)?

@@ -10,6 +10,7 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,9 +19,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ZoomControls;
 
 import java.util.ArrayList;
@@ -28,6 +31,8 @@ import java.util.ArrayList;
 public class GardenScreen extends Activity implements OnTouchListener, OnClickListener {
 	
 	final int ZOOM_DURATION = 3000;
+	final int NEW_GARDEN = 0;
+	final int SHARE_GARDEN = 1;
 	ArrayList<Plot> plots;
 	AlertDialog dialog;
 	ZoomControls zoom;
@@ -43,7 +48,7 @@ public class GardenScreen extends Activity implements OnTouchListener, OnClickLi
 			setTitle(extras.getString("name"));
 			initMockData();
 		} else
-			showDialog(0);
+			showDialog(NEW_GARDEN);
 		setContentView(R.layout.garden);
 		findViewById(R.id.garden_layout).setOnTouchListener(this);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
@@ -71,8 +76,14 @@ public class GardenScreen extends Activity implements OnTouchListener, OnClickLi
 
 	@Override
 	public Dialog onCreateDialog(int id) {
+		switch (id) {
+			case SHARE_GARDEN: return shareGarden();
+			default: return newGarden();	
+		}
+	}
+	public Dialog newGarden() {
 		LayoutInflater factory = LayoutInflater.from(this);
-		final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
+		final View textEntryView = factory.inflate(R.layout.text_entry_dialog, null);
 		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
@@ -109,6 +120,35 @@ public class GardenScreen extends Activity implements OnTouchListener, OnClickLi
 
 		return dialog;
 	}
+	public Dialog shareGarden() {
+		LayoutInflater factory = LayoutInflater.from(this);
+		final View shareGardenView = factory.inflate(R.layout.share_garden_dialog, null);
+		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int whichButton) {
+				Toast.makeText(GardenScreen.this, "Garden has been uploaded to the Internet", Toast.LENGTH_SHORT).show();
+			}
+		};
+		
+		EditText passwordInput = (EditText) shareGardenView.findViewById(R.id.garden_password);
+		passwordInput.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View view, int keyCode, KeyEvent event) {
+				if (((EditText)view).getText().length() > 0)
+					shareGardenView.findViewById(R.id.garden_permissions2).setEnabled(true);
+				else
+					shareGardenView.findViewById(R.id.garden_permissions2).setEnabled(false);
+				return false;
+			}
+		});
+		return new AlertDialog.Builder(this)
+			//.setTitle(R.string.new_garden_prompt)
+			//.setInverseBackgroundForced(true)
+			.setView(shareGardenView)
+			.setPositiveButton(R.string.alert_dialog_share, confirmed)
+			.setNegativeButton(R.string.alert_dialog_cancel, null)
+			.create();
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,7 +163,10 @@ public class GardenScreen extends Activity implements OnTouchListener, OnClickLi
 			case R.id.m_home:
 				finish();
 				break;
-		}
+			case R.id.m_share:
+				showDialog(SHARE_GARDEN);
+				break;
+	}
 		return super.onOptionsItemSelected(item);
 	}
 

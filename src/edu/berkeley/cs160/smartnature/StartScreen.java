@@ -53,7 +53,7 @@ public class StartScreen extends ListActivity implements OnClickListener, OnItem
 	@Override
 	public Dialog onCreateDialog(int id) {
 		LayoutInflater factory = LayoutInflater.from(this);
-		final View textEntryView = factory.inflate(R.layout.alert_dialog_text_entry, null);
+		final View textEntryView = factory.inflate(R.layout.text_entry_dialog, null);
 
 		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
 			@Override
