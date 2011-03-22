@@ -72,7 +72,7 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 				Intent intent = new Intent(android.content.Intent.ACTION_SEND);
 				intent.setType("plain/text");
 				intent.putExtra(android.content.Intent.EXTRA_EMAIL, getResources().getStringArray(R.array.dev_email));
-				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Garden Gnome feedback");
+				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "GardenGnome feedback");
 				startActivity(intent); //startActivity(Intent.createChooser(intent, "Send mail..."));
 				break;
 			case R.id.m_global_options:

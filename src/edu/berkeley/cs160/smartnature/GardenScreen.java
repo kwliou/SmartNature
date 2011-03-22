@@ -10,6 +10,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.*;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,16 +27,19 @@ import java.util.ArrayList;
 public class GardenScreen extends Activity implements View.OnTouchListener, View.OnClickListener {
 	
 	final int ZOOM_DURATION = 3000;
-	ArrayList<Plot> plots;
+	ArrayList<Plot> plots = new ArrayList<Plot>();
 	AlertDialog dialog;
 	ZoomControls zoom;
-	Handler mHandler;
+	Handler mHandler = new Handler();
+	static int realWidth;
+	static int realHeight;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		boolean showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
+		if (showFullScreen)
+			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
-		mHandler = new Handler();
-		plots = new ArrayList<Plot>();
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
 			setTitle(extras.getString("name"));
@@ -50,19 +54,20 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		zoom.setOnZoomOutClickListener(this);
 		
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
-		String hint = "Click on Add Plot in the menu to add a plot\n" +
-		 	"Press on a plot to view its plants/info";
 		if (hintsOn) {
-			((TextView)findViewById(R.id.garden_hint)).setText(hint);
+			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
-			}
+		}
+		Display display = getWindowManager().getDefaultDisplay(); 
+		realWidth = display.getWidth();
+		realHeight = display.getHeight();
 	}
 	
 	public void initMockData() {
 		ShapeDrawable s1 = new ShapeDrawable(new RectShape());
-		s1.setBounds(20, 60, 80, 200);
+		s1.setBounds(30, 60, 80, 200);
 		ShapeDrawable s2 = new ShapeDrawable(new OvalShape());
-		s2.setBounds(140, 120, 190, 190);
+		s2.setBounds(140, 120, 210, 190);
 		plots.add(new Plot(s1, "Jerry's Plot"));
 		plots.add(new Plot(s2, "Amy's Plot"));
 	}

@@ -21,4 +21,5 @@
         <item>dicz.hack@gmail.com</item>
         <item>kwliou@gmail.com</item>
     </string-array>
+    <string name="hint_gardenscreen">Click on Add Plot in the menu to add a plot\nPress on a plot to view its plants/info</string>
 </resources>

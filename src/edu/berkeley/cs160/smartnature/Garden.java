@@ -4,6 +4,8 @@ public class Garden {
 	
 	private String name;
 	private int previewId;
+	private int ratioW;
+	private int ratioH;
 	
 	Garden(int resId, String gardenName) {
 		previewId = resId;

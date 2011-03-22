@@ -2,23 +2,24 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="Show hints">
+	<PreferenceCategory android:title="Display options">
 		<CheckBoxPreference
 			android:key="show_hints"
 			android:title="Show hints"
 			android:defaultValue="true"
 			android:summary="Show hints on each page for beginners" />
-
+		<CheckBoxPreference
+			android:key="garden_fullscreen"
+			android:title="Show fullscreen garden"
+			android:defaultValue="false"
+			android:summary="Hide navigation and title bars when viewing gardens" />
 	</PreferenceCategory>
 
-	<PreferenceCategory android:title="Your name">
 		<EditTextPreference
 			android:dialogTitle="Your name"
 			android:key="author_name"
 			android:title="SomeTitle"
 			android:summary="Summary"
 			android:defaultValue="test" />
-
-	</PreferenceCategory>
 
 </PreferenceScreen>
