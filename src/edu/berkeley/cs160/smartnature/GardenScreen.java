@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Path;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.*;
 import android.os.Bundle;
@@ -31,8 +32,9 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	AlertDialog dialog;
 	ZoomControls zoom;
 	Handler mHandler = new Handler();
-	static int realWidth;
-	static int realHeight;
+	int realWidth;
+	int realHeight;
+	boolean showLabels = true;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,14 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		s2.setBounds(140, 120, 210, 190);
 		plots.add(new Plot(s1, "Jerry's Plot"));
 		plots.add(new Plot(s2, "Amy's Plot"));
+		Path p = new Path();
+		p.lineTo(50, 10);
+		p.lineTo(90, 100);
+		p.close();
+		PathShape ps = new PathShape(p, 90, 100);
+		ShapeDrawable s3 = new ShapeDrawable(ps);
+		s3.setBounds(270, 120, 270 + 90, 120 + 100);
+		plots.add(new Plot(s3, "Shared Plot"));
 	}
 
 	@Override
@@ -124,6 +134,11 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			case R.id.m_share:
 				startActivity(new Intent(this, ShareGarden.class));
 				break;
+			case R.id.m_showlabels:
+				showLabels = !showLabels;
+				item.setTitle(showLabels ? "Hides labels" : "Show labels");
+				findViewById(R.id.garden_layout).invalidate();				
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -145,6 +160,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			zoom.show(); //zoom.setVisibility(View.VISIBLE);
 		mHandler.postDelayed(autoHide, ZOOM_DURATION);
 	}
+	
 	Runnable autoHide = new Runnable() {	
 		@Override
 		public void run() {
@@ -154,5 +170,4 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			}
 		}
 	};
-
 }

@@ -18,7 +18,7 @@
 	</item>
 	<item android:id="@+id/m_showlabels"
 		android:icon="@drawable/ic_menu_list"
-		android:title="Show labels" />
+		android:title="Hide labels" />
 	<item android:id="@+id/m_share"
 		android:icon="@android:drawable/ic_menu_share"
 		android:title="Share" />

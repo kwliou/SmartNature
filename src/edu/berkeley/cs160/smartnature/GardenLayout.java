@@ -9,37 +9,38 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 
-public class GardenLayout extends FrameLayout implements OnTouchListener {
+public class GardenLayout extends FrameLayout implements View.OnTouchListener {
 	Paint canvasPaint;
 	Paint textPaint;
 	ArrayList<Plot> plots;
 	Drawable bg;
-	
-	Context context;
+	GardenScreen context;
 	
 	public GardenLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		this.context = context;
-		bg = getResources().getDrawable(R.drawable.tile);
-		canvasPaint = new Paint(Color.BLACK);
-		canvasPaint.setStyle(Paint.Style.STROKE);
-		textPaint = new Paint(Color.BLACK);
-		textPaint.setAntiAlias(true);
-		textPaint.setTextSize(15);
-		textPaint.setTextScaleX(1.1f);
-		textPaint.setTextAlign(Paint.Align.CENTER);
-		plots = ((GardenScreen) context).plots;
+		this.context = (GardenScreen) context;
+		bg = getResources().getDrawable(R.drawable.tile);	
+		initPaint();	
+		plots = this.context.plots;
 		for (Plot r: plots) {
 			r.getShape().getPaint().setColor(Color.BLACK);
 			r.getShape().getPaint().setStyle(Paint.Style.STROKE);
 			r.getShape().getPaint().setStrokeWidth(3);
 		}
 		addView(new GardenView(context, null), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+	}
+	
+	public void initPaint() {
+		canvasPaint = new Paint();
+		canvasPaint.setStyle(Paint.Style.STROKE);
+		textPaint = new Paint(Paint.FAKE_BOLD_TEXT_FLAG|Paint.ANTI_ALIAS_FLAG);
+		textPaint.setTextSize(15);
+		textPaint.setTextScaleX(1.1f);
+		textPaint.setTextAlign(Paint.Align.CENTER);
 	}
 	
 	@Override
@@ -60,17 +61,17 @@ public class GardenLayout extends FrameLayout implements OnTouchListener {
 			//canvas.drawRGB(255, 255, 255);
 			bg.setBounds(canvas.getClipBounds());
 			bg.draw(canvas);
-			
+			float[] labelCenter = { 0, 0 };
 			for (Plot p: plots) {
 				Rect bounds = p.getShape().getBounds();
-				float[] labelCenter = { bounds.centerX(), bounds.top - 10 };
 				canvas.save();
 				if (portrait) {
 					canvas.translate(width, 0);
 					canvas.rotate(90);
 					canvas.getMatrix().mapPoints(labelCenter, new float[] { bounds.left - 10, bounds.centerY() });
-					labelCenter[1] -= GardenScreen.realHeight - height; // why should I need this?
-				}
+					labelCenter[1] -= context.realHeight - height; // why should I need this?
+				} else
+					 labelCenter = new float[] { bounds.centerX(), bounds.top - 10 };
 				p.getShape().draw(canvas);
 				/*
 				Path path = new Path();
@@ -79,7 +80,8 @@ public class GardenLayout extends FrameLayout implements OnTouchListener {
 				canvas.drawTextOnPath(p.getName().toUpperCase(), path, bounds.left - 10, bounds.bottom, textPaint);
 				*/
 				canvas.restore();
-				canvas.drawText(p.getName().toUpperCase(), labelCenter[0], labelCenter[1], textPaint);
+				if (context.showLabels)
+					canvas.drawText(p.getName().toUpperCase(), labelCenter[0], labelCenter[1], textPaint);
 			}
 		}
 	}
