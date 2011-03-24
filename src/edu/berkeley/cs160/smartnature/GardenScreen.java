@@ -136,7 +136,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 				break;
 			case R.id.m_showlabels:
 				showLabels = !showLabels;
-				item.setTitle(showLabels ? "Hides labels" : "Show labels");
+				item.setTitle(showLabels ? "Hide labels" : "Show labels");
 				findViewById(R.id.garden_layout).invalidate();				
 				break;
 		}

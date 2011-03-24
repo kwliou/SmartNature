@@ -3,6 +3,7 @@ package edu.berkeley.cs160.smartnature;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -57,33 +58,31 @@ public class GardenLayout extends FrameLayout implements View.OnTouchListener {
 		protected void onDraw(Canvas canvas) {
 			super.onDraw(canvas);
 			int width = getWidth(), height = getHeight();
-			boolean portrait = width < height;
-			//canvas.drawRGB(255, 255, 255);
+			boolean portraitMode = width < height;
 			bg.setBounds(canvas.getClipBounds());
-			bg.draw(canvas);
-			float[] labelCenter = { 0, 0 };
-			for (Plot p: plots) {
-				Rect bounds = p.getShape().getBounds();
-				canvas.save();
-				if (portrait) {
-					canvas.translate(width, 0);
-					canvas.rotate(90);
-					canvas.getMatrix().mapPoints(labelCenter, new float[] { bounds.left - 10, bounds.centerY() });
-					labelCenter[1] -= context.realHeight - height; // why should I need this?
-				} else
-					 labelCenter = new float[] { bounds.centerX(), bounds.top - 10 };
-				p.getShape().draw(canvas);
-				/*
-				Path path = new Path();
-				path.lineTo(0, -bounds.height());
-				path.close();
-				canvas.drawTextOnPath(p.getName().toUpperCase(), path, bounds.left - 10, bounds.bottom, textPaint);
-				*/
-				canvas.restore();
-				if (context.showLabels)
-					canvas.drawText(p.getName().toUpperCase(), labelCenter[0], labelCenter[1], textPaint);
+			bg.draw(canvas); //canvas.drawRGB(255, 255, 255);
+			canvas.save();
+			Matrix m = null;
+			if (portraitMode) {
+				m = new Matrix();
+				m.setRotate(90);
+				m.postTranslate(width, 0);
+				canvas.concat(m);
 			}
+			for (Plot p: plots)
+				p.getShape().draw(canvas);
+			canvas.restore();
+			
+			float[] labelLoc = { 0, 0 };
+			if (context.showLabels)
+				for (Plot p: plots) {
+					Rect bounds = p.getShape().getBounds();
+					if (portraitMode)
+						m.mapPoints(labelLoc, new float[] { bounds.left - 10, bounds.centerY() });
+					else
+						labelLoc = new float[] { bounds.centerX(), bounds.top - 10 };
+					canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
+				}
 		}
 	}
-
 }
