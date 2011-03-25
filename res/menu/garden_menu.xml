@@ -7,7 +7,7 @@
 		android:title="Hide labels" />
 	<item android:id="@+id/m_resetzoom"
 		android:icon="@android:drawable/ic_menu_zoom"
-		android:title="Reset zoom" />
+		android:title="Zoom to fit" />
 	<item android:id="@+id/m_gardenoptions"
 		android:icon="@android:drawable/ic_menu_manage"
 		android:title="Garden options">

@@ -14,52 +14,59 @@ import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 
-public class GardenLayout extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
-	Paint canvasPaint;
-	Paint textPaint;
-	ArrayList<Plot> plots;
-	Drawable bg;
-	GardenScreen context;
+public class GardenLayout extends FrameLayout {
 	
 	public GardenLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		this.context = (GardenScreen) context;
-		bg = getResources().getDrawable(R.drawable.tile);	
-		initPaint();	
-		plots = this.context.plots;
-		for (Plot r: plots) {
-			r.getShape().getPaint().setColor(Color.BLACK);
-			r.getShape().getPaint().setStyle(Paint.Style.STROKE);
-			r.getShape().getPaint().setStrokeWidth(3);
-		}
 		addView(new GardenView(context, null), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		setOnClickListener(this);
 	}
 	
-	public void initPaint() {
-		canvasPaint = new Paint();
-		canvasPaint.setStyle(Paint.Style.STROKE);
-		textPaint = new Paint(Paint.FAKE_BOLD_TEXT_FLAG|Paint.ANTI_ALIAS_FLAG);
-		textPaint.setTextSize(15.5f);
-		textPaint.setTextScaleX(1.2f);
-		textPaint.setTextAlign(Paint.Align.CENTER);
-	}
 	
-	@Override
-	public boolean onTouch(View view, MotionEvent event) {
-		//invalidate();
-		return true;
-	}
 	
-	@Override
-	public void onClick(View view) {
+	class GardenView extends View implements View.OnClickListener {
+		Paint canvasPaint;
+		Paint textPaint;
+		ArrayList<Plot> plots;
+		Drawable bg;
+		GardenScreen context;
 		
-	}
-	
-	class GardenView extends View {
+		public GardenView(Context context, AttributeSet attrs) {
+			super(context, attrs);
+			initPaint();
+			this.context = (GardenScreen) context;
+			bg = getResources().getDrawable(R.drawable.tile);	
+			initPaint();	
+			plots = this.context.plots;
+			for (Plot r: plots) {
+				r.getShape().getPaint().setColor(Color.BLACK);
+				r.getShape().getPaint().setStyle(Paint.Style.STROKE);
+				r.getShape().getPaint().setStrokeWidth(3);
+			}
+			setOnClickListener(this);
+			//setOnTouchListener(this);
+		}
 		
-		public GardenView(Context context, AttributeSet attrs) { super(context, attrs); }
-
+		public void initPaint() {
+			canvasPaint = new Paint();
+			canvasPaint.setStyle(Paint.Style.STROKE);
+			textPaint = new Paint(Paint.FAKE_BOLD_TEXT_FLAG|Paint.ANTI_ALIAS_FLAG);
+			textPaint.setTextSize(15.5f);
+			textPaint.setTextScaleX(1.2f);
+			textPaint.setTextAlign(Paint.Align.CENTER);
+		}
+		
+		@Override
+		public boolean onTouchEvent(MotionEvent event) {
+			context.handleZoom();
+			System.out.println("touched");
+			//invalidate();
+			return true;
+		}
+		
+		@Override
+		public void onClick(View view) {
+		}
+		
 		@Override
 		protected void onDraw(Canvas canvas) {
 			super.onDraw(canvas);
@@ -69,8 +76,9 @@ public class GardenLayout extends FrameLayout implements View.OnTouchListener, V
 			bg.draw(canvas); //canvas.drawRGB(255, 255, 255);
 			
 			Matrix m = new Matrix();
+			float zoomScale = 1;
 			if (context.zoomLevel != 0) {
-				float zoomScale = (float) Math.pow(1.5, context.zoomLevel);
+				zoomScale = (float) Math.pow(1.5, context.zoomLevel);
 				float zoomShift = (1 - zoomScale) / 2;
 				m.postScale(zoomScale, zoomScale);
 				m.postTranslate(zoomShift * width, zoomShift * height);
@@ -94,7 +102,10 @@ public class GardenLayout extends FrameLayout implements View.OnTouchListener, V
 						m.mapPoints(labelLoc, new float[] { bounds.left - 10, bounds.centerY() });
 					else
 						m.mapPoints(labelLoc, new float[] { bounds.centerX(), bounds.top - 10 });
-					textPaint.setTextSize(15 * (float) Math.pow(1.5, context.zoomLevel));
+				
+					textPaint.setTextSize(Math.max(10, 15 * zoomScale));
+					if (context.zoomLevel >= 0)
+						textPaint.setTextScaleX(1.2f + 0.05f * context.zoomLevel); // optional text appearance
 					canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 				}
 		}

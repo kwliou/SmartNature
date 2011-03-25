@@ -18,6 +18,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ZoomControls;
@@ -49,7 +52,8 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			showDialog(0);
 		setContentView(R.layout.garden);
 		gardenLayout = findViewById(R.id.garden_layout);
-		gardenLayout.setOnTouchListener(this);
+		//addContentView(view, params);
+		//gardenLayout.setOnTouchListener(this);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
 		zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(zoomIn);
@@ -64,7 +68,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	
 	public void initMockData() {
 		ShapeDrawable s1 = new ShapeDrawable(new RectShape());
-		s1.setBounds(30, 60, 80, 200);
+		s1.setBounds(40, 60, 90, 200);
 		ShapeDrawable s2 = new ShapeDrawable(new OvalShape());
 		s2.setBounds(140, 120, 210, 190);
 		plots.add(new Plot(s1, "Jerry's Plot"));
@@ -157,12 +161,25 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		System.out.println("clicked");
 	}
 	
+
 	View.OnClickListener zoomIn = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			zoomLevel++;
-			gardenLayout.invalidate();
+			ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenLayout.getWidth() / 2.0f, gardenLayout.getHeight() / 2.0f); 
+			anim.setDuration(400);
+			/* customZ *= 1.5;
+			 * anim.setFillAfter(true);
+			 * anim.setFillEnabled(true);*/
+			anim.setAnimationListener(new AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation arg0) { }				
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationEnd(Animation arg0) { zoomLevel++; }
+			});
+			gardenLayout.startAnimation(anim);
 		}
 	};
 	
@@ -170,8 +187,17 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			zoomLevel--;
-			gardenLayout.invalidate();
+			ScaleAnimation anim = new ScaleAnimation(1, 1/1.5f, 1, 1/1.5f, gardenLayout.getWidth() / 2.0f, gardenLayout.getHeight() / 2.0f); 
+			anim.setDuration(400);
+			anim.setAnimationListener(new AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation arg0) { }				
+				@Override
+				public void onAnimationRepeat(Animation arg0) { }
+				@Override
+				public void onAnimationEnd(Animation arg0) { zoomLevel--; }
+			});
+			gardenLayout.startAnimation(anim);
 		}
 	};
 	
