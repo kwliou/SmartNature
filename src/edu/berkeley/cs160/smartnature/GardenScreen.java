@@ -11,7 +11,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.*;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,10 +30,10 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	ArrayList<Plot> plots = new ArrayList<Plot>();
 	AlertDialog dialog;
 	ZoomControls zoom;
+	View gardenLayout;
 	Handler mHandler = new Handler();
-	int realWidth;
-	int realHeight;
 	boolean showLabels = true;
+	int zoomLevel;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,20 +48,18 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		} else
 			showDialog(0);
 		setContentView(R.layout.garden);
-		findViewById(R.id.garden_layout).setOnTouchListener(this);
+		gardenLayout = findViewById(R.id.garden_layout);
+		gardenLayout.setOnTouchListener(this);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
 		zoom.setVisibility(View.GONE);
-		zoom.setOnZoomInClickListener(this);
-		zoom.setOnZoomOutClickListener(this);
+		zoom.setOnZoomInClickListener(zoomIn);
+		zoom.setOnZoomOutClickListener(zoomOut);
 		
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
-		Display display = getWindowManager().getDefaultDisplay(); 
-		realWidth = display.getWidth();
-		realHeight = display.getHeight();
 	}
 	
 	public void initMockData() {
@@ -106,6 +103,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			.setNegativeButton(R.string.alert_dialog_cancel, canceled)
 			.create();
 		
+		// automatically show soft keyboard
 		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 		    @Override
@@ -131,13 +129,17 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			case R.id.m_home:
 				finish();
 				break;
+			case R.id.m_resetzoom:
+				zoomLevel = 0;
+				gardenLayout.invalidate();				
+				break;
 			case R.id.m_share:
 				startActivity(new Intent(this, ShareGarden.class));
 				break;
 			case R.id.m_showlabels:
 				showLabels = !showLabels;
 				item.setTitle(showLabels ? "Hide labels" : "Show labels");
-				findViewById(R.id.garden_layout).invalidate();				
+				gardenLayout.invalidate();				
 				break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -151,8 +153,27 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	
 	@Override
 	public void onClick(View view) {
-		handleZoom();	
+		//handleZoom();
+		System.out.println("clicked");
 	}
+	
+	View.OnClickListener zoomIn = new View.OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			handleZoom();
+			zoomLevel++;
+			gardenLayout.invalidate();
+		}
+	};
+	
+	View.OnClickListener zoomOut = new View.OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			handleZoom();
+			zoomLevel--;
+			gardenLayout.invalidate();
+		}
+	};
 	
 	public void handleZoom() {
 		mHandler.removeCallbacks(autoHide);
@@ -161,11 +182,11 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		mHandler.postDelayed(autoHide, ZOOM_DURATION);
 	}
 	
-	Runnable autoHide = new Runnable() {	
+	Runnable autoHide = new Runnable() {
 		@Override
 		public void run() {
 			if (zoom.isShown()) {
-				mHandler.removeCallbacks(autoHide);			
+				mHandler.removeCallbacks(autoHide);
 				zoom.hide(); //zoom.setVisibility(View.GONE);
 			}
 		}

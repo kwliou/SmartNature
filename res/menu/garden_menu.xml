@@ -2,6 +2,12 @@
 	<item android:id="@+id/m_addregion"
 		android:icon="@android:drawable/ic_menu_add"
 		android:title="Add plot" />
+	<item android:id="@+id/m_showlabels"
+		android:icon="@drawable/ic_menu_list"
+		android:title="Hide labels" />
+	<item android:id="@+id/m_resetzoom"
+		android:icon="@android:drawable/ic_menu_zoom"
+		android:title="Reset zoom" />
 	<item android:id="@+id/m_gardenoptions"
 		android:icon="@android:drawable/ic_menu_manage"
 		android:title="Garden options">
@@ -16,9 +22,6 @@
 				android:title="Delete" />
 		</menu>
 	</item>
-	<item android:id="@+id/m_showlabels"
-		android:icon="@drawable/ic_menu_list"
-		android:title="Hide labels" />
 	<item android:id="@+id/m_share"
 		android:icon="@android:drawable/ic_menu_share"
 		android:title="Share" />

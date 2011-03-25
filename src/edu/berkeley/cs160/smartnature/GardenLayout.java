@@ -14,7 +14,7 @@ import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 
-public class GardenLayout extends FrameLayout implements View.OnTouchListener {
+public class GardenLayout extends FrameLayout implements View.OnTouchListener, View.OnClickListener {
 	Paint canvasPaint;
 	Paint textPaint;
 	ArrayList<Plot> plots;
@@ -33,21 +33,27 @@ public class GardenLayout extends FrameLayout implements View.OnTouchListener {
 			r.getShape().getPaint().setStrokeWidth(3);
 		}
 		addView(new GardenView(context, null), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		setOnClickListener(this);
 	}
 	
 	public void initPaint() {
 		canvasPaint = new Paint();
 		canvasPaint.setStyle(Paint.Style.STROKE);
 		textPaint = new Paint(Paint.FAKE_BOLD_TEXT_FLAG|Paint.ANTI_ALIAS_FLAG);
-		textPaint.setTextSize(15);
-		textPaint.setTextScaleX(1.1f);
+		textPaint.setTextSize(15.5f);
+		textPaint.setTextScaleX(1.2f);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 	}
 	
 	@Override
-	public boolean onTouch(View v, MotionEvent event) {
+	public boolean onTouch(View view, MotionEvent event) {
 		//invalidate();
 		return true;
+	}
+	
+	@Override
+	public void onClick(View view) {
+		
 	}
 	
 	class GardenView extends View {
@@ -61,14 +67,21 @@ public class GardenLayout extends FrameLayout implements View.OnTouchListener {
 			boolean portraitMode = width < height;
 			bg.setBounds(canvas.getClipBounds());
 			bg.draw(canvas); //canvas.drawRGB(255, 255, 255);
-			canvas.save();
-			Matrix m = null;
-			if (portraitMode) {
-				m = new Matrix();
-				m.setRotate(90);
-				m.postTranslate(width, 0);
-				canvas.concat(m);
+			
+			Matrix m = new Matrix();
+			if (context.zoomLevel != 0) {
+				float zoomScale = (float) Math.pow(1.5, context.zoomLevel);
+				float zoomShift = (1 - zoomScale) / 2;
+				m.postScale(zoomScale, zoomScale);
+				m.postTranslate(zoomShift * width, zoomShift * height);
 			}
+			if (portraitMode) {
+				m.preTranslate(width, 0);
+				m.preRotate(90);
+			}
+			
+			canvas.save();
+			canvas.concat(m);
 			for (Plot p: plots)
 				p.getShape().draw(canvas);
 			canvas.restore();
@@ -80,7 +93,8 @@ public class GardenLayout extends FrameLayout implements View.OnTouchListener {
 					if (portraitMode)
 						m.mapPoints(labelLoc, new float[] { bounds.left - 10, bounds.centerY() });
 					else
-						labelLoc = new float[] { bounds.centerX(), bounds.top - 10 };
+						m.mapPoints(labelLoc, new float[] { bounds.centerX(), bounds.top - 10 });
+					textPaint.setTextSize(15 * (float) Math.pow(1.5, context.zoomLevel));
 					canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 				}
 		}
