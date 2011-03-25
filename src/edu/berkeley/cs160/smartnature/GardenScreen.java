@@ -19,7 +19,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,7 +32,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	ArrayList<Plot> plots = new ArrayList<Plot>();
 	AlertDialog dialog;
 	ZoomControls zoom;
-	View gardenLayout;
+	GardenLayout gardenLayout;
 	Handler mHandler = new Handler();
 	boolean showLabels = true;
 	int zoomLevel;
@@ -51,7 +50,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		} else
 			showDialog(0);
 		setContentView(R.layout.garden);
-		gardenLayout = findViewById(R.id.garden_layout);
+		gardenLayout = (GardenLayout) findViewById(R.id.garden_layout);
 		//addContentView(view, params);
 		//gardenLayout.setOnTouchListener(this);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
@@ -135,7 +134,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 				break;
 			case R.id.m_resetzoom:
 				zoomLevel = 0;
-				gardenLayout.invalidate();				
+				gardenLayout.reset();
 				break;
 			case R.id.m_share:
 				startActivity(new Intent(this, ShareGarden.class));
@@ -166,18 +165,15 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenLayout.getWidth() / 2.0f, gardenLayout.getHeight() / 2.0f); 
+			ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenLayout.getWidth() / 2.0f, gardenLayout.getHeight() / 2.0f);
 			anim.setDuration(400);
-			/* customZ *= 1.5;
-			 * anim.setFillAfter(true);
-			 * anim.setFillEnabled(true);*/
-			anim.setAnimationListener(new AnimationListener() {
+			anim.setAnimationListener(new Animation.AnimationListener() {
 				@Override
-				public void onAnimationStart(Animation arg0) { }				
+				public void onAnimationStart(Animation anim) { }
 				@Override
-				public void onAnimationRepeat(Animation arg0) { }
+				public void onAnimationRepeat(Animation anim) { }
 				@Override
-				public void onAnimationEnd(Animation arg0) { zoomLevel++; }
+				public void onAnimationEnd(Animation anim) { zoomLevel++; }
 			});
 			gardenLayout.startAnimation(anim);
 		}
@@ -189,13 +185,13 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			handleZoom();
 			ScaleAnimation anim = new ScaleAnimation(1, 1/1.5f, 1, 1/1.5f, gardenLayout.getWidth() / 2.0f, gardenLayout.getHeight() / 2.0f); 
 			anim.setDuration(400);
-			anim.setAnimationListener(new AnimationListener() {
+			anim.setAnimationListener(new Animation.AnimationListener() {
 				@Override
-				public void onAnimationStart(Animation arg0) { }				
+				public void onAnimationStart(Animation anim) { }				
 				@Override
-				public void onAnimationRepeat(Animation arg0) { }
+				public void onAnimationRepeat(Animation anim) { }
 				@Override
-				public void onAnimationEnd(Animation arg0) { zoomLevel--; }
+				public void onAnimationEnd(Animation anim) { zoomLevel--; }
 			});
 			gardenLayout.startAnimation(anim);
 		}
