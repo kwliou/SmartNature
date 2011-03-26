@@ -11,7 +11,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.*;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,7 +34,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	Handler mHandler = new Handler();
 	boolean showLabels = true;
 	int zoomLevel;
-	float scaledDensity = 1;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,16 +42,13 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
+		mockGarden = new Garden(R.drawable.preview, "");
 		if (extras != null && extras.containsKey("name")) {
 			setTitle(extras.getString("name"));
+			mockGarden.setName(extras.getString("name"));
 			initMockData();
 		} else
 			showDialog(0);
-		
-		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		scaledDensity = metrics.scaledDensity;
-		
 		setContentView(R.layout.garden);
 		gardenLayout = (GardenLayout) findViewById(R.id.garden_layout);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
@@ -69,7 +64,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	}
 	
 	public void initMockData() {
-		mockGarden = new Garden(R.drawable.preview, getTitle().toString());
 		ShapeDrawable s1 = new ShapeDrawable(new RectShape());
 		s1.setBounds(40, 60, 90, 200);
 		ShapeDrawable s2 = new ShapeDrawable(new OvalShape());
@@ -95,6 +89,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			public void onClick(DialogInterface dialog, int whichButton) {
 				EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 				setTitle(gardenName.getText().toString());
+				mockGarden.setName(gardenName.getText().toString());
 			}
 		};
 		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {

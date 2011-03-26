@@ -26,7 +26,7 @@ public class GardenLayout extends View implements View.OnClickListener {
 	public GardenLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = (GardenScreen) context;
-		textSize = 15.5f * this.context.scaledDensity;
+		textSize = 15.5f * getResources().getDisplayMetrics().scaledDensity;
 		initPaint();
 		bg = getResources().getDrawable(R.drawable.tile);	
 		initPaint();
