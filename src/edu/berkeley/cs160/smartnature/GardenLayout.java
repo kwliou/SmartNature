@@ -102,14 +102,13 @@ public class GardenLayout extends View implements View.OnClickListener {
 		canvas.restore();
 		
 		Matrix m = new Matrix();
-		
-		if (portraitMode) {
-			RectF canvasBounds = new RectF(getLeft(), getTop(), getBottom(), getRight());
-			m.setRectToRect(new RectF(garden.getPortBounds()), canvasBounds, Matrix.ScaleToFit.CENTER);
-		} else {
-			RectF canvasBounds = new RectF(getLeft(), getTop(), getRight(), getBottom());
-			m.setRectToRect(new RectF(garden.getLandBounds()), canvasBounds, Matrix.ScaleToFit.CENTER);
-		}
+		RectF gardenBounds = context.showFullScreen ? garden.getBounds() : garden.getBounds(portraitMode);
+		RectF canvasBounds;
+		if (portraitMode)
+			canvasBounds = new RectF(getLeft(), getTop(), getBottom(), getRight());
+		else
+			canvasBounds = new RectF(getLeft(), getTop(), getRight(), getBottom());
+		m.setRectToRect(gardenBounds, canvasBounds, Matrix.ScaleToFit.CENTER);
 		
 		if (portraitMode) {
 			m.postRotate(90);

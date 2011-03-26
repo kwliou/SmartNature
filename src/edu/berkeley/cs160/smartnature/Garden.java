@@ -1,8 +1,9 @@
 package edu.berkeley.cs160.smartnature;
 
-import java.util.ArrayList;
-
 import android.graphics.Rect;
+import android.graphics.RectF;
+
+import java.util.ArrayList;
 
 public class Garden {
 	
@@ -10,16 +11,21 @@ public class Garden {
 	private int previewId;
 	private ArrayList<Plot> plots;
 	private Rect bounds;
+	private Rect padding = new Rect(30, 30, 30, 10);
 	private Rect paddingLand = new Rect(20, 30, 20, 10);
 	private Rect paddingPort = new Rect(30, 20, 20, 10);
 	
-	Garden(int resId, String gardenName) {
-		previewId = resId;
+	Garden(String gardenName) {
 		name = gardenName;
 		plots = new ArrayList<Plot>();
 		bounds = new Rect();
 	}
-
+	
+	Garden(int resId, String gardenName) {
+		this(gardenName);
+		previewId = resId;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -57,8 +63,23 @@ public class Garden {
 		return bounds;
 	}
 	
-	public Rect getLandBounds() {
-		Rect padded = new Rect(bounds);
+	/** Used for full screen */
+	public RectF getBounds() {
+		RectF padded = new RectF(bounds);
+		padded.left -= padding.left;
+		padded.top -= padding.top;
+		padded.right += padding.right;
+		padded.bottom += padding.bottom;
+		return padded;
+	}
+	
+	public RectF getBounds(boolean portraitMode) {
+		return portraitMode ? getPortBounds() : getLandBounds();
+	}
+	
+	/** Used for landscape mode */
+	public RectF getLandBounds() {
+		RectF padded = new RectF(bounds);
 		padded.left -= paddingLand.left;
 		padded.top -= paddingLand.top;
 		padded.right += paddingLand.right;
@@ -66,8 +87,9 @@ public class Garden {
 		return padded;
 	}
 	
-	public Rect getPortBounds() {
-		Rect padded = new Rect(bounds);
+	/** Used for portrait mode */
+	public RectF getPortBounds() {
+		RectF padded = new RectF(bounds);
 		padded.left -= paddingPort.left;
 		padded.top -= paddingPort.top;
 		padded.right += paddingPort.right;

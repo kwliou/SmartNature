@@ -32,17 +32,17 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	ZoomControls zoom;
 	GardenLayout gardenLayout;
 	Handler mHandler = new Handler();
-	boolean showLabels = true;
+	boolean showLabels = true, showFullScreen;
 	int zoomLevel;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		boolean showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
+		showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-		mockGarden = new Garden(R.drawable.preview, "");
+		mockGarden = new Garden("");
 		if (extras != null && extras.containsKey("name")) {
 			setTitle(extras.getString("name"));
 			mockGarden.setName(extras.getString("name"));
