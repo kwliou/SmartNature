@@ -11,6 +11,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.*;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,18 +25,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-import java.util.ArrayList;
-
 public class GardenScreen extends Activity implements View.OnTouchListener, View.OnClickListener {
 	
 	final int ZOOM_DURATION = 3000;
-	ArrayList<Plot> plots = new ArrayList<Plot>();
+	Garden mockGarden;
 	AlertDialog dialog;
 	ZoomControls zoom;
 	GardenLayout gardenLayout;
 	Handler mHandler = new Handler();
 	boolean showLabels = true;
 	int zoomLevel;
+	float scaledDensity = 1;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,10 +49,13 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			initMockData();
 		} else
 			showDialog(0);
+		
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		scaledDensity = metrics.scaledDensity;
+		
 		setContentView(R.layout.garden);
 		gardenLayout = (GardenLayout) findViewById(R.id.garden_layout);
-		//addContentView(view, params);
-		//gardenLayout.setOnTouchListener(this);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
 		zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(zoomIn);
@@ -66,12 +69,13 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	}
 	
 	public void initMockData() {
+		mockGarden = new Garden(R.drawable.preview, getTitle().toString());
 		ShapeDrawable s1 = new ShapeDrawable(new RectShape());
 		s1.setBounds(40, 60, 90, 200);
 		ShapeDrawable s2 = new ShapeDrawable(new OvalShape());
 		s2.setBounds(140, 120, 210, 190);
-		plots.add(new Plot(s1, "Jerry's Plot"));
-		plots.add(new Plot(s2, "Amy's Plot"));
+		mockGarden.addPlot(new Plot(s1, "Jerry's Plot"));
+		mockGarden.addPlot(new Plot(s2, "Amy's Plot"));
 		Path p = new Path();
 		p.lineTo(50, 10);
 		p.lineTo(90, 100);
@@ -79,7 +83,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		PathShape ps = new PathShape(p, 90, 100);
 		ShapeDrawable s3 = new ShapeDrawable(ps);
 		s3.setBounds(270, 120, 270 + 90, 120 + 100);
-		plots.add(new Plot(s3, "Shared Plot"));
+		mockGarden.addPlot(new Plot(s3, "Shared Plot"));
 	}
 
 	@Override
