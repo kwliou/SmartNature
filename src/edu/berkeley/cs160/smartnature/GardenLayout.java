@@ -11,17 +11,26 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
-public class GardenLayout extends View implements View.OnClickListener {
+public class GardenLayout extends View implements View.OnClickListener, View.OnTouchListener {
 	
 	GardenScreen context;
 	Garden garden;
-	Matrix dragMatrix = new Matrix(), bgDragMatrix = new Matrix();
-	Paint canvasPaint, textPaint;
+	/** plot that is currently pressed */
+	Plot focusedPlot;
+	/** the entire transformation matrix applied to the canvas */
+	Matrix m = new Matrix();
+	/** translation matrix applied to the canvas */
+	Matrix dragMatrix = new Matrix();
+	/** translation matrix applied to the background */
+	Matrix bgDragMatrix = new Matrix();
 	Drawable bg;
+	Paint canvasPaint, textPaint;
 	int zoomLevel;
-	float prevX, prevY, zoomScale = 1;
+	float prevX, prevY, downX, downY, x, y, zoomScale = 1;
 	float textSize;
+	boolean portraitMode;
 	
 	public GardenLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -32,23 +41,17 @@ public class GardenLayout extends View implements View.OnClickListener {
 		initPaint();
 		initMockData();	
 		setOnClickListener(this);
+		setOnTouchListener(this);
 	}
 	
 	public void initMockData() {
 		garden = this.context.mockGarden;
-		for (Plot r: garden.getPlots()) {
-			r.getShape().getPaint().setColor(Color.BLACK);
-			r.getShape().getPaint().setStyle(Paint.Style.STROKE);
-			r.getShape().getPaint().setStrokeWidth(3);
+		for (Plot plot : garden.getPlots()) {
+			Paint p = plot.getShape().getPaint();
+			p.setColor(Color.BLACK);
+			p.setStyle(Paint.Style.STROKE);
+			p.setStrokeWidth(3);
 		}		
-	}
-	
-	@Override
-	public void onAnimationEnd() {
-		zoomLevel = context.zoomLevel;
-		zoomScale = (float) Math.pow(1.5, zoomLevel);
-		textPaint.setTextSize(Math.max(10, textSize * zoomScale));
-		invalidate();
 	}
 	
 	public void initPaint() {
@@ -60,6 +63,7 @@ public class GardenLayout extends View implements View.OnClickListener {
 		textPaint.setTextAlign(Paint.Align.CENTER);
 	}
 	
+	/** called when user clicks "zoom to fit" */
 	public void reset() {
 		zoomLevel = 0;
 		zoomScale = 1;
@@ -71,29 +75,10 @@ public class GardenLayout extends View implements View.OnClickListener {
 	}
 	
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		context.handleZoom();
-		float x = event.getX(), y = event.getY();
-		if (event.getAction() != MotionEvent.ACTION_DOWN) {
-			float dx = x - prevX, dy = y - prevY;
-			dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
-			bgDragMatrix.postTranslate(dx, dy);
-		}
-		prevX = x;
-		prevY = y;
-		invalidate();
-		return true;
-	}
-	
-	@Override
-	public void onClick(View view) {
-	}
-	
-	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		int width = getWidth(), height = getHeight();
-		boolean portraitMode = width < height;
+		portraitMode = width < height;
 		
 		canvas.save();
 		canvas.concat(bgDragMatrix);	
@@ -101,20 +86,13 @@ public class GardenLayout extends View implements View.OnClickListener {
 		bg.draw(canvas); //canvas.drawRGB(255, 255, 255);
 		canvas.restore();
 		
-		Matrix m = new Matrix();
+		m.reset();
 		RectF gardenBounds = context.showFullScreen ? garden.getBounds() : garden.getBounds(portraitMode);
-		RectF canvasBounds;
-		if (portraitMode)
-			canvasBounds = new RectF(getLeft(), getTop(), getBottom(), getRight());
-		else
-			canvasBounds = new RectF(getLeft(), getTop(), getRight(), getBottom());
-		m.setRectToRect(gardenBounds, canvasBounds, Matrix.ScaleToFit.CENTER);
-		
+		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
 		if (portraitMode) {
 			m.postRotate(90);
 			m.postTranslate(width, 0);
 		}
-		
 		m.postConcat(dragMatrix);
 		
 		if (zoomLevel != 0) {
@@ -136,5 +114,63 @@ public class GardenLayout extends View implements View.OnClickListener {
 				m.mapPoints(labelLoc);
 				canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 			}
-		}
 	}
+	
+	public RectF getBounds() {
+		if (portraitMode)
+			return new RectF(getLeft(), getTop(), getBottom(), getRight());
+		else
+			return new RectF(getLeft(), getTop(), getRight(), getBottom());
+	}
+
+	@Override
+	public void onAnimationEnd() {
+		zoomLevel = context.zoomLevel;
+		zoomScale = (float) Math.pow(1.5, zoomLevel);
+		textPaint.setTextSize(Math.max(10, textSize * zoomScale));
+		invalidate();
+	}
+	
+	@Override
+	public void onClick(View view) {
+		if (focusedPlot != null)
+			Toast.makeText(context, "clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	public boolean onTouch(View view, MotionEvent event) {
+		context.handleZoom();
+		x = event.getX(); y = event.getY();
+		if (event.getAction() != MotionEvent.ACTION_DOWN) {
+			float dx = x - prevX, dy = y - prevY;
+			dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
+			bgDragMatrix.postTranslate(dx, dy);
+		}
+		else {
+			downX = x; downY = y;
+			focusedPlot = garden.plotAt(x, y, m);
+			if (focusedPlot != null) {
+				// set focused plot appearance
+				focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
+				focusedPlot.getShape().getPaint().setStrokeWidth(5);
+			}
+		}
+		
+		// onClick for some reason doesn't execute on its own so manually do it
+		if (event.getAction() == MotionEvent.ACTION_UP) {
+			if (focusedPlot != null) {
+				// reset clicked plot appearance
+				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
+				focusedPlot.getShape().getPaint().setStrokeWidth(3);
+			}
+			// downX/Y doesn't have to equal x/y exactly
+			if (Math.abs(downX - x) < 5 && Math.abs(downY - y) < 5)
+				performClick();
+		}
+		prevX = x;
+		prevY = y;
+		invalidate();
+		return true;
+	}
+		
+}

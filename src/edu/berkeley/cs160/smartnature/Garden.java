@@ -1,5 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
@@ -58,7 +59,18 @@ public class Garden {
 			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
 		}
 		plots.add(plot);
-}
+	}
+	
+	/** add a polygonal plot */
+	public void addPlot(String plotName, Rect plotBounds, float[] points) {
+		addPlot(new Plot(plotName, plotBounds, points)); 
+	}
+	
+	/** add a rectangular or elliptical plot */
+	public void addPlot(String plotName, Rect plotBounds, int shapeType) {
+		addPlot(new Plot(plotName, plotBounds, shapeType)); 
+	}
+	
 	public Rect getRawBounds() {
 		return bounds;
 	}
@@ -73,18 +85,9 @@ public class Garden {
 		return padded;
 	}
 	
+	/** Used for portrait/landscape mode */
 	public RectF getBounds(boolean portraitMode) {
 		return portraitMode ? getPortBounds() : getLandBounds();
-	}
-	
-	/** Used for landscape mode */
-	public RectF getLandBounds() {
-		RectF padded = new RectF(bounds);
-		padded.left -= paddingLand.left;
-		padded.top -= paddingLand.top;
-		padded.right += paddingLand.right;
-		padded.bottom += paddingLand.bottom;
-		return padded;
 	}
 	
 	/** Used for portrait mode */
@@ -97,4 +100,26 @@ public class Garden {
 		return padded;
 	}
 	
+	/** Used for landscape mode */
+	public RectF getLandBounds() {
+		RectF padded = new RectF(bounds);
+		padded.left -= paddingLand.left;
+		padded.top -= paddingLand.top;
+		padded.right += paddingLand.right;
+		padded.bottom += paddingLand.bottom;
+		return padded;
+	}
+	
+	/** finds a plot which contains (x, y) after being transformed by the matrix */ 
+	public Plot plotAt(float x, float y, Matrix matrix) {
+		Matrix inverse = new Matrix();
+		matrix.invert(inverse);
+		float[] point = { x, y };
+		inverse.mapPoints(point);
+		for (Plot p : plots) {
+			if (p.contains(point[0], point[1]))
+				return p;
+		}
+		return null;
+	}
 }

@@ -6,9 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Path;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.*;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -64,20 +62,13 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	}
 	
 	public void initMockData() {
-		ShapeDrawable s1 = new ShapeDrawable(new RectShape());
-		s1.setBounds(40, 60, 90, 200);
-		ShapeDrawable s2 = new ShapeDrawable(new OvalShape());
-		s2.setBounds(140, 120, 210, 190);
-		mockGarden.addPlot(new Plot(s1, "Jerry's Plot"));
-		mockGarden.addPlot(new Plot(s2, "Amy's Plot"));
-		Path p = new Path();
-		p.lineTo(50, 10);
-		p.lineTo(90, 100);
-		p.close();
-		PathShape ps = new PathShape(p, 90, 100);
-		ShapeDrawable s3 = new ShapeDrawable(ps);
-		s3.setBounds(270, 120, 270 + 90, 120 + 100);
-		mockGarden.addPlot(new Plot(s3, "Shared Plot"));
+		Rect bounds1 = new Rect(40, 60, 90, 200);
+		Rect bounds2 = new Rect(140, 120, 210, 190);
+		Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
+		float[] pts = { 0, 0, 50, 10, 90, 100 };
+		mockGarden.addPlot("Jerry's Plot", bounds1, Plot.RECT);
+		mockGarden.addPlot("Amy's Plot", bounds2, Plot.OVAL);
+		mockGarden.addPlot("Shared Plot", bounds3, pts);
 	}
 
 	@Override
@@ -146,16 +137,17 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
+	
+	float x, y;
+	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
-		handleZoom();
+		System.out.println("touched");
 		return false;
 	}
 	
 	@Override
 	public void onClick(View view) {
-		//handleZoom();
 		System.out.println("clicked");
 	}
 	
