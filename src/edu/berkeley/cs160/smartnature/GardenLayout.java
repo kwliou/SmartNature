@@ -30,7 +30,7 @@ public class GardenLayout extends View implements View.OnClickListener, View.OnT
 	int zoomLevel;
 	float prevX, prevY, downX, downY, x, y, zoomScale = 1;
 	float textSize;
-	boolean portraitMode;
+	boolean portraitMode, dragMode;
 	
 	public GardenLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -136,17 +136,13 @@ public class GardenLayout extends View implements View.OnClickListener, View.OnT
 		if (focusedPlot != null)
 			Toast.makeText(context, "clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
 	}
-	
+		
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		context.handleZoom();
 		x = event.getX(); y = event.getY();
-		if (event.getAction() != MotionEvent.ACTION_DOWN) {
-			float dx = x - prevX, dy = y - prevY;
-			dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
-			bgDragMatrix.postTranslate(dx, dy);
-		}
-		else {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			dragMode = false;
 			downX = x; downY = y;
 			focusedPlot = garden.plotAt(x, y, m);
 			if (focusedPlot != null) {
@@ -155,22 +151,32 @@ public class GardenLayout extends View implements View.OnClickListener, View.OnT
 				focusedPlot.getShape().getPaint().setStrokeWidth(5);
 			}
 		}
+		else {
+			float dx = x - prevX, dy = y - prevY;
+			dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
+			bgDragMatrix.postTranslate(dx, dy);
+			if (!dragMode)
+				dragMode = Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5; // show some leniency
+			if (dragMode && focusedPlot != null) {
+				// plot can no longer be clicked so reset appearance
+				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
+				focusedPlot.getShape().getPaint().setStrokeWidth(3);
+			}
+		}
 		
 		// onClick for some reason doesn't execute on its own so manually do it
-		if (event.getAction() == MotionEvent.ACTION_UP) {
+		if (event.getAction() == MotionEvent.ACTION_UP && !dragMode) {
 			if (focusedPlot != null) {
 				// reset clicked plot appearance
 				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
 				focusedPlot.getShape().getPaint().setStrokeWidth(3);
 			}
-			// downX/Y doesn't have to equal x/y exactly
-			if (Math.abs(downX - x) < 5 && Math.abs(downY - y) < 5)
-				performClick();
+			performClick();
 		}
 		prevX = x;
 		prevY = y;
 		invalidate();
 		return true;
 	}
-		
+	
 }
