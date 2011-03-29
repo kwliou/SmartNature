@@ -2,6 +2,7 @@
 <resources>
     <string name="hello">Hello World, StartScreen!</string>
     <string name="app_name">GardenGnome</string>
+    <string name="dev_email">ben8043@gmail.com, deeptiraj7@gmail.com, dicz.hack@gmail.com, kwliou@gmail.com</string>
     <string name="new_garden">Map a garden</string>
     <string name="search_encyclopedia">Plant encyclopedia</string>
     <string name="alert_dialog_ok">Create</string>
@@ -15,11 +16,5 @@
     <style name="Theme.Dialog.NoTitleBar" parent="@android:style/Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
     </style>
-    <string-array name="dev_email">
-        <item>ben8043@gmail.com</item>
-        <item>deeptiraj7@gmail.com</item>
-        <item>dicz.hack@gmail.com</item>
-        <item>kwliou@gmail.com</item>
-    </string-array>
-    <string name="hint_gardenscreen">Click on Add Plot in the menu to add a plot\nPress on a plot to view its plants/info</string>
+   <string name="hint_gardenscreen">Click on Add Plot in the menu to add a plot\nPress on a plot to view its plants/info</string>
 </resources>

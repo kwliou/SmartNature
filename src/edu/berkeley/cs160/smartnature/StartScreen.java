@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class StartScreen extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
@@ -69,9 +71,9 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.m_contact:
-				Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-				intent.setType("plain/text");
-				intent.putExtra(android.content.Intent.EXTRA_EMAIL, getResources().getStringArray(R.array.dev_email));
+				Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+				intent.setData(Uri.parse("mailto:" + getString(R.string.dev_email)));
 				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "GardenGnome feedback");
 				startActivity(intent); //startActivity(Intent.createChooser(intent, "Send mail..."));
 				break;
