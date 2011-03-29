@@ -13,7 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-public class GardenLayout extends View implements View.OnClickListener, View.OnTouchListener {
+public class GardenView extends View implements View.OnClickListener, View.OnTouchListener {
 	
 	GardenScreen context;
 	Garden garden;
@@ -32,7 +32,7 @@ public class GardenLayout extends View implements View.OnClickListener, View.OnT
 	float textSize;
 	boolean portraitMode, dragMode;
 	
-	public GardenLayout(Context context, AttributeSet attrs) {
+	public GardenView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = (GardenScreen) context;
 		textSize = 15.5f * getResources().getDisplayMetrics().scaledDensity;

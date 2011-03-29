@@ -2,12 +2,11 @@
 
 <FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/rel_parent"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-	<edu.berkeley.cs160.smartnature.GardenLayout
-		android:id="@+id/garden_layout"
+	<edu.berkeley.cs160.smartnature.GardenView
+		android:id="@+id/garden_view"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent" />
 

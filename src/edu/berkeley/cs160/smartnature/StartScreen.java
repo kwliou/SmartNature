@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class StartScreen extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
