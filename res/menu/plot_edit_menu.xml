@@ -10,7 +10,7 @@
           android:icon="@drawable/ic_menu_colorpicker"
           android:title="Change color" />
 	<item android:id="@+id/m_move_forward"
-          android:icon="@drawable/ic_menu_move_forward"
+          android:icon="@drawable/ic_menu_move_up"
           android:title="Move to front" />
 	<item android:id="@+id/m_search"
           android:icon="@android:drawable/ic_menu_save"

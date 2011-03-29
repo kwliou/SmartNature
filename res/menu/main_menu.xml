@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/m_contact"
-          android:icon="@drawable/ic_menu_comment"
+          android:icon="@android:drawable/ic_menu_send"
           android:title="Feedback" />
 	<item android:id="@+id/m_global_options"
           android:icon="@android:drawable/ic_menu_preferences"

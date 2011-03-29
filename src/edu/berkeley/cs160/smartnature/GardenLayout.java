@@ -26,7 +26,7 @@ public class GardenLayout extends View implements View.OnClickListener, View.OnT
 	/** translation matrix applied to the background */
 	Matrix bgDragMatrix = new Matrix();
 	Drawable bg;
-	Paint canvasPaint, textPaint;
+	Paint textPaint;
 	int zoomLevel;
 	float prevX, prevY, downX, downY, x, y, zoomScale = 1;
 	float textSize;
@@ -48,16 +48,15 @@ public class GardenLayout extends View implements View.OnClickListener, View.OnT
 		garden = this.context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getShape().getPaint();
-			p.setColor(Color.BLACK);
 			p.setStyle(Paint.Style.STROKE);
 			p.setStrokeWidth(3);
+			p.setStrokeCap(Paint.Cap.ROUND);
+			p.setStrokeJoin(Paint.Join.ROUND);
 		}		
 	}
 	
 	public void initPaint() {
-		canvasPaint = new Paint();
-		canvasPaint.setStyle(Paint.Style.STROKE);
-		textPaint = new Paint(Paint.FAKE_BOLD_TEXT_FLAG|Paint.ANTI_ALIAS_FLAG);
+		textPaint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FAKE_BOLD_TEXT_FLAG|Paint.DEV_KERN_TEXT_FLAG);
 		textPaint.setTextSize(textSize);
 		textPaint.setTextScaleX(1.2f);
 		textPaint.setTextAlign(Paint.Align.CENTER);
@@ -105,6 +104,7 @@ public class GardenLayout extends View implements View.OnClickListener, View.OnT
 		canvas.concat(m);
 		for (Plot p: garden.getPlots())
 			p.getShape().draw(canvas);
+		
 		canvas.restore();
 		
 		if (context.showLabels)
