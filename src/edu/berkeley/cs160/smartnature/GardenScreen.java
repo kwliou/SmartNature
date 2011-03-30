@@ -66,9 +66,9 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		Rect bounds2 = new Rect(140, 120, 210, 190);
 		Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
 		float[] pts = { 0, 0, 50, 10, 90, 100 };
-		mockGarden.addPlot("Jerry's Plot", bounds1, Plot.RECT);
-		mockGarden.addPlot("Amy's Plot", bounds2, Plot.OVAL);
-		mockGarden.addPlot("Shared Plot", bounds3, pts);
+		mockGarden.addPlot("Jerry's Plot", bounds1, 10, Plot.RECT);
+		mockGarden.addPlot("Amy's Plot", bounds2, 0, Plot.OVAL);
+		mockGarden.addPlot("Shared Plot", bounds3, 0, pts);
 	}
 
 	@Override
@@ -137,8 +137,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	float x, y;
 	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {

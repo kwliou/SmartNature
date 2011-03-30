@@ -62,13 +62,13 @@ public class Garden {
 	}
 	
 	/** add a polygonal plot */
-	public void addPlot(String plotName, Rect plotBounds, float[] points) {
-		addPlot(new Plot(plotName, plotBounds, points)); 
+	public void addPlot(String plotName, Rect plotBounds, float rotation, float[] points) {
+		addPlot(new Plot(plotName, plotBounds, rotation, points)); 
 	}
 	
 	/** add a rectangular or elliptical plot */
-	public void addPlot(String plotName, Rect plotBounds, int shapeType) {
-		addPlot(new Plot(plotName, plotBounds, shapeType)); 
+	public void addPlot(String plotName, Rect plotBounds, float rotation, int shapeType) {
+		addPlot(new Plot(plotName, plotBounds, rotation, shapeType)); 
 	}
 	
 	public Rect getRawBounds() {

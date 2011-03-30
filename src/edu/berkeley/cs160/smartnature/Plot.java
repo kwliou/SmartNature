@@ -15,10 +15,11 @@ public class Plot {
 	private float rotation; // angle of direction where 0 is "north"
 	
 	/** create a polygonal plot */
-	Plot(String plotName, Rect bounds, float[] points) {
+	Plot(String plotName, Rect bounds, float angle, float[] points) {
 		name = plotName;
 		type = POLY;
 		polyPoints = points;
+		rotation = angle;
 		
 		Path p = new Path();
 		p.moveTo(points[0], points[1]);
@@ -31,9 +32,10 @@ public class Plot {
 	}
 	
 	/** create a rectangular or elliptical plot */
-	Plot(String plotName, Rect bounds, int shapeType) {
+	Plot(String plotName, Rect bounds, float angle, int shapeType) {
 		name = plotName;
 		type = shapeType;
+		rotation = angle;
 		shape = new ShapeDrawable(type == OVAL ? new OvalShape() : new RectShape());
 		shape.setBounds(bounds);
 	}
@@ -44,6 +46,14 @@ public class Plot {
 	
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public float getAngle() {
+		return rotation;
+	}
+	
+	public void setAngle(float angle) {
+		this.rotation = angle;
 	}
 	
 	public ShapeDrawable getShape() {

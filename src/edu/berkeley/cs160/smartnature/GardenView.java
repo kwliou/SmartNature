@@ -102,9 +102,13 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		
 		canvas.save();
 		canvas.concat(m);
-		for (Plot p: garden.getPlots())
+		for (Plot p: garden.getPlots()) {
+			canvas.save();
+			Rect shapeBounds = p.getShape().getBounds();
+			canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
 			p.getShape().draw(canvas);
-		
+			canvas.restore();
+		}
 		canvas.restore();
 		
 		if (context.showLabels)
