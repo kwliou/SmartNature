@@ -30,7 +30,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	ZoomControls zoom;
 	GardenView gardenView;
 	Handler mHandler = new Handler();
-	boolean showLabels = true, showFullScreen;
+	boolean showLabels = true, showFullScreen, zoomAutoHidden;
 	int zoomLevel;
 	
 	@Override
@@ -50,7 +50,9 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
-		zoom.setVisibility(View.GONE);
+		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
+		if (zoomAutoHidden)
+			zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
 		
@@ -187,10 +189,12 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	};
 	
 	public void handleZoom() {
-		mHandler.removeCallbacks(autoHide);
-		if (!zoom.isShown())
-			zoom.show(); //zoom.setVisibility(View.VISIBLE);
-		mHandler.postDelayed(autoHide, ZOOM_DURATION);
+		if (zoomAutoHidden) {
+			mHandler.removeCallbacks(autoHide);
+			if (!zoom.isShown())
+				zoom.show(); //zoom.setVisibility(View.VISIBLE);
+			mHandler.postDelayed(autoHide, ZOOM_DURATION);
+		}
 	}
 	
 	Runnable autoHide = new Runnable() {
