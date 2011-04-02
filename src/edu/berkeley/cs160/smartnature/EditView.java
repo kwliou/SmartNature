@@ -110,16 +110,27 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		canvas.save();
 		canvas.concat(m);
 		for (Plot p: garden.getPlots()) {
-			canvas.save();
-			Rect shapeBounds = p.getShape().getBounds();
-			canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
-			if(p.getColor() != -1)
-				p.getShape().setColorFilter(p.getColor(), Mode.SCREEN);
-			p.getShape().draw(canvas);
-			canvas.restore();
+			if (p != context.newPlot) {
+				canvas.save();
+				Rect shapeBounds = p.getShape().getBounds();
+				canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
+				p.getShape().draw(canvas);
+				canvas.restore();
+			}
 		}
+		
+		// "shade" over everything
 		canvas.restore();
-
+		canvas.drawARGB(100, 0, 0, 0);
+		
+		// draw plot being edited
+		canvas.save();
+		canvas.concat(m);
+		Rect shapeBounds = context.newPlot.getShape().getBounds();
+		canvas.rotate(context.newPlot.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
+		context.newPlot.getShape().draw(canvas);
+		canvas.restore();
+		
 		if (context.showLabels)
 			for (Plot p: garden.getPlots()) {
 				Rect bounds = p.getShape().getBounds();
@@ -157,8 +168,13 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		if (context.getDragPlot()) {
 			switch(event.getAction()) {
 			case(MotionEvent.ACTION_DOWN):
-				if(focusedPlot != null)
+				focusedPlot = garden.plotAt(x, y, m);
+				if (focusedPlot == context.newPlot) {
+					// set focused plot appearance
+					focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
+					focusedPlot.getShape().getPaint().setStrokeWidth(5);
 					status = START_DRAGGING;
+				}
 			break;
 
 			case(MotionEvent.ACTION_UP):
@@ -170,19 +186,19 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			break;
 
 			case(MotionEvent.ACTION_MOVE):
-				focusedPlot = garden.plotAt(x, y, m);
 			if(status == START_DRAGGING && focusedPlot != null) {
-				focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
-				focusedPlot.getShape().getPaint().setStrokeWidth(5);
-				if(focusedPlot.getType() == 0) {
-					float[] dxy = {x - prevX, x - prevY};
+				//focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
+				//focusedPlot.getShape().getPaint().setStrokeWidth(5);
+				//if(focusedPlot.getType() == 0) {
+					float[] dxy = {x, y, prevX, prevY};
+					//float[] dxy = {x - prevX, x - prevY};
 					Matrix inverse = new Matrix();
 					m.invert(inverse);
 					inverse.mapPoints(dxy);
-					ShapeDrawable shape = new ShapeDrawable(new RectShape());
-					shape.setBounds((int) (focusedPlot.getShape().getBounds().left + dxy[0]),(int) (focusedPlot.getShape().getBounds().top + dxy[1]), (int) (focusedPlot.getShape().getBounds().right + dxy[0]), (int) (focusedPlot.getShape().getBounds().bottom + dxy[1]));
-					focusedPlot.setShape(shape);
-				}
+					focusedPlot.getShape().getBounds().offset((int) (- dxy[2] + dxy[0]), (int) (- dxy[3] + dxy[1]));
+					//shape.setBounds((int) (focusedPlot.getShape().getBounds().left + dxy[0]),(int) (focusedPlot.getShape().getBounds().top + dxy[1]), (int) (focusedPlot.getShape().getBounds().right + dxy[0]), (int) (focusedPlot.getShape().getBounds().bottom + dxy[1]));
+					//focusedPlot.setShape(shape);
+				//}
 			}
 			break;
 			}

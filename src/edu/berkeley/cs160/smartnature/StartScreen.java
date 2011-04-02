@@ -30,6 +30,8 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 	
 	static GardenAdapter adapter;
 	static ArrayList<Garden> gardens;
+	/** for prototype this has the position of the clicked garden */
+	static int id;
 	AlertDialog dialog;
 	
 	@Override
@@ -87,6 +89,7 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
 		Bundle bundle = new Bundle();
+		StartScreen.id = position;
 		bundle.putInt("id", position);
 		intent.putExtras(bundle);
 		startActivity(intent);
