@@ -40,13 +40,16 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-		mockGarden = new Garden("");
-		if (extras != null && extras.containsKey("name")) {
-			setTitle(extras.getString("name"));
-			mockGarden.setName(extras.getString("name"));
-			initMockData();
-		} else
+		if (extras != null && extras.containsKey("id")) {
+			mockGarden = StartScreen.gardens.get(extras.getInt("id"));
+			setTitle(mockGarden.getName());
+			//setTitle(extras.getString("name"));
+			//mockGarden.setName(extras.getString("name"));
+			//initMockData();
+		} else {
+			mockGarden = new Garden("");
 			showDialog(0);
+		}
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
@@ -83,6 +86,15 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 				EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 				setTitle(gardenName.getText().toString());
 				mockGarden.setName(gardenName.getText().toString());
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						StartScreen.gardens.add(mockGarden);
+						StartScreen.adapter.notifyDataSetChanged();
+					}
+				});
+				
+				
 			}
 		};
 		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
