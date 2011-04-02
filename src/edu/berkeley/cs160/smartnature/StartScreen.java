@@ -88,7 +88,6 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 		Intent intent = new Intent(this, GardenScreen.class);
 		Bundle bundle = new Bundle();
 		bundle.putInt("id", position);
-		//bundle.putString("name", ((TextView)view.findViewById(R.id.garden_name)).getText().toString());
 		intent.putExtras(bundle);
 		startActivity(intent);
 	}

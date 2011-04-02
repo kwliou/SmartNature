@@ -48,10 +48,8 @@
 		android:gravity="center_vertical"
 		android:textAppearance="?android:listSeparatorTextViewStyle"
 		android:paddingLeft="5sp"
-		android:paddingTop="2sp"
-		android:paddingBottom="2sp"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" />
+		android:layout_height="25dp" />
 
 	<ListView
 		android:id="@+id/android:list"

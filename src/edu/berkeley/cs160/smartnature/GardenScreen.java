@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -43,9 +42,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		if (extras != null && extras.containsKey("id")) {
 			mockGarden = StartScreen.gardens.get(extras.getInt("id"));
 			setTitle(mockGarden.getName());
-			//setTitle(extras.getString("name"));
-			//mockGarden.setName(extras.getString("name"));
-			//initMockData();
 		} else {
 			mockGarden = new Garden(R.drawable.preview, "");
 			showDialog(0);
@@ -66,16 +62,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		}
 	}
 	
-	public void initMockData() {
-		Rect bounds1 = new Rect(40, 60, 90, 200);
-		Rect bounds2 = new Rect(140, 120, 210, 190);
-		Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
-		float[] pts = { 0, 0, 50, 10, 90, 100 };
-		mockGarden.addPlot("Jerry's Plot", bounds1, 10, Plot.RECT);
-		mockGarden.addPlot("Amy's Plot", bounds2, 0, Plot.OVAL);
-		mockGarden.addPlot("Shared Plot", bounds3, 0, pts);
-	}
-
 	@Override
 	public Dialog onCreateDialog(int id) {
 		LayoutInflater factory = LayoutInflater.from(this);
@@ -93,8 +79,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 						StartScreen.adapter.notifyDataSetChanged();
 					}
 				});
-				
-				
 			}
 		};
 		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
