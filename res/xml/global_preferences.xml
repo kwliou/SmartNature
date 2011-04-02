@@ -17,14 +17,7 @@
 			android:key="zoom_autohide"
 			android:title="Auto-hide zoom buttons"
 			android:defaultValue="false"
-			android:summary="Temporarily hide zoom buttons after a few seconds of not touching the screen" />
+			android:summary="Only show zoom buttons when touching the garden screen" />
 	</PreferenceCategory>
-
-		<EditTextPreference
-			android:dialogTitle="Your name"
-			android:key="author_name"
-			android:title="SomeTitle"
-			android:summary="Summary"
-			android:defaultValue="test" />
 
 </PreferenceScreen>
