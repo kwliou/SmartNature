@@ -96,6 +96,17 @@ public class Garden {
 		return padded;
 	}
 	
+	public void refreshBounds() {
+		for (Plot p : plots) {
+			Rect pBounds = p.getShape().getBounds();
+			bounds.left = Math.min(bounds.left, pBounds.left);
+			bounds.top = Math.min(bounds.top, pBounds.top);
+			bounds.right = Math.max(bounds.right, pBounds.right);
+			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
+		}
+	}
+	
+	
 	/** finds a plot which contains (x, y) after being transformed by the matrix */ 
 	public Plot plotAt(float x, float y, Matrix matrix) {
 		Matrix inverse = new Matrix();

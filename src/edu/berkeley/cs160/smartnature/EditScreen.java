@@ -28,6 +28,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	boolean showLabels = true, showFullScreen, dragPlot = false, rotateMode = false;
 	int zoomLevel;
 	SeekBar sb_rotation;
+	Plot newPlot;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,21 +37,22 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-		mockGarden = new Garden("mockGarden");
+		mockGarden = StartScreen.gardens.get(StartScreen.id);
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		if(extras.getString("type").equalsIgnoreCase("elipse")) {
 			Rect bounds = new Rect(140, 120, 210, 190);
-			mockGarden.addPlot( getTitle().toString(), bounds, 0, Plot.OVAL);
+			newPlot = new Plot(getTitle().toString(), bounds, 0, Plot.OVAL);
 		}
 		else if(extras.getString("type").equalsIgnoreCase("rectangle")) {
 			Rect bounds = new Rect(40, 60, 90, 200);
-			mockGarden.addPlot(getTitle().toString(), bounds, 0, Plot.RECT);
+			newPlot = new Plot(getTitle().toString(), bounds, 0, Plot.RECT);
 		}
 		else {
 			Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
 			float[] pts = { 0, 0, 50, 10, 90, 100 };
-			mockGarden.addPlot(getTitle().toString(), bounds, 0, pts);
+			newPlot = new Plot(getTitle().toString(), bounds, 0, pts);
 		}
+		mockGarden.addPlot(newPlot);
 		setContentView(R.layout.edit_plot);
 		editView = (EditView) findViewById(R.id.edit_view);
 		zoom = (ZoomControls) findViewById(R.id.edit_zoom_controls);
@@ -73,7 +75,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			}
 
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				mockGarden.getPlots().get(0).setAngle(progress);
+				newPlot.setAngle(progress);
 				editView.invalidate();
 			}
 		});
@@ -92,8 +94,10 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		case R.id.m_dragmode:
 			if(!dragPlot)
 				dragPlot = true;
-			else
+			else {
 				dragPlot = false;
+				mockGarden.refreshBounds();
+			}
 			break;
 		case R.id.m_rotatemode:
 			if(!rotateMode) {
@@ -188,7 +192,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	@Override
 	public void colorChanged(int color) {
         PreferenceManager.getDefaultSharedPreferences(this).edit().putInt("color", color).commit();
-        mockGarden.getPlots().get(0).setColor(color);
+        newPlot.getShape().getPaint().setColor(color);
         editView.invalidate();
         //do something (set the shape color)
 	}
