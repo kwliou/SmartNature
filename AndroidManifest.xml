@@ -27,6 +27,9 @@
 		<activity android:name=".GardenScreen"
 			android:label="@string/app_name">
 		</activity>
+		
+		<activity android:name="PlantScreen">
+		</activity>
 
 		<activity android:name=".ShareGarden"
 			android:theme="@style/Theme.Dialog.NoTitleBar">
