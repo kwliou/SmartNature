@@ -5,12 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PorterDuff.Mode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -191,18 +188,11 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 
 			case(MotionEvent.ACTION_MOVE):
 			if(status == START_DRAGGING && focusedPlot != null) {
-				//focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
-				//focusedPlot.getShape().getPaint().setStrokeWidth(5);
-				//if(focusedPlot.getType() == 0) {
 					float[] dxy = {x, y, prevX, prevY};
-					//float[] dxy = {x - prevX, x - prevY};
 					Matrix inverse = new Matrix();
 					m.invert(inverse);
 					inverse.mapPoints(dxy);
 					focusedPlot.getShape().getBounds().offset((int) (- dxy[2] + dxy[0]), (int) (- dxy[3] + dxy[1]));
-					//shape.setBounds((int) (focusedPlot.getShape().getBounds().left + dxy[0]),(int) (focusedPlot.getShape().getBounds().top + dxy[1]), (int) (focusedPlot.getShape().getBounds().right + dxy[0]), (int) (focusedPlot.getShape().getBounds().bottom + dxy[1]));
-					//focusedPlot.setShape(shape);
-				//}
 			}
 			break;
 			}

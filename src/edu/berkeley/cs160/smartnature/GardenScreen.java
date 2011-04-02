@@ -125,7 +125,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.m_addregion:
-				Intent intent = new Intent(this, AddGarden.class);
+				Intent intent = new Intent(this, AddPlot.class);
 				Bundle bundle = new Bundle();
 				bundle.putInt("id", StartScreen.gardens.indexOf(mockGarden));
 				intent.putExtras(bundle);

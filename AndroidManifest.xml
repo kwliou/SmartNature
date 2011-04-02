@@ -32,7 +32,7 @@
 			android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
 		
-		<activity android:name=".AddGarden"
+		<activity android:name=".AddPlot"
 			android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
 		
