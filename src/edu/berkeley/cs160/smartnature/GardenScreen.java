@@ -57,7 +57,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
 		
-		gardenView.setOnClickListener(new OnClickListener() {
+		/*gardenView.setOnClickListener(new OnClickListener() {
 	    public void onClick(View v) {
 				setContentView(R.layout.plot);
 				settingListeners();
@@ -67,7 +67,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 				//intent.putExtras(bundle);
 				//startActivity(intent);
 	    }
-	  });
+	  });*/
 		
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {

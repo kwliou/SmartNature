@@ -43,6 +43,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		initMockData();	
 		setOnClickListener(this);
 		setOnTouchListener(this);
+		setOnLongClickListener(this);
 	}
 	
 	public void initMockData() {
@@ -153,6 +154,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	}
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
+		super.onTouchEvent(event);
 		context.handleZoom();
 		x = event.getX(); y = event.getY();
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -185,7 +187,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
 				focusedPlot.getShape().getPaint().setStrokeWidth(3);
 			}
-			performClick();
+			//performClick();
 		}
 		prevX = x;
 		prevY = y;
