@@ -119,6 +119,9 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.m_addregion:
+				startActivity(new Intent(this, AddGarden.class));
+				break;
 			case R.id.m_home:
 				finish();
 				break;

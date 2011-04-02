@@ -31,10 +31,16 @@
 		<activity android:name=".ShareGarden"
 			android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
-
-		<activity android:name=".EditPlot"
+		
+		<activity android:name=".AddGarden"
+			android:theme="@style/Theme.Dialog.NoTitleBar">
+		</activity>
+		
+		<activity android:name=".EditScreen"
 			android:label="@string/app_name">
 		</activity>
+		
+		<activity android:name=".ColorPicker"></activity>
 
 	</application>
 </manifest>

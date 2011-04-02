@@ -17,4 +17,5 @@
         <item name="android:windowNoTitle">true</item>
     </style>
    <string name="hint_gardenscreen">Click on Add Plot in the menu to add a plot\nPress on a plot to view its plants/info</string>
+   <string name="hint_editscreen">hint_editscreen</string>
 </resources>

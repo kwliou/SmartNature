@@ -13,6 +13,7 @@ public class Plot {
 	private int type;
 	private float[] polyPoints;
 	private float rotation; // angle of direction where 0 is "north"
+	private int color;
 	
 	/** create a polygonal plot */
 	Plot(String plotName, Rect bounds, float angle, float[] points) {
@@ -20,7 +21,7 @@ public class Plot {
 		type = POLY;
 		polyPoints = points;
 		rotation = angle;
-		
+		color = -1;
 		Path p = new Path();
 		p.moveTo(points[0], points[1]);
 		for (int i = 2; i < points.length; i += 2)
@@ -54,6 +55,14 @@ public class Plot {
 	
 	public void setAngle(float angle) {
 		this.rotation = angle;
+	}
+	
+	public int getColor() {
+		return color;
+	}
+	
+	public void setColor(int color) {
+		this.color = color;
 	}
 	
 	public ShapeDrawable getShape() {
@@ -105,6 +114,10 @@ public class Plot {
 					oddTransitions = !oddTransitions;
 		}
 		return oddTransitions;
+	}
+	
+	public int getType() {
+		return type;
 	}
 	
 }

@@ -1,7 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/m_dragmode"
-          android:icon="@android:drawable/ic_menu_rotate"
-          android:visible="false"
+          android:visible="true"
           android:title="Drag mode" />
 	<item android:id="@+id/m_rotatemode"
           android:icon="@android:drawable/ic_menu_rotate"
