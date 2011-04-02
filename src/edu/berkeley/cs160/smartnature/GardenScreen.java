@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -30,7 +29,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	ZoomControls zoom;
 	GardenView gardenView;
 	Handler mHandler = new Handler();
-	boolean showLabels = true, showFullScreen;
+	boolean showLabels = true, showFullScreen, zoomAutoHidden;
 	int zoomLevel;
 	
 	@Override
@@ -40,17 +39,19 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-		mockGarden = new Garden("");
-		if (extras != null && extras.containsKey("name")) {
-			setTitle(extras.getString("name"));
-			mockGarden.setName(extras.getString("name"));
-			initMockData();
-		} else
+		if (extras != null && extras.containsKey("id")) {
+			mockGarden = StartScreen.gardens.get(extras.getInt("id"));
+			setTitle(mockGarden.getName());
+		} else {
+			mockGarden = new Garden(R.drawable.preview, "");
 			showDialog(0);
+		}
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
-		zoom.setVisibility(View.GONE);
+		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
+		if (zoomAutoHidden)
+			zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
 		
@@ -61,16 +62,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		}
 	}
 	
-	public void initMockData() {
-		Rect bounds1 = new Rect(40, 60, 90, 200);
-		Rect bounds2 = new Rect(140, 120, 210, 190);
-		Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
-		float[] pts = { 0, 0, 50, 10, 90, 100 };
-		mockGarden.addPlot("Jerry's Plot", bounds1, 10, Plot.RECT);
-		mockGarden.addPlot("Amy's Plot", bounds2, 0, Plot.OVAL);
-		mockGarden.addPlot("Shared Plot", bounds3, 0, pts);
-	}
-
 	@Override
 	public Dialog onCreateDialog(int id) {
 		LayoutInflater factory = LayoutInflater.from(this);
@@ -81,6 +72,13 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 				EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 				setTitle(gardenName.getText().toString());
 				mockGarden.setName(gardenName.getText().toString());
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						StartScreen.gardens.add(mockGarden);
+						StartScreen.adapter.notifyDataSetChanged();
+					}
+				});
 			}
 		};
 		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
@@ -89,11 +87,18 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 				finish();
 			}
 		};
+		DialogInterface.OnCancelListener exited = new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				finish();
+			}
+		};
 		dialog = new AlertDialog.Builder(this)
 			.setTitle(R.string.new_garden_prompt)
 			.setView(textEntryView)
 			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-			.setNegativeButton(R.string.alert_dialog_cancel, canceled)
+			.setNegativeButton(R.string.alert_dialog_cancel, canceled) // this means the dialog's cancel button was pressed
+			.setOnCancelListener(exited) // this means the back button was pressed
 			.create();
 		
 		// automatically show soft keyboard
@@ -190,10 +195,12 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	};
 	
 	public void handleZoom() {
-		mHandler.removeCallbacks(autoHide);
-		if (!zoom.isShown())
-			zoom.show(); //zoom.setVisibility(View.VISIBLE);
-		mHandler.postDelayed(autoHide, ZOOM_DURATION);
+		if (zoomAutoHidden) {
+			mHandler.removeCallbacks(autoHide);
+			if (!zoom.isShown())
+				zoom.show(); //zoom.setVisibility(View.VISIBLE);
+			mHandler.postDelayed(autoHide, ZOOM_DURATION);
+		}
 	}
 	
 	Runnable autoHide = new Runnable() {
