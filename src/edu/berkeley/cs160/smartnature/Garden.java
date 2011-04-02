@@ -12,9 +12,9 @@ public class Garden {
 	private int previewId;
 	private ArrayList<Plot> plots;
 	private Rect bounds;
-	private Rect padding = new Rect(30, 30, 30, 10);
+	private Rect padding = new Rect(30, 30, 30, 30);
 	private Rect paddingLand = new Rect(20, 30, 20, 10);
-	private Rect paddingPort = new Rect(30, 20, 20, 10);
+	private Rect paddingPort = new Rect(30, 20, 10, 20);
 	
 	Garden(String gardenName) {
 		name = gardenName;
@@ -75,7 +75,7 @@ public class Garden {
 		return bounds;
 	}
 	
-	/** Used for full screen */
+	/** Used for full screen mode */
 	public RectF getBounds() {
 		RectF padded = new RectF(bounds);
 		padded.left -= padding.left;
@@ -87,26 +87,12 @@ public class Garden {
 	
 	/** Used for portrait/landscape mode */
 	public RectF getBounds(boolean portraitMode) {
-		return portraitMode ? getPortBounds() : getLandBounds();
-	}
-	
-	/** Used for portrait mode */
-	public RectF getPortBounds() {
+		Rect offset = portraitMode ? paddingPort : paddingLand;
 		RectF padded = new RectF(bounds);
-		padded.left -= paddingPort.left;
-		padded.top -= paddingPort.top;
-		padded.right += paddingPort.right;
-		padded.bottom += paddingPort.bottom;
-		return padded;
-	}
-	
-	/** Used for landscape mode */
-	public RectF getLandBounds() {
-		RectF padded = new RectF(bounds);
-		padded.left -= paddingLand.left;
-		padded.top -= paddingLand.top;
-		padded.right += paddingLand.right;
-		padded.bottom += paddingLand.bottom;
+		padded.left -= offset.left;
+		padded.top -= offset.top;
+		padded.right += offset.right;
+		padded.bottom += offset.bottom;
 		return padded;
 	}
 	
