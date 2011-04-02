@@ -103,11 +103,18 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 				finish();
 			}
 		};
+		DialogInterface.OnCancelListener exited = new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				finish();
+			}
+		};
 		dialog = new AlertDialog.Builder(this)
 			.setTitle(R.string.new_garden_prompt)
 			.setView(textEntryView)
 			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-			.setNegativeButton(R.string.alert_dialog_cancel, canceled)
+			.setNegativeButton(R.string.alert_dialog_cancel, canceled) // this means the dialog's cancel button was pressed
+			.setOnCancelListener(exited) // this means the back button was pressed
 			.create();
 		
 		// automatically show soft keyboard

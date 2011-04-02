@@ -1,6 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +22,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+class GardenGnome extends Application {
+	static ArrayList<Garden> gardens = new ArrayList<Garden>();
+}
+
 public class StartScreen extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 	
 	static GardenAdapter adapter;
@@ -32,35 +37,36 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		initMockData();
-		
 		getListView().setOnItemClickListener(this);
 		((Button) findViewById(R.id.new_garden)).setOnClickListener(this);
 	}
 	
 	public void initMockData() {
-		gardens = new ArrayList<Garden>();
-		Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");
-		Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
-		//Garden g3 = new Garden(R.drawable.preview3, "Peralta");
-		
-		Rect bounds1 = new Rect(40, 60, 90, 200);
-		Rect bounds2 = new Rect(140, 120, 210, 190);
-		Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
-		float[] pts = { 0, 0, 50, 10, 90, 100 };
-		g1.addPlot("Jerry's Plot", bounds1, 10, Plot.RECT);
-		g1.addPlot("Amy's Plot", bounds2, 0, Plot.OVAL);
-		g1.addPlot("Shared Plot", bounds3, 0, pts);
-		
-		Rect bounds4 = new Rect(40, 200, 90, 300);
-		Rect bounds5 = new Rect(140, 50, 210, 190);
-		Rect bounds6 = new Rect(270, 120, 270 + 90, 120 + 140);
-		float[] pts2 = { 0, 0, 50, 10, 90, 100, 70, 140, 60, 120 };
-		g2.addPlot("Cyndi's Plot", bounds4, 0, Plot.RECT);
-		g2.addPlot("Alex's Plot", bounds5, 10, Plot.OVAL);
-		g2.addPlot("Flowers", bounds6, 0, pts2);
-		
-		gardens.add(g1);
-		gardens.add(g2);
+		gardens = GardenGnome.gardens;
+		if (gardens.isEmpty()) {
+			Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");
+			Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
+			//Garden g3 = new Garden(R.drawable.preview3, "Peralta");
+			
+			Rect bounds1 = new Rect(40, 60, 90, 200);
+			Rect bounds2 = new Rect(140, 120, 210, 190);
+			Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
+			float[] pts = { 0, 0, 50, 10, 90, 100 };
+			g1.addPlot("Jerry's Plot", bounds1, 10, Plot.RECT);
+			g1.addPlot("Amy's Plot", bounds2, 0, Plot.OVAL);
+			g1.addPlot("Shared Plot", bounds3, 0, pts);
+			
+			Rect bounds4 = new Rect(40, 200, 90, 300);
+			Rect bounds5 = new Rect(140, 50, 210, 190);
+			Rect bounds6 = new Rect(270, 120, 270 + 90, 120 + 140);
+			float[] pts2 = { 0, 0, 50, 10, 90, 100, 70, 140, 60, 120 };
+			g2.addPlot("Cyndi's Plot", bounds4, 0, Plot.RECT);
+			g2.addPlot("Alex's Plot", bounds5, 10, Plot.OVAL);
+			g2.addPlot("Flowers", bounds6, 0, pts2);
+			
+			gardens.add(g1);
+			gardens.add(g2);
+		}
 		adapter = new GardenAdapter(this, R.layout.list_item, gardens);
 		setListAdapter(adapter);
 	}
