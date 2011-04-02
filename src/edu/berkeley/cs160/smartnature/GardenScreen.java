@@ -47,7 +47,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			//mockGarden.setName(extras.getString("name"));
 			//initMockData();
 		} else {
-			mockGarden = new Garden("");
+			mockGarden = new Garden(R.drawable.preview, "");
 			showDialog(0);
 		}
 		setContentView(R.layout.garden);

@@ -1,7 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
