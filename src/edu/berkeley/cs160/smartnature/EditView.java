@@ -168,8 +168,12 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		if (context.getDragPlot()) {
 			switch(event.getAction()) {
 			case(MotionEvent.ACTION_DOWN):
-				focusedPlot = garden.plotAt(x, y, m);
-				if (focusedPlot == context.newPlot) {
+				Matrix inv = new Matrix();
+				m.invert(inv);
+				float[] xy = { x, y };
+				inv.mapPoints(xy);
+				if (context.newPlot.contains(xy[0], xy[1])) {
+					focusedPlot = context.newPlot;
 					// set focused plot appearance
 					focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
 					focusedPlot.getShape().getPaint().setStrokeWidth(5);
