@@ -35,6 +35,7 @@ public class AddGarden extends Activity implements View.OnClickListener{
 				return;
 			}
 			else {
+				Bundle extras = getIntent().getExtras();
 				Intent intent = new Intent(this, EditScreen.class);
 				Bundle bundle = new Bundle();
 				bundle.putString("name", et_plot_name.getText().toString());
@@ -44,6 +45,7 @@ public class AddGarden extends Activity implements View.OnClickListener{
 					bundle.putString("type", "rectangle");
 				else if(rb_custom.isChecked())
 					bundle.putString("type", "custom");
+				bundle.putInt("id", extras.getInt("id"));
 				intent.putExtras(bundle);
 				startActivity(intent);
 				Toast.makeText(this, bundle.getString("type") + " is selected", Toast.LENGTH_SHORT).show();

@@ -9,11 +9,12 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-public class GardenView extends View implements View.OnClickListener, View.OnTouchListener {
+public class GardenView extends View implements View.OnClickListener, View.OnTouchListener, View.OnLongClickListener{
 	
 	GardenScreen context;
 	Garden garden;
@@ -140,7 +141,16 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		if (focusedPlot != null)
 			Toast.makeText(context, "clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
 	}
-		
+	
+	@Override
+	public boolean onLongClick(View v) {
+		Log.w("debug", "i'm here");
+		if (focusedPlot != null) {
+			Toast.makeText(context, "long clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
+			return true;
+		}
+		return false;
+	}
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		context.handleZoom();

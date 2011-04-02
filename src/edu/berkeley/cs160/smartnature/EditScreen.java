@@ -36,7 +36,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-		mockGarden = new Garden("mockGarden");
+		mockGarden = StartScreen.gardens.get(extras.getInt("id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		if(extras.getString("type").equalsIgnoreCase("elipse")) {
 			Rect bounds = new Rect(140, 120, 210, 190);
@@ -79,6 +79,13 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		});
 	}
 
+	public void onBackPressed() {
+		Bundle extras = getIntent().getExtras();
+		if(extras.containsKey("type"))
+			mockGarden.getPlots().remove(mockGarden.getPlots().size() - 1);
+		finish();
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -95,6 +102,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			else
 				dragPlot = false;
 			break;
+
 		case R.id.m_rotatemode:
 			if(!rotateMode) {
 				sb_rotation.setVisibility(View.VISIBLE);
@@ -106,13 +114,17 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 				rotateMode = false;
 			}
 			break;
+
 		case R.id.m_change_color:
 			int color = PreferenceManager.getDefaultSharedPreferences(EditScreen.this).getInt("color",Color.WHITE);
-            new ColorPickerDialog(EditScreen.this, EditScreen.this, color).show();
-            break;
+			new ColorPickerDialog(EditScreen.this, EditScreen.this, color).show();
+			break;
+
+		case R.id.m_save:
+			finish();
 		}
-		
-			
+
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -187,10 +199,10 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 
 	@Override
 	public void colorChanged(int color) {
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt("color", color).commit();
-        mockGarden.getPlots().get(0).setColor(color);
-        editView.invalidate();
-        //do something (set the shape color)
+		PreferenceManager.getDefaultSharedPreferences(this).edit().putInt("color", color).commit();
+		mockGarden.getPlots().get(0).setColor(color);
+		editView.invalidate();
+		//do something (set the shape color)
 	}
 
 }
