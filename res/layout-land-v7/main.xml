@@ -47,7 +47,7 @@
 
 		<TextView
 			android:text="@string/garden_list_title"
-			android:background="#ff8e8e8e"
+			android:background="#ffd4d4d4"
 			android:textAppearance="?android:listSeparatorTextViewStyle"
 			android:gravity="center_vertical"
 			android:paddingLeft="5sp"

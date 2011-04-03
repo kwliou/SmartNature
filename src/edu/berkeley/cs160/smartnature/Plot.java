@@ -1,5 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.ShapeDrawable;
@@ -13,6 +15,10 @@ public class Plot {
 	private int type;
 	private float[] polyPoints;
 	private float rotation; // angle of direction where 0 is "north"
+	private int color;
+	
+	private int id;
+	private ArrayList<Plant> plants = new ArrayList<Plant>();
 	
 	/** create a polygonal plot */
 	Plot(String plotName, Rect bounds, float angle, float[] points) {
@@ -20,7 +26,7 @@ public class Plot {
 		type = POLY;
 		polyPoints = points;
 		rotation = angle;
-		
+		color = 0;
 		Path p = new Path();
 		p.moveTo(points[0], points[1]);
 		for (int i = 2; i < points.length; i += 2)
@@ -40,6 +46,25 @@ public class Plot {
 		shape.setBounds(bounds);
 	}
 		
+	
+	public ArrayList<Plant> getPlants() {
+		return plants;
+	}
+
+	public void addPlant(Plant p) {
+		p.setID(plants.size());
+		plants.add(p);
+	}
+	
+	
+	public int getID(){
+		return id;
+	}
+	
+	public int setID(int i){
+		return id = i;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -54,6 +79,18 @@ public class Plot {
 	
 	public void setAngle(float angle) {
 		this.rotation = angle;
+	}
+	
+	public int getColor() {
+		return color;
+	}
+	
+	public void setColor(int color) {
+		this.color = color;
+	}
+	
+	public float[] getPoint () {
+		return polyPoints;
 	}
 	
 	public ShapeDrawable getShape() {
@@ -105,6 +142,10 @@ public class Plot {
 					oddTransitions = !oddTransitions;
 		}
 		return oddTransitions;
+	}
+	
+	public int getType() {
+		return type;
 	}
 	
 }

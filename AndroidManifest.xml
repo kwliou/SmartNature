@@ -27,14 +27,26 @@
 		<activity android:name=".GardenScreen"
 			android:label="@string/app_name">
 		</activity>
+		
+		<activity android:name="PlantScreen">
+		</activity>
+		
+		<activity android:name="PlotScreen">
+		</activity>
 
 		<activity android:name=".ShareGarden"
 			android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
-
-		<activity android:name=".EditPlot"
+		
+		<activity android:name=".AddPlot"
+			android:theme="@style/Theme.Dialog.NoTitleBar">
+		</activity>
+		
+		<activity android:name=".EditScreen"
 			android:label="@string/app_name">
 		</activity>
+		
+		<activity android:name=".ColorPicker"></activity>
 
 		<activity android:name=".Encycl"
                   android:label="@string/app_name">

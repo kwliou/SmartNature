@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+		
+	<edu.berkeley.cs160.smartnature.EditView
+		android:id="@+id/edit_view"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent" />
+	<TextView
+		android:id="@+id/edit_hint"
+		android:textStyle="bold"
+		android:visibility="gone"
+		android:background="#44000000"
+		android:focusable="false"
+		android:paddingTop="6dp"
+		android:paddingRight="6sp"
+		android:paddingBottom="3sp"
+		android:paddingLeft="6sp"
+		android:lineSpacingExtra="2dp"
+		android:textColor="@android:color/white"
+		android:shadowColor="#BB000000"
+		android:shadowRadius="2.5"
+		android:layout_gravity="top"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<SeekBar 
+		android:id="@+id/sb_rotation"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:max="360"
+		android:progress="0"
+		android:layout_gravity="top"
+		android:visibility="invisible"
+		android:layout_below="@id/edit_hint"/>
+	<LinearLayout
+		android:id="@+id/footer"
+		style="@android:style/ButtonBar"
+		android:layout_alignParentBottom="true"
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+		<Button
+			android:id="@+id/dragButton"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="Drag mode" />
+		<Button
+			android:id="@+id/saveButton"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="Save" />
+		<Button
+			android:id="@+id/rotateButton"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="Rotate mode" />
+	</LinearLayout>
+	<TextView
+		android:id="@+id/mode_drag"
+		android:textStyle="bold"
+		android:background="#44000000"
+		android:focusable="false"
+		android:textColor="@android:color/white"
+		android:shadowColor="#BB000000"
+		android:shadowRadius="2.5"
+		android:layout_above="@id/footer"
+		android:layout_alignParentLeft="true"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Drag Mode is OFF"/>
+	<TextView
+		android:id="@+id/mode_rotate"
+		android:textStyle="bold"
+		android:background="#44000000"
+		android:focusable="false"
+		android:textColor="@android:color/white"
+		android:shadowColor="#BB000000"
+		android:shadowRadius="2.5"
+		android:layout_above="@id/footer"
+		android:layout_alignParentRight = "true"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Rotate Mode is OFF"/>
+	<ZoomControls
+		android:id="@+id/edit_zoom_controls"
+		android:padding="10dp"
+		android:layout_above="@id/footer"
+		android:layout_alignParentRight="true"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+</RelativeLayout>

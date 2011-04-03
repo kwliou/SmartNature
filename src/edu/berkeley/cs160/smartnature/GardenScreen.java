@@ -6,32 +6,37 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class GardenScreen extends Activity implements View.OnTouchListener, View.OnClickListener {
+public class GardenScreen extends Activity implements DialogInterface.OnClickListener {
 	
 	final int ZOOM_DURATION = 3000;
+	final int NEW_DIALOG = 0, RENAME_DIALOG = 1;
 	Garden mockGarden;
+	View textEntryView;
 	AlertDialog dialog;
 	ZoomControls zoom;
 	GardenView gardenView;
 	Handler mHandler = new Handler();
-	boolean showLabels = true, showFullScreen;
+	boolean showLabels = true, showFullScreen, zoomAutoHidden;
 	int zoomLevel;
+	int currentDialog; 
+	
+	int gardenID;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,20 +45,51 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-		mockGarden = new Garden("");
-		if (extras != null && extras.containsKey("name")) {
-			setTitle(extras.getString("name"));
-			mockGarden.setName(extras.getString("name"));
-			initMockData();
-		} else
-			showDialog(0);
+		if (extras != null && extras.containsKey("id")) {
+			mockGarden = StartScreen.gardens.get(extras.getInt("id"));
+			gardenID = extras.getInt("id");
+			setTitle(mockGarden.getName());
+		} else {
+			mockGarden = new Garden(R.drawable.preview, "");
+			showDialog(NEW_DIALOG);
+		}
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
-		zoom.setVisibility(View.GONE);
+		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
+		if (zoomAutoHidden)
+			zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
 		
+		/*(gardenView.setOnClickListener(new OnClickListener() {
+		public void onClick(View v) {
+		setContentView(R.layout.plot);
+		settingListeners();
+		Bundle bundle = new Bundle();
+		//bundle.putString("name", ((TextView)view.findViewById(R.id.garden_name)).getText().toString());
+		//intent.putExtras(bundle);
+		//startActivity(intent);
+		}
+		});*/
+		
+		/*
+		gardenView.setOnClickListener(new OnClickListener() {
+
+	    public void onClick(View v) {
+	
+      	Intent intent = new Intent(GardenScreen.this, PlotScreen.class);
+				Bundle bundle = new Bundle(3);
+				bundle.putString("name", gardenView.focusedPlot.getName());
+				bundle.putInt("gardenID", gardenID);
+				bundle.putInt("plotID", gardenView.focusedPlot.getID());
+				intent.putExtras(bundle);      	
+				startActivity(intent);
+
+	    }
+	  });
+		*/
+
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
@@ -61,40 +97,57 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		}
 	}
 	
-	public void initMockData() {
-		Rect bounds1 = new Rect(40, 60, 90, 200);
-		Rect bounds2 = new Rect(140, 120, 210, 190);
-		Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
-		float[] pts = { 0, 0, 50, 10, 90, 100 };
-		mockGarden.addPlot("Jerry's Plot", bounds1, 10, Plot.RECT);
-		mockGarden.addPlot("Amy's Plot", bounds2, 0, Plot.OVAL);
-		mockGarden.addPlot("Shared Plot", bounds3, 0, pts);
-	}
+	private void settingListeners(){
+	   TextView plotTitle = (TextView) findViewById(R.id.plotTextView);
+	   plotTitle.setText(gardenView.focusedPlot.getName());
+	  
+	   Button addPlantButton = (Button) findViewById(R.id.addPlantButton);
+	   addPlantButton.setOnClickListener(new OnClickListener() {
+	   @Override
+	          public void onClick(View v) {
+	           Intent intent = new Intent(GardenScreen.this, PlantScreen.class);
+	     //Bundle bundle = new Bundle();
+	     //bundle.putString("name", ((TextView) v.findViewById(R.id.garden_name)).getText().toString());
+	     //intent.putExtras(bundle);
+	     startActivity(intent);
+	     //showDialog(0);
+	          }
+	      });
 
+	   Button backButton = (Button) findViewById(R.id.backButton);
+	   backButton.setOnClickListener(new OnClickListener() {
+	          public void onClick(View v) {
+	           setContentView(R.layout.garden);
+	          }
+	      });
+
+	  }
+  
 	@Override
 	public Dialog onCreateDialog(int id) {
-		LayoutInflater factory = LayoutInflater.from(this);
-		final View textEntryView = factory.inflate(R.layout.text_entry_dialog, null);
-		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-				setTitle(gardenName.getText().toString());
-				mockGarden.setName(gardenName.getText().toString());
-			}
+		DialogInterface.OnClickListener cancelled = new DialogInterface.OnClickListener() {
+			@Override public void onClick(DialogInterface dialog, int whichButton) { finish(); }
 		};
-		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				finish();
-			}
+		
+		DialogInterface.OnCancelListener exited = new DialogInterface.OnCancelListener() {
+			@Override public void onCancel(DialogInterface dialog) { finish(); }
 		};
-		dialog = new AlertDialog.Builder(this)
-			.setTitle(R.string.new_garden_prompt)
-			.setView(textEntryView)
-			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-			.setNegativeButton(R.string.alert_dialog_cancel, canceled)
-			.create();
+		
+		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(textEntryView);
+		
+		if (id == NEW_DIALOG)
+			builder.setTitle(R.string.new_garden_prompt)
+				.setPositiveButton(R.string.alert_dialog_ok, this)
+				.setNegativeButton(R.string.alert_dialog_cancel, cancelled) // this means cancel was pressed
+				.setOnCancelListener(exited); // this means the back button was pressed
+		else {
+			((EditText) textEntryView.findViewById(R.id.dialog_text_entry)).setText(mockGarden.getName());
+			builder.setTitle(R.string.rename_garden_prompt)
+				.setPositiveButton(R.string.alert_dialog_rename, this)
+				.setNegativeButton(R.string.alert_dialog_cancel, null);	
+		}
+		dialog = builder.create();
 		
 		// automatically show soft keyboard
 		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
@@ -110,6 +163,16 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	}
 	
 	@Override
+	public void onClick(DialogInterface dialog, int whichButton) {
+		EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		setTitle(gardenName.getText().toString());
+		mockGarden.setName(gardenName.getText().toString());
+		if (currentDialog == NEW_DIALOG)
+			StartScreen.gardens.add(mockGarden);
+		StartScreen.adapter.notifyDataSetChanged();	
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.garden_menu, menu);
@@ -119,8 +182,19 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.m_addregion:
+				Intent intent = new Intent(this, AddPlot.class);
+				Bundle bundle = new Bundle();
+				bundle.putInt("id", StartScreen.gardens.indexOf(mockGarden));
+				intent.putExtras(bundle);
+				startActivity(intent);
+				break;
 			case R.id.m_home:
 				finish();
+				break;
+			case R.id.m_rename_garden:
+				currentDialog = RENAME_DIALOG;
+				showDialog(RENAME_DIALOG);
 				break;
 			case R.id.m_resetzoom:
 				zoomLevel = 0;
@@ -137,18 +211,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	@Override
-	public boolean onTouch(View view, MotionEvent event) {
-		System.out.println("touched");
-		return false;
-	}
-	
-	@Override
-	public void onClick(View view) {
-		System.out.println("clicked");
-	}
-	
 
 	View.OnClickListener zoomIn = new View.OnClickListener() {
 		@Override
@@ -187,10 +249,12 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	};
 	
 	public void handleZoom() {
-		mHandler.removeCallbacks(autoHide);
-		if (!zoom.isShown())
-			zoom.show(); //zoom.setVisibility(View.VISIBLE);
-		mHandler.postDelayed(autoHide, ZOOM_DURATION);
+		if (zoomAutoHidden) {
+			mHandler.removeCallbacks(autoHide);
+			if (!zoom.isShown())
+				zoom.show(); //zoom.setVisibility(View.VISIBLE);
+			mHandler.postDelayed(autoHide, ZOOM_DURATION);
+		}
 	}
 	
 	Runnable autoHide = new Runnable() {
@@ -202,4 +266,5 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			}
 		}
 	};
+	
 }

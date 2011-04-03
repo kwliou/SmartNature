@@ -1,7 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/m_dragmode"
-          android:icon="@android:drawable/ic_menu_rotate"
-          android:visible="false"
+          android:visible="true"
           android:title="Drag mode" />
 	<item android:id="@+id/m_rotatemode"
           android:icon="@android:drawable/ic_menu_rotate"
@@ -12,7 +11,7 @@
 	<item android:id="@+id/m_move_forward"
           android:icon="@drawable/ic_menu_move_up"
           android:title="Move to front" />
-	<item android:id="@+id/m_search"
+	<item android:id="@+id/m_save"
           android:icon="@android:drawable/ic_menu_save"
           android:title="Save" />
 </menu>
