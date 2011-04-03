@@ -70,6 +70,8 @@ public class Garden {
 			bounds.right = Math.max(bounds.right, pBounds.right);
 			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
 		}
+		
+		plot.setID(plots.size());
 		plots.add(plot);
 	}
 	

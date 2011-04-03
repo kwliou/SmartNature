@@ -1,5 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,44 +24,58 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class PlantScreen extends Activity implements View.OnTouchListener, View.OnClickListener {
+public class PlotScreen extends Activity implements View.OnTouchListener, View.OnClickListener {
 	
 	final int ZOOM_DURATION = 3000;
+	static ArrayList<Plant> plants = new ArrayList<Plant>();
+	
+	LinearLayout plantTextLayout;
+	TextView text;
+	
 	Plant mockPlant;
 	AlertDialog dialog;
-	ZoomControls zoom;
-	GardenView gardenView;
-	Handler mHandler = new Handler();
-	boolean showLabels = true, showFullScreen;
-	int zoomLevel;
+	//ZoomControls zoom;
+	//GardenView gardenView;
+	//Handler mHandler = new Handler();
+	//boolean showLabels = true, showFullScreen;
+	//int zoomLevel;
+	
+	int gardenID, plotID; 
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		//showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
 		//if (showFullScreen)
 			//setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
+		
 		super.onCreate(savedInstanceState);
 		mockPlant = new Plant("");
-
-		/*
+		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
 			setTitle(extras.getString("name"));
-			//mockGarden.setName(extras.getString("name"));
+			
+			gardenID = extras.getInt("gardenID");
+			plotID = extras.getInt("gardenID");
+			
 		} else {
 			showDialog(0);
 		}
-		*/
-		showDialog(0);
-		setContentView(R.layout.plant);
-		/*
-
 		
+		setContentView(R.layout.plot);
+		plantTextLayout = (LinearLayout) findViewById(R.id.plantTextLayout);
+		TextView plotNumber = (TextView) findViewById(R.id.textView1);
+		plotNumber.setText("plot #: " + ((Integer) plotID).toString());
+		
+		initMockData();
+		loadPlants();
+		/*
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
@@ -67,35 +83,60 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 		}
 		*/
 		
-		Button addPicButton = (Button) findViewById(R.id.addPicButton);
-		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
-		Button backButton = (Button) findViewById(R.id.back2PlotButton);
 		
-		addPicButton.setOnClickListener(new OnClickListener() {
-			@Override
-      public void onClick(View v) {
-				// Call Deepti's Picture dialog
-      }
+		
+		TextView plotTitle = (TextView) findViewById(R.id.plotTextView);
+		plotTitle.setText(extras.getString("name"));
+		
+		Button addPlantButton = (Button) findViewById(R.id.addPlantButton);
+		
+		addPlantButton.setOnClickListener(new OnClickListener() {
+				@Override
+        public void onClick(View v) {
+        	//Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
+  				//Bundle bundle = new Bundle();
+  				//bundle.putString("name", ((TextView) v.findViewById(R.id.garden_name)).getText().toString());
+  				//intent.putExtras(bundle);
+  				//startActivity(intent);
+  				showDialog(0);
+        }
     });
-		addEntryButton.setOnClickListener(new OnClickListener() {
-			@Override
-      public void onClick(View v) {
-				// Call Deepti's Entry dialog
-      }
-    });
+		 
+		Button backButton = (Button) findViewById(R.id.backButton);
 		backButton.setOnClickListener(new OnClickListener() {
-      public void onClick(View v) {
-      	finish();
-      }
-		});
-		
+        public void onClick(View v) {
+        	//setContentView(R.layout.garden);
+        	finish();
+        }
+    });
 
-    
 	}
 	
 	public void initMockData() {
-		mockPlant.addEntry(new Entry("Entry 1", "4/1"));
-		mockPlant.addEntry(new Entry("Entry 2", "4/15"));
+		plants.add(new Plant("Carrot"));
+		plants.add(new Plant("Tomato"));
+
+	}
+	
+	public void loadPlants(){
+		for (Plant p: StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants()) {
+			text = new TextView(PlotScreen.this);
+			text.setTextColor(0xFF000000); //black
+			text.setText(p.getName());
+			/*
+			text.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
+					Bundle bundle = new Bundle();
+					bundle.putString("name", text.getText().toString());
+					intent.putExtras(bundle);
+					startActivity(intent);
+				}		
+			});	
+			*/
+			plantTextLayout.addView(text);
+		}
 	}
 
 	@Override
@@ -106,8 +147,13 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				EditText plantName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-				setTitle(plantName.getText().toString());
-				mockPlant.setName(plantName.getText().toString());
+				//setTitle(plantName.getText().toString());
+				//mockPlant.setName(plantName.getText().toString());
+				//plants.add( new Plant(plantName.getText().toString()) );
+				StartScreen.gardens.get(gardenID).getPlots().get(plotID).addPlant( new Plant(plantName.getText().toString()) );
+				
+				plantTextLayout.removeAllViews();
+				loadPlants();
 			}
 		};
 		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
@@ -150,16 +196,16 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 				finish();
 				break;
 			case R.id.m_resetzoom:
-				zoomLevel = 0;
-				gardenView.reset();
+				//zoomLevel = 0;
+				//gardenView.reset();
 				break;
 			case R.id.m_share:
 				startActivity(new Intent(this, ShareGarden.class));
 				break;
 			case R.id.m_showlabels:
-				showLabels = !showLabels;
-				item.setTitle(showLabels ? "Hide labels" : "Show labels");
-				gardenView.invalidate();				
+				//showLabels = !showLabels;
+				//item.setTitle(showLabels ? "Hide labels" : "Show labels");
+				//gardenView.invalidate();				
 				break;
 		}
 		return super.onOptionsItemSelected(item);

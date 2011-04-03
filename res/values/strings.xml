@@ -7,8 +7,10 @@
     <string name="search_encyclopedia">Plant encyclopedia</string>
     <string name="alert_dialog_ok">Create</string>
     <string name="alert_dialog_cancel">Cancel</string>
+    <string name="alert_dialog_rename">Rename</string>
     <string name="alert_dialog_share">Share</string>
     <string name="new_garden_prompt">Enter garden name</string>
+    <string name="rename_garden_prompt">Edit garden name</string>
     <string name="new_region_prompt">Enter region name</string>
     <string name="new_plant_prompt">Enter plant name</string>
     <string name="garden_list_title">My Gardens</string>
