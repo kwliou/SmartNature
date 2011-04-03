@@ -1,6 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -8,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -139,8 +141,18 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	
 	@Override
 	public void onClick(View view) {
-		if (focusedPlot != null)
-			Toast.makeText(context, "clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
+		if (focusedPlot != null){
+			//Toast.makeText(context, "clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
+			
+			/*
+    	Intent intent = new Intent(this, PlotScreen.class);
+			Bundle bundle = new Bundle();
+			bundle.putString("name", ((TextView) view.findViewById(R.id.garden_name)).getText().toString());
+			intent.putExtras(bundle);      	
+			startActivity(intent);
+			*/
+			
+		}
 	}
 	
 	@Override

@@ -14,16 +14,47 @@
 	android:textStyle="bold"
 	android:textSize="20px" 
 	/>
-  <Button 
+  <TextView 
+  android:layout_width="wrap_content" 
+  android:layout_height="wrap_content" 
+  android:text="TextView" 
+  android:id="@+id/textView1"
+	/>
+  <LinearLayout 
+  android:id="@+id/linearLayout2"
+  android:layout_width="fill_parent" 
+  android:layout_height="wrap_content"
+  android:orientation="horizontal"
+  >
+    <Button 
   	android:text="Add Plant" 
   	android:id="@+id/addPlantButton" 
   	android:layout_width="wrap_content" 
   	android:layout_height="wrap_content"
+  	
 	/>
+
   <Button 
 	  android:text="Back" 
 	  android:id="@+id/backButton" 
 	  android:layout_width="wrap_content" 
 	  android:layout_height="wrap_content"
 	  />
+  </LinearLayout>
+
+	<ScrollView 
+		android:id="@+id/ScrollView01" 
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		>
+		<LinearLayout 
+			android:orientation="vertical" 
+			android:id="@+id/plantTextLayout" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			/>
+	</ScrollView>
+
+	  
+
 </LinearLayout>

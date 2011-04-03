@@ -21,6 +21,7 @@ import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ZoomControls;
 
 public class GardenScreen extends Activity implements View.OnTouchListener, View.OnClickListener {
@@ -34,6 +35,8 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 	boolean showLabels = true, showFullScreen, zoomAutoHidden;
 	int zoomLevel;
 	
+	int gardenID;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
@@ -43,6 +46,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("id")) {
 			mockGarden = StartScreen.gardens.get(extras.getInt("id"));
+			gardenID = extras.getInt("id");
 			setTitle(mockGarden.getName());
 		} else {
 			mockGarden = new Garden(R.drawable.preview, "");
@@ -57,17 +61,19 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
 		
-		/*gardenView.setOnClickListener(new OnClickListener() {
+		gardenView.setOnClickListener(new OnClickListener() {
 	    public void onClick(View v) {
-				setContentView(R.layout.plot);
-				settingListeners();
-				
-				Bundle bundle = new Bundle();
-				//bundle.putString("name", ((TextView)view.findViewById(R.id.garden_name)).getText().toString());
-				//intent.putExtras(bundle);
-				//startActivity(intent);
+	
+      	Intent intent = new Intent(GardenScreen.this, PlotScreen.class);
+				Bundle bundle = new Bundle(3);
+				bundle.putString("name", gardenView.focusedPlot.getName());
+				bundle.putInt("gardenID", gardenID);
+				bundle.putInt("plotID", gardenView.focusedPlot.getID());
+				intent.putExtras(bundle);      	
+				startActivity(intent);
+
 	    }
-	  });*/
+	  });
 		
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
@@ -75,32 +81,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
 	}
-	
-  private void settingListeners(){
-  		TextView plotTitle = (TextView) findViewById(R.id.plotTextView);
-  		plotTitle.setText(gardenView.focusedPlot.getName());
-  		
-  		Button addPlantButton = (Button) findViewById(R.id.addPlantButton);
-  		addPlantButton.setOnClickListener(new OnClickListener() {
-  				@Override
-          public void onClick(View v) {
-          	Intent intent = new Intent(GardenScreen.this, PlantScreen.class);
-    				//Bundle bundle = new Bundle();
-    				//bundle.putString("name", ((TextView) v.findViewById(R.id.garden_name)).getText().toString());
-    				//intent.putExtras(bundle);
-    				startActivity(intent);
-    				//showDialog(0);
-          }
-      });
-
-  		Button backButton = (Button) findViewById(R.id.backButton);
-  		backButton.setOnClickListener(new OnClickListener() {
-          public void onClick(View v) {
-          	setContentView(R.layout.garden);
-          }
-      });
-
-  }
   
 	@Override
 	public Dialog onCreateDialog(int id) {

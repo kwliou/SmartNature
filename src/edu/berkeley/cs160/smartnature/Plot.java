@@ -1,5 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.ShapeDrawable;
@@ -14,6 +16,9 @@ public class Plot {
 	private float[] polyPoints;
 	private float rotation; // angle of direction where 0 is "north"
 	private int color;
+	
+	private int id;
+	private ArrayList<Plant> plants = new ArrayList<Plant>();
 	
 	/** create a polygonal plot */
 	Plot(String plotName, Rect bounds, float angle, float[] points) {
@@ -41,6 +46,25 @@ public class Plot {
 		shape.setBounds(bounds);
 	}
 		
+	
+	public ArrayList<Plant> getPlants() {
+		return plants;
+	}
+
+	public void addPlant(Plant p) {
+		p.setID(plants.size());
+		plants.add(p);
+	}
+	
+	
+	public int getID(){
+		return id;
+	}
+	
+	public int setID(int i){
+		return id = i;
+	}
+	
 	public String getName() {
 		return name;
 	}

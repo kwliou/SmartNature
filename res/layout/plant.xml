@@ -14,11 +14,24 @@
 	android:textStyle="bold"
 	android:textSize="20px" 
 	/>
-  <Button 
-  	android:text="Add Entry" 
-  	android:id="@+id/addEntryButton" 
-  	android:layout_width="wrap_content" 
-  	android:layout_height="wrap_content"
+  <ImageView 
+  android:src="@drawable/carrots" 
+  android:layout_width="wrap_content" 
+  android:layout_height="wrap_content" 
+  android:id="@+id/addPicButton"
+  />
+  <TextView 
+  android:text="Click on picture to add an image" 
+  android:id="@+id/textView1" 
+  android:layout_width="wrap_content" 
+  android:layout_height="wrap_content"
+  />
+
+	<Button 
+	android:layout_width="wrap_content" 
+	android:layout_height="wrap_content" 
+	android:id="@+id/addEntryButton" 
+	android:text="Add Entry"
 	/>
   <Button 
 	  android:text="Back" 
