@@ -189,17 +189,14 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 				// plot can no longer be clicked so reset appearance
 				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
 				focusedPlot.getShape().getPaint().setStrokeWidth(3);
+				focusedPlot = null; 
 			}
 		}
 		
-		// onClick for some reason doesn't execute on its own so manually do it
-		if (event.getAction() == MotionEvent.ACTION_UP && !dragMode) {
-			if (focusedPlot != null) {
-				// reset clicked plot appearance
-				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
-				focusedPlot.getShape().getPaint().setStrokeWidth(3);
-			}
-			//performClick();
+		if (event.getAction() == MotionEvent.ACTION_UP && !dragMode && focusedPlot != null) {
+			// reset clicked plot appearance
+			focusedPlot.getShape().getPaint().setColor(Color.BLACK);
+			focusedPlot.getShape().getPaint().setStrokeWidth(3);
 		}
 		prevX = x;
 		prevY = y;
