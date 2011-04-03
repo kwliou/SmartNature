@@ -3,6 +3,6 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="C:/Users/Deepti/Downloads/jsoup-1.5.2.jar"/>
+	<classpathentry kind="lib" path="jars/jsoup-1.5.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
