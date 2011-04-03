@@ -46,7 +46,19 @@ public class Garden {
 	public ArrayList<Plot> getPlots() {
 		return plots;
 	}
-
+	
+	public Plot getPlot(int id) {
+		return plots.get(id);
+	}
+	
+	public int getPlotId(Plot plot) {
+		return plots.indexOf(plot);
+	}
+	
+	public void setPlot(int id, Plot plot) {
+		plots.add(id, plot);
+	}
+	
 	public void addPlot(Plot plot) {
 		Rect pBounds = plot.getShape().getBounds();
 		if (plots.isEmpty()) {

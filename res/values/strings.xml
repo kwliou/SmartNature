@@ -17,6 +17,6 @@
     <style name="Theme.Dialog.NoTitleBar" parent="@android:style/Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
     </style>
-   <string name="hint_gardenscreen">Click on Add Plot in the menu to add a plot\nPress on a plot to view its plants/info</string>
-   <string name="hint_editscreen">hint_editscreen</string>
+   <string name="hint_gardenscreen">-Click on Add Plot in the menu to add a plot\n-Press on a plot to view its plants/info\n-Long press on a plot to edit its shape</string>
+   <string name="hint_editscreen">-The plot that is being edited has wider stroke\n-To change its color, click on Change color in the menu, click the desired color, then click the middle circle to confirm\n-Click on Drag mode then drag the edited plot to the desired position\n-Click on Rotate mode and then drag the cursor in the bar below to change its rotation\n-Click on Save to save the changes and go back to the garden screen</string>
 </resources>

@@ -21,7 +21,7 @@ public class Plot {
 		type = POLY;
 		polyPoints = points;
 		rotation = angle;
-		color = -1;
+		color = 0;
 		Path p = new Path();
 		p.moveTo(points[0], points[1]);
 		for (int i = 2; i < points.length; i += 2)
@@ -63,6 +63,10 @@ public class Plot {
 	
 	public void setColor(int color) {
 		this.color = color;
+	}
+	
+	public float[] getPoint () {
+		return polyPoints;
 	}
 	
 	public ShapeDrawable getShape() {

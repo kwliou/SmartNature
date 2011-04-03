@@ -1,15 +1,15 @@
 package edu.berkeley.cs160.smartnature;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -32,6 +32,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	float prevX, prevY, downX, downY, x, y, zoomScale = 1;
 	float textSize;
 	boolean portraitMode, dragMode;
+	int tempColor;
 	
 	public GardenView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -145,9 +146,16 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	
 	@Override
 	public boolean onLongClick(View v) {
-		Log.w("debug", "i'm here");
 		if (focusedPlot != null) {
-			Toast.makeText(context, "long clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent(context, EditScreen.class);
+			Bundle bundle = new Bundle();
+			bundle.putString("name", focusedPlot.getName());
+			bundle.putInt("id", StartScreen.gardens.indexOf(garden));
+			bundle.putInt("plot_name", garden.getPlotId(focusedPlot));
+			intent.putExtras(bundle);
+			focusedPlot.getShape().getPaint().setColor(tempColor);
+			focusedPlot.getShape().getPaint().setStrokeWidth(7);
+			context.startActivity(intent);
 			return true;
 		}
 		return false;
@@ -163,6 +171,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 			focusedPlot = garden.plotAt(x, y, m);
 			if (focusedPlot != null) {
 				// set focused plot appearance
+				tempColor = focusedPlot.getShape().getPaint().getColor();
 				focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
 				focusedPlot.getShape().getPaint().setStrokeWidth(5);
 			}
@@ -175,7 +184,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 				dragMode = Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5; // show some leniency
 			if (dragMode && focusedPlot != null) {
 				// plot can no longer be clicked so reset appearance
-				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
+				focusedPlot.getShape().getPaint().setColor(tempColor);
 				focusedPlot.getShape().getPaint().setStrokeWidth(3);
 			}
 		}
@@ -184,7 +193,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		if (event.getAction() == MotionEvent.ACTION_UP && !dragMode) {
 			if (focusedPlot != null) {
 				// reset clicked plot appearance
-				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
+				focusedPlot.getShape().getPaint().setColor(tempColor);
 				focusedPlot.getShape().getPaint().setStrokeWidth(3);
 			}
 			//performClick();
@@ -194,5 +203,4 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		invalidate();
 		return true;
 	}
-	
 }
