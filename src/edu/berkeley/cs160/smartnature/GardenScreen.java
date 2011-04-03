@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -23,7 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class GardenScreen extends Activity implements View.OnTouchListener, View.OnClickListener {
+public class GardenScreen extends Activity {
 	
 	final int ZOOM_DURATION = 3000;
 	Garden mockGarden;
@@ -57,7 +56,7 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
 		
-		/*gardenView.setOnClickListener(new OnClickListener() {
+		/*(gardenView.setOnClickListener(new OnClickListener() {
 	    public void onClick(View v) {
 				setContentView(R.layout.plot);
 				settingListeners();
@@ -189,18 +188,6 @@ public class GardenScreen extends Activity implements View.OnTouchListener, View
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	@Override
-	public boolean onTouch(View view, MotionEvent event) {
-		System.out.println("touched");
-		return false;
-	}
-	
-	@Override
-	public void onClick(View view) {
-		System.out.println("clicked");
-	}
-	
 
 	View.OnClickListener zoomIn = new View.OnClickListener() {
 		@Override
