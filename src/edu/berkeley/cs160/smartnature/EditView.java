@@ -2,7 +2,6 @@ package edu.berkeley.cs160.smartnature;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -20,7 +19,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	/** plot that is currently pressed */
 	Plot focusedPlot;
 	/** the entire transformation matrix applied to the canvas */
-	Matrix m = new Matrix();
+	static Matrix m = new Matrix();
 	/** translation matrix applied to the canvas */
 	Matrix dragMatrix = new Matrix();
 	/** translation matrix applied to the background */
@@ -29,8 +28,10 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	Paint textPaint;
 	int zoomLevel;
 	float prevX, prevY, downX, downY, x, y, zoomScale = 1;
+	static float X = 0,Y = 0;
 	float textSize;
 	boolean portraitMode, dragMode;
+	int tempColor;
 
 	private int status;
 	private final static int START_DRAGGING = 0;
@@ -53,7 +54,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getShape().getPaint();
 			p.setStyle(Paint.Style.STROKE);
-			p.setStrokeWidth(3);
+			p.setStrokeWidth(plot.getShape().getPaint().getStrokeWidth());
 			p.setStrokeCap(Paint.Cap.ROUND);
 			p.setStrokeJoin(Paint.Join.ROUND);
 		}		
@@ -115,11 +116,11 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				canvas.restore();
 			}
 		}
-		
+
 		// "shade" over everything
 		canvas.restore();
 		canvas.drawARGB(100, 0, 0, 0);
-		
+
 		// draw plot being edited
 		canvas.save();
 		canvas.concat(m);
@@ -127,7 +128,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		canvas.rotate(context.newPlot.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
 		context.newPlot.getShape().draw(canvas);
 		canvas.restore();
-		
+
 		if (context.showLabels)
 			for (Plot p: garden.getPlots()) {
 				Rect bounds = p.getShape().getBounds();
@@ -166,34 +167,36 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			switch(event.getAction()) {
 			case(MotionEvent.ACTION_DOWN):
 				Matrix inv = new Matrix();
-				m.invert(inv);
-				float[] xy = { x, y };
-				inv.mapPoints(xy);
-				if (context.newPlot.contains(xy[0], xy[1])) {
-					focusedPlot = context.newPlot;
-					// set focused plot appearance
-					focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
-					focusedPlot.getShape().getPaint().setStrokeWidth(5);
-					status = START_DRAGGING;
-				}
+			m.invert(inv);
+			float[] xy = { x, y };
+			inv.mapPoints(xy);
+			if (context.newPlot.contains(xy[0], xy[1])) {
+				focusedPlot = context.newPlot;
+				// set focused plot appearance
+				tempColor = focusedPlot.getShape().getPaint().getColor();
+				focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
+				focusedPlot.getShape().getPaint().setStrokeWidth(5);
+				status = START_DRAGGING;
+			}
 			break;
 
 			case(MotionEvent.ACTION_UP):
 				status = STOP_DRAGGING;
 			if(focusedPlot != null) {
-				focusedPlot.getShape().getPaint().setColor(Color.BLACK);
-				focusedPlot.getShape().getPaint().setStrokeWidth(3);
+				focusedPlot.getShape().getPaint().setColor(tempColor);
+				focusedPlot.getShape().getPaint().setStrokeWidth(7);
 			}
 			break;
 
 			case(MotionEvent.ACTION_MOVE):
-			if(status == START_DRAGGING && focusedPlot != null) {
+				if(status == START_DRAGGING && focusedPlot != null) {
+					X = event.getX(); Y = event.getY();
 					float[] dxy = {x, y, prevX, prevY};
 					Matrix inverse = new Matrix();
 					m.invert(inverse);
 					inverse.mapPoints(dxy);
 					focusedPlot.getShape().getBounds().offset((int) (- dxy[2] + dxy[0]), (int) (- dxy[3] + dxy[1]));
-			}
+				}
 			break;
 			}
 
@@ -206,6 +209,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				focusedPlot = garden.plotAt(x, y, m);
 				if (focusedPlot != null) {
 					// set focused plot appearance
+					tempColor = focusedPlot.getShape().getPaint().getColor();
 					focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
 					focusedPlot.getShape().getPaint().setStrokeWidth(5);
 				}
@@ -219,16 +223,22 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 					dragMode = Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5; // show some leniency
 					if (dragMode && focusedPlot != null) {
 						// plot can no longer be clicked so reset appearance
-						focusedPlot.getShape().getPaint().setColor(Color.BLACK);
-						focusedPlot.getShape().getPaint().setStrokeWidth(3);
+						focusedPlot.getShape().getPaint().setColor(tempColor);
+						if(focusedPlot != context.newPlot)
+							focusedPlot.getShape().getPaint().setStrokeWidth(3);
+						else
+							focusedPlot.getShape().getPaint().setStrokeWidth(7);
 					}
 			}
 			// onClick for some reason doesn't execute on its own so manually do it
 			if (event.getAction() == MotionEvent.ACTION_UP && !dragMode) {
 				if (focusedPlot != null) {
 					// reset clicked plot appearance
-					focusedPlot.getShape().getPaint().setColor(Color.BLACK);
-					focusedPlot.getShape().getPaint().setStrokeWidth(3);
+					focusedPlot.getShape().getPaint().setColor(tempColor);
+					if(focusedPlot != context.newPlot)
+						focusedPlot.getShape().getPaint().setStrokeWidth(3);
+					else
+						focusedPlot.getShape().getPaint().setStrokeWidth(7);
 				}
 				performClick();
 			}

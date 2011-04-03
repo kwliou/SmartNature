@@ -13,26 +13,28 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ZoomControls;
 
-public class GardenScreen extends Activity {
+public class GardenScreen extends Activity implements DialogInterface.OnClickListener {
 	
 	final int ZOOM_DURATION = 3000;
+	final int NEW_DIALOG = 0, RENAME_DIALOG = 1;
 	Garden mockGarden;
+	View textEntryView;
 	AlertDialog dialog;
 	ZoomControls zoom;
 	GardenView gardenView;
 	Handler mHandler = new Handler();
 	boolean showLabels = true, showFullScreen, zoomAutoHidden;
 	int zoomLevel;
+	int currentDialog; 
 	
 	int gardenID;
 	
@@ -49,7 +51,7 @@ public class GardenScreen extends Activity {
 			setTitle(mockGarden.getName());
 		} else {
 			mockGarden = new Garden(R.drawable.preview, "");
-			showDialog(0);
+			showDialog(NEW_DIALOG);
 		}
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
@@ -76,7 +78,7 @@ public class GardenScreen extends Activity {
 
 	    }
 	  });
-		
+
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
@@ -87,42 +89,29 @@ public class GardenScreen extends Activity {
   
 	@Override
 	public Dialog onCreateDialog(int id) {
-		LayoutInflater factory = LayoutInflater.from(this);
-		final View textEntryView = factory.inflate(R.layout.text_entry_dialog, null);
-		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-				setTitle(gardenName.getText().toString());
-				mockGarden.setName(gardenName.getText().toString());
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						StartScreen.gardens.add(mockGarden);
-						StartScreen.adapter.notifyDataSetChanged();
-					}
-				});
-			}
+		DialogInterface.OnClickListener cancelled = new DialogInterface.OnClickListener() {
+			@Override public void onClick(DialogInterface dialog, int whichButton) { finish(); }
 		};
-		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				finish();
-			}
-		};
+		
 		DialogInterface.OnCancelListener exited = new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				finish();
-			}
+			@Override public void onCancel(DialogInterface dialog) { finish(); }
 		};
-		dialog = new AlertDialog.Builder(this)
-			.setTitle(R.string.new_garden_prompt)
-			.setView(textEntryView)
-			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-			.setNegativeButton(R.string.alert_dialog_cancel, canceled) // this means the dialog's cancel button was pressed
-			.setOnCancelListener(exited) // this means the back button was pressed
-			.create();
+		
+		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(textEntryView);
+		
+		if (id == NEW_DIALOG)
+			builder.setTitle(R.string.new_garden_prompt)
+				.setPositiveButton(R.string.alert_dialog_ok, this)
+				.setNegativeButton(R.string.alert_dialog_cancel, cancelled) // this means cancel was pressed
+				.setOnCancelListener(exited); // this means the back button was pressed
+		else {
+			((EditText) textEntryView.findViewById(R.id.dialog_text_entry)).setText(mockGarden.getName());
+			builder.setTitle(R.string.rename_garden_prompt)
+				.setPositiveButton(R.string.alert_dialog_rename, this)
+				.setNegativeButton(R.string.alert_dialog_cancel, null);	
+		}
+		dialog = builder.create();
 		
 		// automatically show soft keyboard
 		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
@@ -135,6 +124,16 @@ public class GardenScreen extends Activity {
 		});
 
 		return dialog;
+	}
+	
+	@Override
+	public void onClick(DialogInterface dialog, int whichButton) {
+		EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		setTitle(gardenName.getText().toString());
+		mockGarden.setName(gardenName.getText().toString());
+		if (currentDialog == NEW_DIALOG)
+			StartScreen.gardens.add(mockGarden);
+		StartScreen.adapter.notifyDataSetChanged();	
 	}
 	
 	@Override
@@ -156,6 +155,10 @@ public class GardenScreen extends Activity {
 				break;
 			case R.id.m_home:
 				finish();
+				break;
+			case R.id.m_rename_garden:
+				currentDialog = RENAME_DIALOG;
+				showDialog(RENAME_DIALOG);
 				break;
 			case R.id.m_resetzoom:
 				zoomLevel = 0;
@@ -227,4 +230,5 @@ public class GardenScreen extends Activity {
 			}
 		}
 	};
+	
 }

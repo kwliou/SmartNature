@@ -40,7 +40,7 @@ public class AddPlot extends Activity implements View.OnClickListener{
 				Bundle bundle = new Bundle();
 				bundle.putString("name", et_plot_name.getText().toString());
 				if(rb_ellipse.isChecked())
-					bundle.putString("type", "elipse");
+					bundle.putString("type", "ellipse");
 				else if(rb_rectangle.isChecked())
 					bundle.putString("type", "rectangle");
 				else if(rb_custom.isChecked())

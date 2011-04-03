@@ -22,7 +22,7 @@
 		<RadioButton
 			android:id="@+id/rb_ellipse"
 			android:checked="true"
-			android:text="Eclipse"
+			android:text="Ellipse"
 			android:textSize="18sp"
 			android:paddingLeft="45dp"
 			android:paddingRight="5dp"
