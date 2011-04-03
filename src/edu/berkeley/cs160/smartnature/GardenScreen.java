@@ -59,19 +59,9 @@ public class GardenScreen extends Activity {
 			zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
+
 		
-		/*(gardenView.setOnClickListener(new OnClickListener() {
-		public void onClick(View v) {
-		setContentView(R.layout.plot);
-		settingListeners();
-		Bundle bundle = new Bundle();
-		//bundle.putString("name", ((TextView)view.findViewById(R.id.garden_name)).getText().toString());
-		//intent.putExtras(bundle);
-		//startActivity(intent);
-		}
-		});*/
 		
-		/*
 		gardenView.setOnClickListener(new OnClickListener() {
 
 	    public void onClick(View v) {
@@ -86,39 +76,14 @@ public class GardenScreen extends Activity {
 
 	    }
 	  });
-		*/
+		
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
 	}
-	
-	private void settingListeners(){
-	   TextView plotTitle = (TextView) findViewById(R.id.plotTextView);
-	   plotTitle.setText(gardenView.focusedPlot.getName());
-	  
-	   Button addPlantButton = (Button) findViewById(R.id.addPlantButton);
-	   addPlantButton.setOnClickListener(new OnClickListener() {
-	   @Override
-	          public void onClick(View v) {
-	           Intent intent = new Intent(GardenScreen.this, PlantScreen.class);
-	     //Bundle bundle = new Bundle();
-	     //bundle.putString("name", ((TextView) v.findViewById(R.id.garden_name)).getText().toString());
-	     //intent.putExtras(bundle);
-	     startActivity(intent);
-	     //showDialog(0);
-	          }
-	      });
 
-	   Button backButton = (Button) findViewById(R.id.backButton);
-	   backButton.setOnClickListener(new OnClickListener() {
-	          public void onClick(View v) {
-	           setContentView(R.layout.garden);
-	          }
-	      });
-
-	  }
   
 	@Override
 	public Dialog onCreateDialog(int id) {

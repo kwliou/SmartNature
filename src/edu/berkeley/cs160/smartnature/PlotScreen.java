@@ -123,18 +123,18 @@ public class PlotScreen extends Activity implements View.OnTouchListener, View.O
 			text = new TextView(PlotScreen.this);
 			text.setTextColor(0xFF000000); //black
 			text.setText(p.getName());
-			/*
+			final String name = p.getName();
 			text.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
-					Bundle bundle = new Bundle();
-					bundle.putString("name", text.getText().toString());
-					intent.putExtras(bundle);
+					//Bundle bundle = new Bundle();
+					//bundle.putString("name", name.toString());
+					//intent.putExtras(bundle);
 					startActivity(intent);
 				}		
 			});	
-			*/
+			
 			plantTextLayout.addView(text);
 		}
 	}

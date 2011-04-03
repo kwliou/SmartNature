@@ -55,7 +55,7 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 			showDialog(0);
 		}
 		*/
-		showDialog(0);
+		//showDialog(0);
 		setContentView(R.layout.plant);
 		/*
 
@@ -71,6 +71,7 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
 		Button backButton = (Button) findViewById(R.id.back2PlotButton);
 		
+		/*
 		addPicButton.setOnClickListener(new OnClickListener() {
 			@Override
       public void onClick(View v) {
@@ -83,6 +84,7 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 				// Call Deepti's Entry dialog
       }
     });
+		*/
 		backButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
       	finish();
