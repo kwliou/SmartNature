@@ -11,9 +11,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import edu.berkeley.cs160.smartnature.StartScreen.GardenAdapter;
-
-
 
 import android.app.Activity;
 import android.app.ListActivity;
@@ -39,7 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class Encyclopedia extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener{
+public class Encyclopedia extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener{
 	
 	static ResultAdapter adapter;
 	
@@ -55,7 +52,7 @@ public class Encyclopedia extends Activity implements View.OnClickListener, Adap
         	public void onClick (View v) {
         		EditText search = (EditText)findViewById(R.id.searchText);
         		String searchURL = "http://www.plantcare.com/encyclopedia/search.aspx?q=" + search.getText().toString();
-        		//ListView content = (LinearLayout) findViewById(R.id.content);
+        		//LinearLayout content = (LinearLayout) findViewById(R.id.content);
 				//content.removeAllViews();
         		
         		try {
@@ -73,7 +70,8 @@ public class Encyclopedia extends Activity implements View.OnClickListener, Adap
 						String plantURL = "http://www.plantcare.com" + next.child(0).child(0).child(0).attr("src");
 						String name = next.child(1).text();
 						String altNames = next.child(2).text();
-						resultList.add(new SearchResult (name, altNames, plantURL));
+						String linkURL = "http://www.plantcare.com/encyclopedia/" + next.child(1).attr("href");
+						resultList.add(new SearchResult (name, altNames, plantURL, linkURL));
 						/*
 						LinearLayout border = new LinearLayout(Encyclopedia.this);
 						LinearLayout plantEntry = new LinearLayout(Encyclopedia.this);
@@ -141,14 +139,14 @@ public class Encyclopedia extends Activity implements View.OnClickListener, Adap
 						plantEntry.addView(plantText);
 						border.addView(plantEntry);
 						content.addView(border);
-						
-						results.remove(0);
 						*/
+						results.remove(0);
+						
 					}
 					//ListView listView = (ListView) findViewById(R.id.searchList);
 
 					adapter = new ResultAdapter(Encyclopedia.this, R.layout.search_item, resultList);
-					this.setListAdapter(adapter);
+					setListAdapter(adapter);
 					} catch (IOException e) {
 					
 					// TODO Auto-generated catch block
@@ -165,11 +163,24 @@ public class Encyclopedia extends Activity implements View.OnClickListener, Adap
 			
 		});
         
-        
-        
-
     }
     
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		
+		String plantURL = ((TextView)arg1.findViewById(R.id.linkURL)).getText().toString();
+		Intent browserIntent = new Intent("android.intent.action.VIEW", Uri.parse(plantURL));
+		startActivity(browserIntent);
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		String plantURL = ((TextView)arg0.findViewById(R.id.linkURL)).getText().toString();
+		Intent browserIntent = new Intent("android.intent.action.VIEW", Uri.parse(plantURL));
+		startActivity(browserIntent);
+		
+	}
+	
     class ResultAdapter extends ArrayAdapter<SearchResult> {
 		private ArrayList<SearchResult> items;
 		private LayoutInflater li;
@@ -188,6 +199,7 @@ public class Encyclopedia extends Activity implements View.OnClickListener, Adap
 			SearchResult s = items.get(position);
 			((TextView) v.findViewById(R.id.name)).setText(s.getName());
 			((TextView) v.findViewById(R.id.altNames)).setText(s.getName());
+			((TextView) v.findViewById(R.id.linkURL)).setText(s.getLinkURL());
 			try {
 				((ImageView) v.findViewById(R.id.searchPic)).setImageBitmap(BitmapFactory.decodeStream((new URL(s.getPicURL())).openConnection().getInputStream()));
 			} catch (MalformedURLException e) {
@@ -202,15 +214,5 @@ public class Encyclopedia extends Activity implements View.OnClickListener, Adap
 		}
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void onClick(View arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 }

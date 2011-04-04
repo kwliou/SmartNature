@@ -107,9 +107,15 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 		addEntryButton.setOnClickListener(new OnClickListener() {
 			@Override
       public void onClick(View v) {
-
-				//TODO
-				// Call Deepti's entry dialog
+				EditText entry = (EditText) findViewById(R.id.entryText);
+				Date currentDate = new Date();
+				String dateStr = currentDate.toString();
+				//StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry( new Entry(entry.getText().toString(), dateStr));
+			
+				entry.setText("Write entry text here");
+				
+				entries.removeAllViews();
+				//loadEntries();
      }
     });
 		
