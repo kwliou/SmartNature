@@ -5,10 +5,13 @@ public class SearchResult {
 	private String name;
 	private String altNames;
 	private String picURL;
-	SearchResult(String n, String a, String p){
+	private String linkURL;
+	
+	SearchResult(String n, String a, String p, String l){
 		name = n;
 		altNames = a;
 		picURL = p;
+		linkURL = l;
 		
 	}
 	
@@ -20,5 +23,9 @@ public class SearchResult {
 	}
 	public String getPicURL(){
 		return picURL;
+	}
+	
+	public String getLinkURL(){
+		return linkURL;
 	}
 }

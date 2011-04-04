@@ -41,22 +41,22 @@
 	/>
 	
 	
-	<ScrollView android:id="@+id/resultContent"
+	<!-- <ScrollView android:id="@+id/resultContent"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:background="#ffffff"
 	>
 	
-<!-- 	<LinearLayout android:id="@+id/content"
+	<LinearLayout android:id="@+id/content"
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content" 
 		android:orientation="vertical"
-	/>
-	-->
+	/>-->
+	
 	<ListView
 		android:id="@+id/android:list"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
-	</ScrollView>
+		android:layout_height="fill_parent" /> 
+	
 </LinearLayout>

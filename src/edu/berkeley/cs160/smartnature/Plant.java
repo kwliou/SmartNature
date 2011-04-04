@@ -5,11 +5,11 @@ public class Plant {
 	
 	private String name;
 	private int id;
-	private ArrayList<String> entries;
+	private ArrayList<Entry> entries;
 
 	Plant(String name) {
 		this.name = name;
-		entries = new ArrayList<String>();
+		entries = new ArrayList<Entry>();
 	}
 	
 	public int getID(){
@@ -28,11 +28,11 @@ public class Plant {
 		this.name = name;
 	}
 
-	public ArrayList<String> getEntries() {
+	public ArrayList<Entry> getEntries() {
 		return entries;
 	}
 
-	public void addEntry(String entry) {
+	public void addEntry(Entry entry) {
 		entries.add(entry);
 	}
 	

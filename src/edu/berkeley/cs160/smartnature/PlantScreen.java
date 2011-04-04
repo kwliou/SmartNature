@@ -3,19 +3,11 @@ package edu.berkeley.cs160.smartnature;
 import java.util.Date;
 import java.util.ArrayList;
 
-import edu.berkeley.cs160.smartnature.PlotScreen.PlantAdapter;
-import edu.berkeley.cs160.smartnature.StartScreen.GardenAdapter;
-
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,20 +15,14 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.ZoomControls;
 
 public class PlantScreen extends ListActivity implements View.OnTouchListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
@@ -85,13 +71,13 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
 		getListView().setOnItemClickListener(PlantScreen.this);
 		
 		entryText = (EditText) findViewById(R.id.entryText);
-		addImage = (ImageView) findViewById(R.id.addImage);
+		//addImage = (ImageView) findViewById(R.id.addImage);
 		addEntryButton = (Button) findViewById(R.id.addEntryButton);
 		plantTextView = (TextView) findViewById(R.id.plantTextView);
 		plantTextView.setText(name);
 
 		
-		addImage.setOnClickListener(new OnClickListener() {
+		/*addImage.setOnClickListener(new OnClickListener() {
 			@Override
       public void onClick(View v) {
 				//TODO
@@ -100,7 +86,7 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
     });
 
 
-		
+		*/
 
 		//Button addPicButton = (Button) findViewById(R.id.addPicButton);
 		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
@@ -111,42 +97,29 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
 		addEntryButton.setOnClickListener(new OnClickListener() {
 			@Override
       public void onClick(View v) {
-
-				//TODO
-				// Call Deepti's entry dialog
-
-				
-				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(entryText.getText().toString());
+				EditText entry = (EditText) findViewById(R.id.entryText);
+				Date currentDate = new Date();
+				String dateStr = currentDate.toString();
+				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(new Entry(entryText.getText().toString(), dateStr));
 				adapter.notifyDataSetChanged(); //refresh ListView
+				entry.setText("Write entry text here");
+				
       }
-
-
+    });
+		
+		backButton = (Button) findViewById(R.id.back2PlotButton);
+		backButton.setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+        	finish();
+        }
     });
     
 	}
 	
-	/*
-	public void loadEntries(){
-		for (Entry e: StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries()){
-			
-			text = new TextView(PlantScreen.this);
-			text.setTextColor(0xFF000000); //black
-			text.setText(e.getName());
-			
-			dateText = new TextView(PlantScreen.this);
-			dateText.setTextColor(0xFFCCCCCC); //black
-			dateText.setText(e.getDate());
-			
-			entries.addView(dateText);
-			entries.addView(text);
-		}
-	}
-	*/
+	
 	
 	public void initMockData() {
 
-		//mockPlant.addEntry("Entry 1");
-		//mockPlant.addEntry("Entry 2");
 		adapter = new EntryAdapter(this, R.layout.list_item, StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries() );
 		setListAdapter(adapter);
 	}
@@ -189,12 +162,12 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
 	}
 
 
-	class EntryAdapter extends ArrayAdapter<String> {
+	class EntryAdapter extends ArrayAdapter<Entry> {
 
-		private ArrayList<String> items;
+		private ArrayList<Entry> items;
 		private LayoutInflater li;
 		
-		public EntryAdapter(Context context, int textViewResourceId, ArrayList<String> items) {
+		public EntryAdapter(Context context, int textViewResourceId, ArrayList<Entry> items) {
 			super(context, textViewResourceId, items);
 			li = ((ListActivity) context).getLayoutInflater();
 			this.items = items;
@@ -204,9 +177,10 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View v = convertView;
 			if (v == null)
-				v = li.inflate(R.layout.plant_list, null);
-			String s = items.get(position);
-			((TextView) v.findViewById(R.id.plant_name)).setText(s);
+				v = li.inflate(R.layout.entry_list, null);
+			Entry e = items.get(position);
+			((TextView) v.findViewById(R.id.entry_name)).setText(e.getName());
+			((TextView) v.findViewById(R.id.entry_date)).setText(e.getDate());
 			return v;
 		}
 	}
