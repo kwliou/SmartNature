@@ -18,7 +18,7 @@
   android:src="@drawable/carrots" 
   android:layout_width="wrap_content" 
   android:layout_height="wrap_content" 
-  android:id="@+id/addPicButton"
+  android:id="@+id/addImage"
   />
   <TextView 
   android:text="Click on picture to add an image" 
@@ -27,16 +27,46 @@
   android:layout_height="wrap_content"
   />
 
+	<LinearLayout 
+	  android:id="@+id/linearLayout2"
+	  android:layout_width="fill_parent" 
+	  android:layout_height="wrap_content"
+	  android:orientation="horizontal"
+	  >
+	  
+	  	<EditText android:maxLength="140" 
+		android:textColor="#000000" 
+		android:text="" 
+		android:id="@+id/entryText" 
+		android:layout_height="wrap_content" 
+		android:layout_width="wrap_content"
+		android:layout_weight="8"
+		android:hint="Write entry text here" 
+		android:reqKeyboardType="qwerty"
+		/>
 	<Button 
 	android:layout_width="wrap_content" 
 	android:layout_height="wrap_content" 
 	android:id="@+id/addEntryButton" 
-	android:text="Add Entry"
+	android:text="Post"
 	/>
-  <Button 
-	  android:text="Back" 
-	  android:id="@+id/back2PlotButton" 
-	  android:layout_width="wrap_content" 
-	  android:layout_height="wrap_content"
-	  />
+
+
+  </LinearLayout>
+  
+  	<ScrollView 
+		android:id="@+id/ScrollView02" 
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		>
+		<LinearLayout 
+			android:orientation="vertical" 
+			android:id="@+id/entryTextLayout" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			/>
+	</ScrollView>
+
+
+  
 </LinearLayout>

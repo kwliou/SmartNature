@@ -14,18 +14,13 @@
 	android:textStyle="bold"
 	android:textSize="20px" 
 	/>
-  <TextView 
-  android:layout_width="wrap_content" 
-  android:layout_height="wrap_content" 
-  android:text="TextView" 
-  android:id="@+id/textView1"
-	/>
+
   <LinearLayout 
   android:id="@+id/linearLayout2"
   android:layout_width="fill_parent" 
   android:layout_height="wrap_content"
   android:orientation="horizontal"
-  >
+  android:gravity="center">
     <Button 
   	android:text="Add Plant" 
   	android:id="@+id/addPlantButton" 
@@ -41,6 +36,14 @@
 	  android:layout_height="wrap_content"
 	  />
   </LinearLayout>
+  
+  <TextView 
+	  android:text="List of Plants:" 
+	  android:id="@+id/textView1" 
+	  android:layout_width="wrap_content" 
+	  android:layout_height="wrap_content"
+	  android:textStyle="bold"
+	  />
 
 	<ScrollView 
 		android:id="@+id/ScrollView01" 
@@ -54,7 +57,17 @@
 			android:layout_height="wrap_content"
 			/>
 	</ScrollView>
+	<ListView 
+		android:id="@+id/plantListView" 
+		android:layout_height="wrap_content" 
+		android:layout_width="fill_parent"
+		/>
 
+	<ListView 
+		android:id="@+id/android:list" 
+		android:layout_height="fill_parent" 
+		android:layout_width="fill_parent"
+		/>
 	  
 
 </LinearLayout>

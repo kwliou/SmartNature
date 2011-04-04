@@ -64,7 +64,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 
 		
 		
-		gardenView.setOnClickListener(new OnClickListener() {
+		/*gardenView.setOnClickListener(new OnClickListener() {
 
 	    public void onClick(View v) {
 	
@@ -77,7 +77,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				startActivity(intent);
 
 	    }
-	  });
+	  });*/
 
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
