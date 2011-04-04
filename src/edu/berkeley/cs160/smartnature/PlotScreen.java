@@ -2,16 +2,13 @@ package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,24 +18,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.ZoomControls;
 
 public class PlotScreen extends ListActivity implements View.OnTouchListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
 	static ArrayList<Plant> plants = new ArrayList<Plant>();
-	LinearLayout plantTextLayout;
 	TextView text, plotTitle;
 	ListView plantListView;
 	Button addPlantButton, backButton;
@@ -64,20 +53,18 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		initMockData();
 		getListView().setOnItemClickListener(PlotScreen.this);
 		
-		plantTextLayout = (LinearLayout) findViewById(R.id.plantTextLayout);	
 		plotTitle = (TextView) findViewById(R.id.plotTextView);
 		plotTitle.setText(extras.getString("name"));
 		addPlantButton = (Button) findViewById(R.id.addPlantButton);
 		addPlantButton.setOnClickListener(new OnClickListener() {
-				@Override
-        public void onClick(View v) {
+			@Override
+			public void onClick(View v) {
   				showDialog(0);
         }
     });
 		backButton = (Button) findViewById(R.id.backButton);
 		backButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
-        	//setContentView(R.layout.garden);
         	finish();
         }
     });
@@ -91,33 +78,6 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 
 	}
 	
-	public void loadPlants(){
-		for (final Plant p: StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants()) {
-			text = new TextView(PlotScreen.this);
-			text.setTextColor(0xFF000000); //black
-			text.setText(p.getName());
-			final String name = p.getName();
-			
-			text.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
-					Bundle bundle = new Bundle(4);
-					bundle.putString("name", name.toString());
-					bundle.putInt("gardenID", gardenID);
-					bundle.putInt("plotID", plotID);
-					bundle.putInt("plantID", StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().indexOf(p));
-					
-					intent.putExtras(bundle);
-					startActivity(intent);
-				}		
-			});	
-			
-			plantTextLayout.addView(text);
-			plantListView.addFooterView(text);
-		}
-	}
-
 	@Override
 	public Dialog onCreateDialog(int id) {
 		LayoutInflater factory = LayoutInflater.from(this);
