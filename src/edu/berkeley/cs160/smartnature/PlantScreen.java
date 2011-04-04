@@ -85,7 +85,7 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
 		getListView().setOnItemClickListener(PlantScreen.this);
 		
 		entryText = (EditText) findViewById(R.id.entryText);
-		//addImage = (ImageView) findViewById(R.id.addImage);
+		addImage = (ImageView) findViewById(R.id.addImage);
 		addEntryButton = (Button) findViewById(R.id.addEntryButton);
 		plantTextView = (TextView) findViewById(R.id.plantTextView);
 		plantTextView.setText(name);

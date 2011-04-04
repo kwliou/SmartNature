@@ -148,7 +148,7 @@ public class Encyclopedia extends Activity implements View.OnClickListener, Adap
 					//ListView listView = (ListView) findViewById(R.id.searchList);
 
 					adapter = new ResultAdapter(Encyclopedia.this, R.layout.search_item, resultList);
-					this.setListAdapter(adapter);
+					//this.setListAdapter(adapter);
 					} catch (IOException e) {
 					
 					// TODO Auto-generated catch block
