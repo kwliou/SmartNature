@@ -122,7 +122,7 @@ public class Garden {
 				bounds.right = Math.max(bounds.right, pBounds.right);
 				bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
 			}
-		}	
+		}
 	}
 	
 	
@@ -130,9 +130,11 @@ public class Garden {
 	public Plot plotAt(float x, float y, Matrix matrix) {
 		Matrix inverse = new Matrix();
 		matrix.invert(inverse);
-		float[] point = { x, y };
-		inverse.mapPoints(point);
 		for (Plot p : plots) {
+			float[] point = { x, y };
+			Matrix tmp = new Matrix(inverse);
+			tmp.postRotate(-p.getAngle(), p.getShape().getBounds().centerX(), p.getShape().getBounds().centerY());
+			tmp.mapPoints(point);
 			if (p.contains(point[0], point[1]))
 				return p;
 		}
