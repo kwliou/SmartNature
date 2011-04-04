@@ -142,8 +142,11 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	public void onClick(View view) {
 		if (focusedPlot != null){
 			Intent intent = new Intent(context, PlotScreen.class);
-			Bundle bundle = new Bundle();
+			Bundle bundle = new Bundle(3);
 			bundle.putString("name", focusedPlot.getName());
+			bundle.putInt("gardenID", context.gardenID);
+			bundle.putInt("plotID", focusedPlot.getID());
+	
 			intent.putExtras(bundle);      	
 			context.startActivity(intent);
 		}

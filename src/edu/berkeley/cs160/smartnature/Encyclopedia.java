@@ -11,6 +11,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import edu.berkeley.cs160.smartnature.StartScreen.GardenAdapter;
+
 
 
 import android.app.Activity;
@@ -28,14 +30,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
-public class Encyclopedia extends Activity {
+public class Encyclopedia extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener{
+	
+	static ResultAdapter adapter;
 	
     /** Called when the activity is first created. */
     @Override
@@ -139,7 +145,11 @@ public class Encyclopedia extends Activity {
 						results.remove(0);
 						*/
 					}
-				} catch (IOException e) {
+					//ListView listView = (ListView) findViewById(R.id.searchList);
+
+					adapter = new ResultAdapter(Encyclopedia.this, R.layout.search_item, resultList);
+					this.setListAdapter(adapter);
+					} catch (IOException e) {
 					
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -151,6 +161,8 @@ public class Encyclopedia extends Activity {
 
         	
         	}
+
+			
 		});
         
         
@@ -188,5 +200,17 @@ public class Encyclopedia extends Activity {
 			
 			return v;
 		}
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

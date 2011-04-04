@@ -1,6 +1,9 @@
 package edu.berkeley.cs160.smartnature;
 
 import java.util.Date;
+import java.util.ArrayList;
+
+import edu.berkeley.cs160.smartnature.StartScreen.GardenAdapter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,13 +21,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -46,6 +53,13 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 	TextView dateText;
 	TextView text;
 	
+	
+	String name; 
+	EditText entryText;
+	ImageView addImage;
+	TextView plantTextView;
+	Button addEntryButton, backButton;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		//showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
@@ -53,22 +67,30 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 			//setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		mockPlant = new Plant("");
-		entries = (LinearLayout) findViewById(R.id.entries);
+		entries = (LinearLayout) findViewById(R.id.entryTextLayout);
 		
-		/*Bundle extras = getIntent().getExtras();
+		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
-			//gardenID = extras.getInt("gardenid");
-			//setTitle(extras.getString("name"));
-			//mockGarden.setName(extras.getString("name"));
+			name = extras.getString("name"); 
+			gardenID = extras.getInt("gardenID");
+			plotID = extras.getInt("plotID");
+			plantID = extras.getInt("plantID");
+			setTitle(name);
 		} else {
 			showDialog(0);
 		}
-		*/
-		showDialog(0);
-		setContentView(R.layout.plant);
-		/*
-
 		
+		//showDialog(0);
+		setContentView(R.layout.plant);
+		
+
+		entryText = (EditText) findViewById(R.id.entryText);
+		//addImage = (ImageView) findViewById(R.id.addImage);
+		addEntryButton = (Button) findViewById(R.id.addEntryButton);
+		//backButton = (Button) findViewById(R.id.back2PlotButton);
+		plantTextView = (TextView) findViewById(R.id.plantTextView);
+		plantTextView.setText(name);
+		/*
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
@@ -76,28 +98,22 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 		}
 		*/
 		
+
 		//Button addPicButton = (Button) findViewById(R.id.addPicButton);
 		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
 		Button backButton = (Button) findViewById(R.id.back2PlotButton);
 		
-		/*addPicButton.setOnClickListener(new OnClickListener() {
-			@Override
-      public void onClick(View v) {
-				// Call Deepti's Picture dialog
-      }
-    });*/
+
 		addEntryButton.setOnClickListener(new OnClickListener() {
 			@Override
       public void onClick(View v) {
-				// Call Deepti's Entry dialog
-				showDialog(0);
-      }
+
+				//TODO
+				// Call Deepti's entry dialog
+     }
     });
-		backButton.setOnClickListener(new OnClickListener() {
-      public void onClick(View v) {
-      	finish();
-      }
-		});
+		
+
 		
 
     
@@ -120,8 +136,9 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 	}
 	
 	public void initMockData() {
-		mockPlant.addEntry(new Entry("Entry 1", "4/1"));
-		mockPlant.addEntry(new Entry("Entry 2", "4/15"));
+		Date d = new Date();
+		mockPlant.addEntry(new Entry ("Entry 1", d.toString()));
+		mockPlant.addEntry(new Entry ("Entry 2", d.toString()));
 	}
 
 	@Override
@@ -139,6 +156,7 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry( new Entry(entry.getText().toString(), dateStr));
 				entries.removeAllViews();
 				loadEntries();
+
 			}
 		};
 		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
@@ -207,4 +225,6 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 		System.out.println("clicked");
 	}
 
+
+	
 }
