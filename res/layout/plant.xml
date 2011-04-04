@@ -4,6 +4,7 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent" 
   android:orientation="vertical"
+  android:background="#ffffff"
   >
   <TextView 
 	android:text="My plant" 
@@ -14,6 +15,8 @@
 	android:textStyle="bold"
 	android:textSize="24sp" 
 	/>
+	
+
   <LinearLayout 
   android:layout_height="wrap_content" 
   android:layout_width="fill_parent" 
@@ -33,9 +36,18 @@
   android:layout_width="wrap_content" 
   android:layout_height="wrap_content"
   />
+
   
   </LinearLayout>
 
+
+
+	<LinearLayout android:id="@+id/separator"
+		android:layout_width="fill_parent"
+		android:layout_height="3px"
+		android:background="#cccccc"
+	/>
+	
 
 	<LinearLayout 
 	  android:id="@+id/linearLayout2"
@@ -60,12 +72,15 @@
 	android:id="@+id/addEntryButton" 
 	android:text="Post"
 	/>
-
-
-  </LinearLayout>
-  
-  	<ScrollView 
-		android:id="@+id/ScrollView02" 
+  <Button 
+	  android:text="Back" 
+	  android:id="@+id/back2PlotButton" 
+	  android:layout_width="wrap_content" 
+	  android:layout_height="wrap_content"
+	  />
+	  </LinearLayout>
+	  <ScrollView 
+		android:id="@+id/ScrollView01" 
 		android:layout_width="wrap_content" 
 		android:layout_height="wrap_content"
 		>
@@ -77,11 +92,11 @@
 			/>
 	</ScrollView>
 
+
 	<ListView 
 		android:id="@+id/android:list" 
 		android:layout_height="fill_parent" 
 		android:layout_width="fill_parent"
 		/>
 
-  
 </LinearLayout>

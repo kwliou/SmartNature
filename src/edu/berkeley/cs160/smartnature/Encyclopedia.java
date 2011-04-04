@@ -2,16 +2,22 @@ package edu.berkeley.cs160.smartnature;
 
 import java.io.IOException;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import edu.berkeley.cs160.smartnature.StartScreen.GardenAdapter;
+
 
 
 import android.app.Activity;
+import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -19,16 +25,23 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.util.Linkify;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
-public class Encyclopedia extends Activity {
+public class Encyclopedia extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener{
+	
+	static ResultAdapter adapter;
 	
     /** Called when the activity is first created. */
     @Override
@@ -42,12 +55,12 @@ public class Encyclopedia extends Activity {
         	public void onClick (View v) {
         		EditText search = (EditText)findViewById(R.id.searchText);
         		String searchURL = "http://www.plantcare.com/encyclopedia/search.aspx?q=" + search.getText().toString();
-        		LinearLayout content = (LinearLayout) findViewById(R.id.content);
-				content.removeAllViews();
+        		//ListView content = (LinearLayout) findViewById(R.id.content);
+				//content.removeAllViews();
         		
         		try {
         			
-        			
+        			ArrayList <SearchResult> resultList = new ArrayList <SearchResult> ();
 					Document doc = Jsoup.connect(searchURL).get();
 					Element resultBox = doc.getElementById("searchEncyclopedia");
 					//if(resultBox.attr("id").equals("_ctl0_mainHolder_noresults"))
@@ -57,6 +70,11 @@ public class Encyclopedia extends Activity {
 					for(int i = 0; i < numResults; i++){
 						
 						final Element next = results.first();
+						String plantURL = "http://www.plantcare.com" + next.child(0).child(0).child(0).attr("src");
+						String name = next.child(1).text();
+						String altNames = next.child(2).text();
+						resultList.add(new SearchResult (name, altNames, plantURL));
+						/*
 						LinearLayout border = new LinearLayout(Encyclopedia.this);
 						LinearLayout plantEntry = new LinearLayout(Encyclopedia.this);
 						LinearLayout plantText = new LinearLayout(Encyclopedia.this);
@@ -125,9 +143,13 @@ public class Encyclopedia extends Activity {
 						content.addView(border);
 						
 						results.remove(0);
-						
+						*/
 					}
-				} catch (IOException e) {
+					//ListView listView = (ListView) findViewById(R.id.searchList);
+
+					adapter = new ResultAdapter(Encyclopedia.this, R.layout.search_item, resultList);
+					this.setListAdapter(adapter);
+					} catch (IOException e) {
 					
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -139,10 +161,56 @@ public class Encyclopedia extends Activity {
 
         	
         	}
+
+			
 		});
         
         
         
 
     }
+    
+    class ResultAdapter extends ArrayAdapter<SearchResult> {
+		private ArrayList<SearchResult> items;
+		private LayoutInflater li;
+		
+		public ResultAdapter(Context context, int textViewResourceId, ArrayList<SearchResult> items) {
+			super(context, textViewResourceId, items);
+			li = ((ListActivity) context).getLayoutInflater();
+			this.items = items;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View v = convertView;
+			if (v == null)
+				v = li.inflate(R.layout.search_item, null);
+			SearchResult s = items.get(position);
+			((TextView) v.findViewById(R.id.name)).setText(s.getName());
+			((TextView) v.findViewById(R.id.altNames)).setText(s.getName());
+			try {
+				((ImageView) v.findViewById(R.id.searchPic)).setImageBitmap(BitmapFactory.decodeStream((new URL(s.getPicURL())).openConnection().getInputStream()));
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return v;
+		}
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }

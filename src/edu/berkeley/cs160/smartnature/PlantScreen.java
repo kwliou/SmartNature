@@ -1,5 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.Date;
 import java.util.ArrayList;
 
 import edu.berkeley.cs160.smartnature.PlotScreen.PlantAdapter;
@@ -30,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
@@ -39,9 +41,16 @@ import android.widget.ZoomControls;
 public class PlantScreen extends ListActivity implements View.OnTouchListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
 	AlertDialog dialog;
+
 	static EntryAdapter adapter;
-	
+
 	int gardenID, plotID, plantID; 
+	
+	LinearLayout entries;
+	TextView dateText;
+	TextView text;
+	
+
 	String name; 
 	EditText entryText;
 	ImageView addImage;
@@ -51,7 +60,14 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
+
 		super.onCreate(savedInstanceState);
+
+
+		super.onCreate(savedInstanceState);
+
+		entries = (LinearLayout) findViewById(R.id.entryTextLayout);
+		
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
@@ -69,10 +85,11 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
 		getListView().setOnItemClickListener(PlantScreen.this);
 		
 		entryText = (EditText) findViewById(R.id.entryText);
-		addImage = (ImageView) findViewById(R.id.addImage);
+		//addImage = (ImageView) findViewById(R.id.addImage);
 		addEntryButton = (Button) findViewById(R.id.addEntryButton);
 		plantTextView = (TextView) findViewById(R.id.plantTextView);
 		plantTextView.setText(name);
+
 		
 		addImage.setOnClickListener(new OnClickListener() {
 			@Override
@@ -81,25 +98,59 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener, V
 				// Call Deepti's Picture dialog
       }
     });
+
+
+		
+
+		//Button addPicButton = (Button) findViewById(R.id.addPicButton);
+		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
+
+		
+
+
 		addEntryButton.setOnClickListener(new OnClickListener() {
 			@Override
       public void onClick(View v) {
+
 				//TODO
 				// Call Deepti's entry dialog
+
 				
 				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(entryText.getText().toString());
 				adapter.notifyDataSetChanged(); //refresh ListView
       }
+
+
     });
     
 	}
 	
+	/*
+	public void loadEntries(){
+		for (Entry e: StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries()){
+			
+			text = new TextView(PlantScreen.this);
+			text.setTextColor(0xFF000000); //black
+			text.setText(e.getName());
+			
+			dateText = new TextView(PlantScreen.this);
+			dateText.setTextColor(0xFFCCCCCC); //black
+			dateText.setText(e.getDate());
+			
+			entries.addView(dateText);
+			entries.addView(text);
+		}
+	}
+	*/
+	
 	public void initMockData() {
+
 		//mockPlant.addEntry("Entry 1");
 		//mockPlant.addEntry("Entry 2");
 		adapter = new EntryAdapter(this, R.layout.list_item, StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries() );
 		setListAdapter(adapter);
 	}
+
 
 	
 	@Override
