@@ -56,7 +56,6 @@ public class Plot {
 		plants.add(p);
 	}
 	
-	
 	public int getID(){
 		return id;
 	}

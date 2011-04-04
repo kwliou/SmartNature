@@ -4,6 +4,7 @@
   android:layout_width="fill_parent"
   android:layout_height="fill_parent" 
   android:orientation="vertical"
+  android:background="#ffffff"
   >
   <TextView 
 	android:text="My plant" 
@@ -14,7 +15,7 @@
 	android:textStyle="bold"
 	android:textSize="20px" 
 	/>
-  <ImageView 
+  <!-- <ImageView 
   android:src="@drawable/carrots" 
   android:layout_width="wrap_content" 
   android:layout_height="wrap_content" 
@@ -26,7 +27,16 @@
   android:layout_width="wrap_content" 
   android:layout_height="wrap_content"
   />
-
+-->
+	<LinearLayout android:id="@+id/separator"
+		android:layout_width="fill_parent"
+		android:layout_height="3px"
+		android:background="#cccccc"
+	/>
+	<LinearLayout android:id="@+id/buttons"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		>
 	<Button 
 	android:layout_width="wrap_content" 
 	android:layout_height="wrap_content" 
@@ -39,4 +49,18 @@
 	  android:layout_width="wrap_content" 
 	  android:layout_height="wrap_content"
 	  />
+	  </LinearLayout>
+	  <ScrollView 
+		android:id="@+id/ScrollView01" 
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		>
+		<LinearLayout 
+			android:orientation="vertical" 
+			android:id="@+id/entries" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			/>
+	</ScrollView>
+	  
 </LinearLayout>

@@ -1,5 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.Date;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,6 +24,7 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -37,6 +40,11 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 	Handler mHandler = new Handler();
 	boolean showLabels = true, showFullScreen;
 	int zoomLevel;
+	int gardenID, plotID, plantID; 
+	
+	LinearLayout entries;
+	TextView dateText;
+	TextView text;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -45,11 +53,12 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 			//setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		mockPlant = new Plant("");
-
-		/*
-		Bundle extras = getIntent().getExtras();
+		entries = (LinearLayout) findViewById(R.id.entries);
+		
+		/*Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
-			setTitle(extras.getString("name"));
+			//gardenID = extras.getInt("gardenid");
+			//setTitle(extras.getString("name"));
 			//mockGarden.setName(extras.getString("name"));
 		} else {
 			showDialog(0);
@@ -67,20 +76,21 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 		}
 		*/
 		
-		Button addPicButton = (Button) findViewById(R.id.addPicButton);
+		//Button addPicButton = (Button) findViewById(R.id.addPicButton);
 		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
 		Button backButton = (Button) findViewById(R.id.back2PlotButton);
 		
-		addPicButton.setOnClickListener(new OnClickListener() {
+		/*addPicButton.setOnClickListener(new OnClickListener() {
 			@Override
       public void onClick(View v) {
 				// Call Deepti's Picture dialog
       }
-    });
+    });*/
 		addEntryButton.setOnClickListener(new OnClickListener() {
 			@Override
       public void onClick(View v) {
 				// Call Deepti's Entry dialog
+				showDialog(0);
       }
     });
 		backButton.setOnClickListener(new OnClickListener() {
@@ -91,6 +101,22 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 		
 
     
+	}
+	
+	public void loadEntries(){
+		for (Entry e: StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries()){
+			
+			text = new TextView(PlantScreen.this);
+			text.setTextColor(0xFF000000); //black
+			text.setText(e.getName());
+			
+			dateText = new TextView(PlantScreen.this);
+			dateText.setTextColor(0xFFCCCCCC); //black
+			dateText.setText(e.getDate());
+			
+			entries.addView(dateText);
+			entries.addView(text);
+		}
 	}
 	
 	public void initMockData() {
@@ -105,9 +131,14 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
-				EditText plantName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-				setTitle(plantName.getText().toString());
-				mockPlant.setName(plantName.getText().toString());
+				EditText entry = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+				//setTitle(plantName.getText().toString());
+				//mockPlant.setName(plantName.getText().toString());
+				Date currentDate = new Date();
+				String dateStr = currentDate.toString();
+				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry( new Entry(entry.getText().toString(), dateStr));
+				entries.removeAllViews();
+				loadEntries();
 			}
 		};
 		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
@@ -117,7 +148,7 @@ public class PlantScreen extends Activity implements View.OnTouchListener, View.
 			}
 		};
 		dialog = new AlertDialog.Builder(this)
-			.setTitle(R.string.new_plant_prompt)
+			.setTitle(R.string.new_entry_prompt)
 			.setView(textEntryView)
 			.setPositiveButton(R.string.alert_dialog_ok, confirmed)
 			.setNegativeButton(R.string.alert_dialog_cancel, canceled)
