@@ -28,7 +28,6 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	Paint textPaint;
 	int zoomLevel;
 	float prevX, prevY, downX, downY, x, y, zoomScale = 1;
-	static float X = 0,Y = 0;
 	float textSize;
 	boolean portraitMode, dragMode;
 	int tempColor;
@@ -190,7 +189,6 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 
 			case(MotionEvent.ACTION_MOVE):
 				if(status == START_DRAGGING && focusedPlot != null) {
-					X = event.getX(); Y = event.getY();
 					float[] dxy = {x, y, prevX, prevY};
 					Matrix inverse = new Matrix();
 					m.invert(inverse);

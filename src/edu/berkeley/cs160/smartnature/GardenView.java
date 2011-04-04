@@ -141,16 +141,11 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	@Override
 	public void onClick(View view) {
 		if (focusedPlot != null){
-			//Toast.makeText(context, "clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
-
-			/*
-    	Intent intent = new Intent(this, PlotScreen.class);
+			Intent intent = new Intent(context, PlotScreen.class);
 			Bundle bundle = new Bundle();
-			bundle.putString("name", ((TextView) view.findViewById(R.id.garden_name)).getText().toString());
+			bundle.putString("name", focusedPlot.getName());
 			intent.putExtras(bundle);      	
-			startActivity(intent);
-			 */
-
+			context.startActivity(intent);
 		}
 	}
 
@@ -215,10 +210,11 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 				focusedPlot.getShape().getPaint().setStrokeWidth(3);
 
 			}
-			prevX = x;
-			prevY = y;
-			invalidate();
 		}
+		prevX = x;
+		prevY = y;
+		invalidate();
+
 		return true;
 	}
 }

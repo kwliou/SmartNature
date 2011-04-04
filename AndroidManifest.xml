@@ -28,10 +28,10 @@
 			android:label="@string/app_name">
 		</activity>
 		
-		<activity android:name="PlantScreen">
+		<activity android:name=".PlantScreen">
 		</activity>
 		
-		<activity android:name="PlotScreen">
+		<activity android:name=".PlotScreen">
 		</activity>
 
 		<activity android:name=".ShareGarden"
@@ -48,8 +48,8 @@
 		
 		<activity android:name=".ColorPicker"></activity>
 
-		<activity android:name=".Encycl"
-                  android:label="@string/app_name">
+		<activity android:name=".Encyclopedia"
+			android:label="@string/app_name">
         </activity>
 	</application>
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>

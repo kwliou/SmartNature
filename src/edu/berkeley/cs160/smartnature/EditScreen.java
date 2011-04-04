@@ -3,7 +3,6 @@ package edu.berkeley.cs160.smartnature;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,11 +53,13 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			else if(extras.getString("type").equalsIgnoreCase("rectangle")) {
 				Rect bounds = new Rect(40, 60, 90, 200);
 				newPlot = new Plot(extras.getString("name"), bounds, 0, Plot.RECT);
+				newPlot.getShape().getPaint().setStrokeWidth(7);
 			}
 			else {
 				Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
 				float[] pts = { 0, 0, 50, 10, 90, 100 };
 				newPlot = new Plot(extras.getString("name"), bounds, 0, pts);
+				newPlot.getShape().getPaint().setStrokeWidth(7);
 			}
 			mockGarden.addPlot(newPlot);
 		}
@@ -121,22 +122,13 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		if(extras.containsKey("type")) 
 			mockGarden.getPlots().remove(mockGarden.getPlots().size() - 1);
 		else {
-			float[] d = {EditView.X, EditView.Y};
-			Matrix inverse = new Matrix();
-			EditView.m.invert(inverse);
-			inverse.mapPoints(d);
-
-			if(EditView.X != 0 && EditView.Y != 0) {
-				newPlot.getShape().getBounds().offset((int) ( oldPlot.getShape().getBounds().exactCenterX() - d[0]), (int) ( oldPlot.getShape().getBounds().exactCenterY() - d[1]));
-				EditView.X = 0;
-				EditView.Y = 0;
-				
-			}
+			newPlot.getShape().setBounds(oldPlot.getShape().getBounds());
 			newPlot.getShape().getPaint().setStrokeWidth(3);
 			newPlot.setColor(newPlot.getColor());
 			newPlot.getShape().getPaint().setColor(oldPlot.getColor());
 			newPlot.setAngle(oldPlot.getAngle());
 		}
+		mockGarden.refreshBounds();
 		finish();
 	}
 
@@ -183,6 +175,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 
 		case R.id.m_save:
 			newPlot.getShape().getPaint().setStrokeWidth(3);
+			mockGarden.refreshBounds();
 			finish();
 		}
 
@@ -237,6 +230,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		@Override
 		public void onClick(View view) {
 			newPlot.getShape().getPaint().setStrokeWidth(3);
+			mockGarden.refreshBounds();
 			finish();
 		}
 	};
