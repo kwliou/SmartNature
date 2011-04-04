@@ -41,6 +41,7 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 		initMockData();
 		getListView().setOnItemClickListener(this);
 		((Button) findViewById(R.id.new_garden)).setOnClickListener(this);
+		((Button) findViewById(R.id.search_encyclopedia)).setOnClickListener(this);
 	}
 	
 	public void initMockData() {
@@ -75,7 +76,10 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 
 	@Override
 	public void onClick(View view) {
-		startActivity(new Intent(this, GardenScreen.class));
+		if (view.getId() == R.id.new_garden)
+			startActivity(new Intent(this, GardenScreen.class));
+		else
+			startActivity(new Intent(this, Encyclopedia.class));
 	}
 
 	@Override
