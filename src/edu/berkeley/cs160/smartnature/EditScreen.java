@@ -53,11 +53,13 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			else if(extras.getString("type").equalsIgnoreCase("rectangle")) {
 				Rect bounds = new Rect(40, 60, 90, 200);
 				newPlot = new Plot(extras.getString("name"), bounds, 0, Plot.RECT);
+				newPlot.getShape().getPaint().setStrokeWidth(7);
 			}
 			else {
 				Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
 				float[] pts = { 0, 0, 50, 10, 90, 100 };
 				newPlot = new Plot(extras.getString("name"), bounds, 0, pts);
+				newPlot.getShape().getPaint().setStrokeWidth(7);
 			}
 			mockGarden.addPlot(newPlot);
 		}
