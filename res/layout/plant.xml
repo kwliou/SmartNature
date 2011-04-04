@@ -12,9 +12,16 @@
 	android:layout_height="wrap_content"
 	android:layout_gravity="center" 
 	android:textStyle="bold"
-	android:textSize="20px" 
+	android:textSize="24sp" 
 	/>
-  <ImageView 
+  <LinearLayout 
+  android:layout_height="wrap_content" 
+  android:layout_width="fill_parent" 
+  android:id="@+id/linearLayout1"
+  android:orientation="vertical"
+  android:gravity="center"
+  >
+    <ImageView 
   android:src="@drawable/carrots" 
   android:layout_width="wrap_content" 
   android:layout_height="wrap_content" 
@@ -26,6 +33,9 @@
   android:layout_width="wrap_content" 
   android:layout_height="wrap_content"
   />
+  
+  </LinearLayout>
+
 
 	<LinearLayout 
 	  android:id="@+id/linearLayout2"
@@ -67,6 +77,11 @@
 			/>
 	</ScrollView>
 
+	<ListView 
+		android:id="@+id/android:list" 
+		android:layout_height="fill_parent" 
+		android:layout_width="fill_parent"
+		/>
 
   
 </LinearLayout>
