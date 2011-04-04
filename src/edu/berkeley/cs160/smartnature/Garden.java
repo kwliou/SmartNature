@@ -114,7 +114,7 @@ public class Garden {
 		if (plots.isEmpty())
 			bounds = new Rect();
 		else {
-			bounds = plots.get(0).getShape().getBounds();
+			bounds = plots.get(0).getShape().copyBounds();
 			for (Plot p : plots) {
 				Rect pBounds = p.getShape().getBounds();
 				bounds.left = Math.min(bounds.left, pBounds.left);

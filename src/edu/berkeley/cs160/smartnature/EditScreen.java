@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -115,6 +116,15 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		newPlot.getShape().getPaint().setStrokeWidth(3);
 		mockGarden.refreshBounds();
 		finish();
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+			onBackPressed();
+			return true;
+		} else
+			return super.onKeyDown(keyCode, event);
 	}
 	
 	@Override
