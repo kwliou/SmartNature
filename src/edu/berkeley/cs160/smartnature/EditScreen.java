@@ -20,18 +20,18 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class EditScreen extends Activity implements View.OnTouchListener, View.OnClickListener, ColorPickerDialog.OnColorChangedListener {	
+public class EditScreen extends Activity implements View.OnTouchListener, View.OnClickListener, ColorPickerDialog.OnColorChangedListener {
 	final int ZOOM_DURATION = 3000;
 	Garden mockGarden;
 	ZoomControls zoom;
 	EditView editView;
 	Handler mHandler = new Handler();
-	boolean showLabels = true, showFullScreen, dragPlot = false, rotateMode = false, zoomAutoHidden;
+	boolean showLabels = true, showFullScreen, rotateMode = false, zoomAutoHidden;
 	int zoomLevel;
 	SeekBar sb_rotation;
 	Plot newPlot, oldPlot;
-	Button dragButton, rotateButton, saveButton;
-	TextView mode_drag, mode_rotate;
+	Button rotateButton, saveButton;
+	TextView mode_rotate;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,19 +48,17 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			if(extras.getString("type").equalsIgnoreCase("ellipse")) {
 				Rect bounds = new Rect(140, 120, 210, 190);
 				newPlot = new Plot(extras.getString("name"), bounds, 0, Plot.OVAL);
-				newPlot.getShape().getPaint().setStrokeWidth(7);
 			}
 			else if(extras.getString("type").equalsIgnoreCase("rectangle")) {
 				Rect bounds = new Rect(40, 60, 90, 200);
 				newPlot = new Plot(extras.getString("name"), bounds, 0, Plot.RECT);
-				newPlot.getShape().getPaint().setStrokeWidth(7);
 			}
 			else {
 				Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
 				float[] pts = { 0, 0, 50, 10, 90, 100 };
 				newPlot = new Plot(extras.getString("name"), bounds, 0, pts);
-				newPlot.getShape().getPaint().setStrokeWidth(7);
 			}
+			newPlot.getShape().getPaint().setStrokeWidth(7);
 			mockGarden.addPlot(newPlot);
 		}
 		else {
@@ -74,8 +72,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 				oldPlot.setColor(newPlot.getShape().getPaint().getColor());
 			}
 		}
-
-
+				
 		setContentView(R.layout.edit_plot);
 		editView = (EditView) findViewById(R.id.edit_view);
 		zoom = (ZoomControls) findViewById(R.id.edit_zoom_controls);
@@ -105,84 +102,49 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			}
 		});
 		
-		dragButton = (Button) findViewById(R.id.dragButton);
-		dragButton.setOnClickListener(drag);
 		rotateButton = (Button) findViewById(R.id.rotateButton);
 		rotateButton.setOnClickListener(rotate);
 		saveButton = (Button) findViewById(R.id.saveButton);
 		saveButton.setOnClickListener(save);
-		mode_drag = (TextView) findViewById(R.id.mode_drag);
 		mode_rotate = (TextView) findViewById(R.id.mode_rotate);
 		
 		editView.invalidate();
 	}
-
+	
 	public void onBackPressed() {
-		Bundle extras = getIntent().getExtras();
-		if(extras.containsKey("type")) 
-			mockGarden.getPlots().remove(mockGarden.getPlots().size() - 1);
-		else {
-			newPlot.getShape().setBounds(oldPlot.getShape().getBounds());
-			newPlot.getShape().getPaint().setStrokeWidth(3);
-			newPlot.setColor(newPlot.getColor());
-			newPlot.getShape().getPaint().setColor(oldPlot.getColor());
-			newPlot.setAngle(oldPlot.getAngle());
-		}
+		newPlot.getShape().getPaint().setStrokeWidth(3);
 		mockGarden.refreshBounds();
 		finish();
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.plot_edit_menu, menu);
 		return true;
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.m_dragmode:
-			if(!dragPlot) {
-				dragPlot = true;
-				mode_drag.setText("Drag Mode is ON");
-			}
-			else {
-				dragPlot = false;
-				mockGarden.refreshBounds();
-				mode_drag.setText("Drag Mode is OFF");
-			}
-			break;
-
-		case R.id.m_rotatemode:
-			if(!rotateMode) {
-				sb_rotation.setVisibility(View.VISIBLE);
-				rotateMode = true;
-				mode_rotate.setText("Rotate Mode is OFF");
-			}
-			else
-			{
-				sb_rotation.setVisibility(View.INVISIBLE);
-				rotateMode = false;
-				mode_rotate.setText("Rotate Mode is ON");
-			}
-			break;
-
 		case R.id.m_change_color:
 			int color = PreferenceManager.getDefaultSharedPreferences(EditScreen.this).getInt("color",Color.WHITE);
 			new ColorPickerDialog(EditScreen.this, EditScreen.this, color).show();
 			break;
 
-		case R.id.m_save:
-			newPlot.getShape().getPaint().setStrokeWidth(3);
-			mockGarden.refreshBounds();
-			finish();
+		case R.id.m_revert:
+			newPlot.getShape().setBounds(oldPlot.getShape().getBounds());
+			newPlot.setColor(newPlot.getColor());
+			newPlot.getShape().getPaint().setColor(oldPlot.getColor());
+			newPlot.setAngle(oldPlot.getAngle());
+			editView.invalidate();
+			break;
 		}
 
 
 		return super.onOptionsItemSelected(item);
 	}
-
+	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		System.err.println("touched");
@@ -193,21 +155,6 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	public void onClick(View view) {
 		System.err.println("clicked");
 	}
-	
-	View.OnClickListener drag = new View.OnClickListener() {
-		@Override
-		public void onClick(View view) {
-			if(!dragPlot) {
-				dragPlot = true;
-				mode_drag.setText("Drag Mode is ON");
-			}
-			else {
-				dragPlot = false;
-				mockGarden.refreshBounds();
-				mode_drag.setText("Drag Mode is OFF");
-			}
-		}
-	};
 	
 	View.OnClickListener rotate = new View.OnClickListener() {
 		@Override
@@ -234,7 +181,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			finish();
 		}
 	};
-
+	
 	View.OnClickListener zoomIn = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
@@ -252,7 +199,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			editView.startAnimation(anim);
 		}
 	};
-
+	
 	View.OnClickListener zoomOut = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
@@ -277,11 +224,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			zoom.show(); //zoom.setVisibility(View.VISIBLE);
 		mHandler.postDelayed(autoHide, ZOOM_DURATION);
 	}
-
-	public boolean getDragPlot() {
-		return dragPlot;
-	}
-
+	
 	Runnable autoHide = new Runnable() {
 		@Override
 		public void run() {

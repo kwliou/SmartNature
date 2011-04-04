@@ -111,13 +111,18 @@ public class Garden {
 	}
 	
 	public void refreshBounds() {
-		for (Plot p : plots) {
-			Rect pBounds = p.getShape().getBounds();
-			bounds.left = Math.min(bounds.left, pBounds.left);
-			bounds.top = Math.min(bounds.top, pBounds.top);
-			bounds.right = Math.max(bounds.right, pBounds.right);
-			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
-		}
+		if (plots.isEmpty())
+			bounds = new Rect();
+		else {
+			bounds = plots.get(0).getShape().getBounds();
+			for (Plot p : plots) {
+				Rect pBounds = p.getShape().getBounds();
+				bounds.left = Math.min(bounds.left, pBounds.left);
+				bounds.top = Math.min(bounds.top, pBounds.top);
+				bounds.right = Math.max(bounds.right, pBounds.right);
+				bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
+			}
+		}	
 	}
 	
 	

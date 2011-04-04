@@ -43,26 +43,21 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 		<Button
-			android:id="@+id/dragButton"
+			android:id="@+id/rotateButton"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="Drag mode" />
+			android:text="Rotate mode" />
 		<Button
 			android:id="@+id/saveButton"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:text="Save" />
-		<Button
-			android:id="@+id/rotateButton"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="Rotate mode" />
 	</LinearLayout>
+	
 	<TextView
-		android:id="@+id/mode_drag"
+		android:id="@+id/mode_rotate"
 		android:textStyle="bold"
 		android:background="#44000000"
 		android:focusable="false"
@@ -73,20 +68,8 @@
 		android:layout_alignParentLeft="true"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="Drag Mode is OFF"/>
-	<TextView
-		android:id="@+id/mode_rotate"
-		android:textStyle="bold"
-		android:background="#44000000"
-		android:focusable="false"
-		android:textColor="@android:color/white"
-		android:shadowColor="#BB000000"
-		android:shadowRadius="2.5"
-		android:layout_above="@id/footer"
-		android:layout_alignParentRight = "true"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
 		android:text="Rotate Mode is OFF"/>
+		
 	<ZoomControls
 		android:id="@+id/edit_zoom_controls"
 		android:padding="10dp"

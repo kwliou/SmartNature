@@ -2,6 +2,7 @@ package edu.berkeley.cs160.smartnature;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -10,7 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 public class EditView extends View implements View.OnClickListener, View.OnTouchListener {
 
@@ -27,56 +27,54 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	Drawable bg;
 	Paint textPaint;
 	int zoomLevel;
-	float prevX, prevY, downX, downY, x, y, zoomScale = 1;
+	float prevX, prevY, x, y, zoomScale = 1;
 	float textSize;
-	boolean portraitMode, dragMode;
-	int tempColor;
-
+	boolean portraitMode;
+	int plotColor;
+	
 	private int status;
-	private final static int START_DRAGGING = 0;
-	private final static int STOP_DRAGGING = 1;
-
+	private final static int DRAG_NONE = 0;
+	private final static int DRAG_SHAPE = 1;
+	private final static int DRAG_SCREEN = 2;
+	
 	public EditView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = (EditScreen) context;
-		textSize = 15.5f * getResources().getDisplayMetrics().scaledDensity;
-		initPaint();
 		bg = getResources().getDrawable(R.drawable.tile);	
+		textSize = 15.5f * getResources().getDisplayMetrics().scaledDensity;
 		initPaint();
 		initMockData();	
 		setOnClickListener(this);
 		setOnTouchListener(this);
 	}
-
+	
 	public void initMockData() {
 		garden = this.context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getShape().getPaint();
 			p.setStyle(Paint.Style.STROKE);
-			p.setStrokeWidth(plot.getShape().getPaint().getStrokeWidth());
 			p.setStrokeCap(Paint.Cap.ROUND);
 			p.setStrokeJoin(Paint.Join.ROUND);
 		}		
 	}
-
+	
 	public void initPaint() {
 		textPaint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FAKE_BOLD_TEXT_FLAG|Paint.DEV_KERN_TEXT_FLAG);
 		textPaint.setTextSize(textSize);
 		textPaint.setTextScaleX(1.2f);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 	}
-
+	
 	/** called when user clicks "zoom to fit" */
 	public void reset() {
 		zoomLevel = 0;
 		zoomScale = 1;
 		textPaint.setTextSize(textSize);
-		textPaint.setTextScaleX(1.2f);
 		dragMatrix.reset();
 		bgDragMatrix.reset();
 		invalidate();
 	}
-
+	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
@@ -118,13 +116,20 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 
 		// "shade" over everything
 		canvas.restore();
-		canvas.drawARGB(100, 0, 0, 0);
+		canvas.drawARGB(80, 0, 0, 0);
 
 		// draw plot being edited
 		canvas.save();
 		canvas.concat(m);
 		Rect shapeBounds = context.newPlot.getShape().getBounds();
 		canvas.rotate(context.newPlot.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
+		Paint paint = context.newPlot.getShape().getPaint();
+		int oldColor = paint.getColor();
+		paint.setColor(Color.WHITE);
+		paint.setStyle(Paint.Style.FILL);
+		context.newPlot.getShape().draw(canvas);
+		paint.setColor(oldColor);
+		paint.setStyle(Paint.Style.STROKE);
 		context.newPlot.getShape().draw(canvas);
 		canvas.restore();
 
@@ -136,14 +141,14 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 			}
 	}
-
+	
 	public RectF getBounds() {
 		if (portraitMode)
 			return new RectF(getLeft(), getTop(), getBottom(), getRight());
 		else
 			return new RectF(getLeft(), getTop(), getRight(), getBottom());
 	}
-
+	
 	@Override
 	public void onAnimationEnd() {
 		zoomLevel = context.zoomLevel;
@@ -151,102 +156,62 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		textPaint.setTextSize(Math.max(10, textSize * zoomScale));
 		invalidate();
 	}
-
+	
 	@Override
 	public void onClick(View view) {
-		if (focusedPlot != null)
-			Toast.makeText(context, "clicked " + focusedPlot.getName(), Toast.LENGTH_SHORT).show();
 	}
-
+	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
+		super.onTouchEvent(event);
 		context.handleZoom();
 		x = event.getX(); y = event.getY();
-		if (context.getDragPlot()) {
-			switch(event.getAction()) {
-			case(MotionEvent.ACTION_DOWN):
-				Matrix inv = new Matrix();
+		
+		switch(event.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+			Matrix inv = new Matrix();
 			m.invert(inv);
 			float[] xy = { x, y };
 			inv.mapPoints(xy);
 			if (context.newPlot.contains(xy[0], xy[1])) {
 				focusedPlot = context.newPlot;
 				// set focused plot appearance
-				tempColor = focusedPlot.getShape().getPaint().getColor();
+				plotColor = focusedPlot.getShape().getPaint().getColor();
+				focusedPlot.getShape().getPaint().setStrokeWidth(11);
 				focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
-				focusedPlot.getShape().getPaint().setStrokeWidth(5);
-				status = START_DRAGGING;
-			}
+				status = DRAG_SHAPE;
+			} else
+				status = DRAG_SCREEN;
 			break;
-
-			case(MotionEvent.ACTION_UP):
-				status = STOP_DRAGGING;
-			if(focusedPlot != null) {
-				focusedPlot.getShape().getPaint().setColor(tempColor);
-				focusedPlot.getShape().getPaint().setStrokeWidth(7);
-			}
-			break;
-
-			case(MotionEvent.ACTION_MOVE):
-				if(status == START_DRAGGING && focusedPlot != null) {
-					float[] dxy = {x, y, prevX, prevY};
-					Matrix inverse = new Matrix();
-					m.invert(inverse);
-					inverse.mapPoints(dxy);
-					focusedPlot.getShape().getBounds().offset((int) (- dxy[2] + dxy[0]), (int) (- dxy[3] + dxy[1]));
-				}
-			break;
-			}
-
-
-		}
-		else {
-			if(event.getAction() == MotionEvent.ACTION_DOWN) {
-				dragMode = false;
-				downX = x; downY = y;
-				focusedPlot = garden.plotAt(x, y, m);
-				if (focusedPlot != null) {
-					// set focused plot appearance
-					tempColor = focusedPlot.getShape().getPaint().getColor();
-					focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
-					focusedPlot.getShape().getPaint().setStrokeWidth(5);
-				}
-
+		
+		case MotionEvent.ACTION_MOVE:
+			if(status == DRAG_SHAPE) {
+				float[] dxy = {x, y, prevX, prevY};
+				Matrix inverse = new Matrix();
+				m.invert(inverse);
+				inverse.mapPoints(dxy);
+				focusedPlot.getShape().getBounds().offset((int) (- dxy[2] + dxy[0]), (int) (- dxy[3] + dxy[1]));
 			}
 			else {
 				float dx = x - prevX, dy = y - prevY;
 				dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
 				bgDragMatrix.postTranslate(dx, dy);
-				if (!dragMode)
-					dragMode = Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5; // show some leniency
-					if (dragMode && focusedPlot != null) {
-						// plot can no longer be clicked so reset appearance
-						focusedPlot.getShape().getPaint().setColor(tempColor);
-						if(focusedPlot != context.newPlot)
-							focusedPlot.getShape().getPaint().setStrokeWidth(3);
-						else
-							focusedPlot.getShape().getPaint().setStrokeWidth(7);
-					}
+			}	
+			break;
+		
+		case MotionEvent.ACTION_UP:
+			status = DRAG_NONE;
+			if(focusedPlot != null) {
+				focusedPlot.getShape().getPaint().setColor(plotColor);
+				focusedPlot.getShape().getPaint().setStrokeWidth(7);
 			}
-			// onClick for some reason doesn't execute on its own so manually do it
-			if (event.getAction() == MotionEvent.ACTION_UP && !dragMode) {
-				if (focusedPlot != null) {
-					// reset clicked plot appearance
-					focusedPlot.getShape().getPaint().setColor(tempColor);
-					if(focusedPlot != context.newPlot)
-						focusedPlot.getShape().getPaint().setStrokeWidth(3);
-					else
-						focusedPlot.getShape().getPaint().setStrokeWidth(7);
-				}
-				performClick();
-			}
+			break;
 		}
+		
 		prevX = x;
 		prevY = y;
 		invalidate();
 		return true;
 	}
-
-
 
 }
