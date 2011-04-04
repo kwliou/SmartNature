@@ -71,7 +71,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		//intent.putExtras(bundle);
 		//startActivity(intent);
 		}
-		});*/
+		});
 		
 		/*
 		gardenView.setOnClickListener(new OnClickListener() {
