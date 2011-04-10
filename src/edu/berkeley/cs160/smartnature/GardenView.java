@@ -170,7 +170,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	}
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
-		super.onTouchEvent(event);
+		onTouchEvent(event);
 		context.handleZoom();
 		x = event.getX(); y = event.getY();
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -180,7 +180,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 			if (focusedPlot != null) {
 				// set focused plot appearance
 				tempColor = focusedPlot.getShape().getPaint().getColor();
-				focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
+				focusedPlot.getShape().getPaint().setColor(getResources().getColor(R.color.focused_plot));
 				focusedPlot.getShape().getPaint().setStrokeWidth(5);
 			}
 		}

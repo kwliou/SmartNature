@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -25,7 +26,8 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	/** translation matrix applied to the background */
 	Matrix bgDragMatrix = new Matrix();
 	Drawable bg;
-	Paint textPaint;
+	Path arrow;
+	Paint textPaint, rayPaint;
 	int zoomLevel;
 	float prevX, prevY, x, y, zoomScale = 1;
 	float textSize;
@@ -59,10 +61,21 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	}
 	
 	public void initPaint() {
+		arrow = new Path();
+		arrow.rLineTo(2, 7);
+		arrow.rLineTo(-2, -3);
+		arrow.rLineTo(-2, 3);
+		arrow.close();
 		textPaint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FAKE_BOLD_TEXT_FLAG|Paint.DEV_KERN_TEXT_FLAG);
 		textPaint.setTextSize(textSize);
 		textPaint.setTextScaleX(1.2f);
 		textPaint.setTextAlign(Paint.Align.CENTER);
+		rayPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		rayPaint.setStyle(Paint.Style.STROKE);
+		rayPaint.setStrokeWidth(5);
+		rayPaint.setStrokeMiter(30);
+		//rayPaint.setStrokeCap(Paint.Cap.SQUARE);
+		//rayPaint.setStrokeJoin(Paint.Join.ROUND);
 	}
 	
 	/** called when user clicks "zoom to fit" */
@@ -124,6 +137,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		Rect shapeBounds = context.newPlot.getShape().getBounds();
 		canvas.rotate(context.newPlot.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
 		Paint paint = context.newPlot.getShape().getPaint();
+		
 		int oldColor = paint.getColor();
 		paint.setColor(Color.WHITE);
 		paint.setStyle(Paint.Style.FILL);
@@ -131,6 +145,12 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		paint.setColor(oldColor);
 		paint.setStyle(Paint.Style.STROKE);
 		context.newPlot.getShape().draw(canvas);
+		if (context.rotateMode) {
+			canvas.drawLine(shapeBounds.centerX(), shapeBounds.centerY(), shapeBounds.centerX(), shapeBounds.top - 50, rayPaint);
+			Path path = new Path(arrow);
+			path.offset(shapeBounds.centerX(), shapeBounds.top - 50);
+			canvas.drawPath(path, rayPaint);
+		}
 		canvas.restore();
 
 		if (context.showLabels)
@@ -163,10 +183,21 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
-		super.onTouchEvent(event);
+		onTouchEvent(event);
 		context.handleZoom();
 		x = event.getX(); y = event.getY();
+		if (context.rotateMode)
+			handleRotation(event);
+		else
+			handleDragging(event);
 		
+		prevX = x;
+		prevY = y;
+		invalidate();
+		return true;
+	}
+	
+	public void handleDragging(MotionEvent event) {
 		switch(event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			Matrix inv = new Matrix();
@@ -177,8 +208,8 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				focusedPlot = context.newPlot;
 				// set focused plot appearance
 				plotColor = focusedPlot.getShape().getPaint().getColor();
-				focusedPlot.getShape().getPaint().setStrokeWidth(11);
-				focusedPlot.getShape().getPaint().setColor(0xFF7BB518);
+				focusedPlot.getShape().getPaint().setStrokeWidth(9);
+				focusedPlot.getShape().getPaint().setColor(getResources().getColor(R.color.focused_plot));
 				status = DRAG_SHAPE;
 			} else
 				status = DRAG_SCREEN;
@@ -207,11 +238,18 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			}
 			break;
 		}
-		
-		prevX = x;
-		prevY = y;
-		invalidate();
-		return true;
+	}
+	
+	public void handleRotation(MotionEvent event) {
+		Matrix inverse = new Matrix();
+		m.invert(inverse);
+		float[] xy = { x, y };
+		inverse.mapPoints(xy);
+		float dx = xy[0] - context.newPlot.getShape().getBounds().centerX();
+		float dy = xy[1] - context.newPlot.getShape().getBounds().centerY();
+		float angle = -(float)Math.toDegrees(Math.atan(dx/dy));
+		if (dy > 0) angle += 180;
+		context.newPlot.setAngle(angle);		
 	}
 
 }

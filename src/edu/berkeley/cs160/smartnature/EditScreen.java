@@ -16,8 +16,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
@@ -29,7 +27,6 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	Handler mHandler = new Handler();
 	boolean showLabels = true, showFullScreen, rotateMode = false, zoomAutoHidden;
 	int zoomLevel;
-	SeekBar sb_rotation;
 	Plot newPlot, oldPlot;
 	Button rotateButton, saveButton;
 	TextView mode_rotate;
@@ -89,20 +86,6 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			((TextView)findViewById(R.id.edit_hint)).setVisibility(View.VISIBLE);
 		}
 
-		sb_rotation = (SeekBar) findViewById(R.id.sb_rotation);
-		sb_rotation.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			public void onStopTrackingTouch(SeekBar seekBar) {
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-			}
-
-			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				newPlot.setAngle(progress);
-				editView.invalidate();
-			}
-		});
-		
 		rotateButton = (Button) findViewById(R.id.rotateButton);
 		rotateButton.setOnClickListener(rotate);
 		saveButton = (Button) findViewById(R.id.saveButton);
@@ -168,18 +151,10 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	
 	View.OnClickListener rotate = new View.OnClickListener() {
 		@Override
-		public void onClick(View view) {
-			if(!rotateMode) {
-				sb_rotation.setVisibility(View.VISIBLE);
-				rotateMode = true;
-				mode_rotate.setText("Rotate Mode is ON");
-			}
-			else
-			{
-				sb_rotation.setVisibility(View.INVISIBLE);
-				rotateMode = false;
-				mode_rotate.setText("Rotate Mode is OFF");
-			}
+		public void onClick(View view) {			
+			rotateMode = !rotateMode;
+			mode_rotate.setText("Rotate Mode is " + (rotateMode ? "ON" : "OFF"));
+			editView.invalidate();
 		}
 	};
 	

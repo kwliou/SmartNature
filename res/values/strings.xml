@@ -22,4 +22,5 @@
     </style>
    <string name="hint_gardenscreen">-Click on Add Plot in the menu to add a plot\n-Press on a plot to view its plants/info\n-Long press on a plot to edit its shape</string>
    <string name="hint_editscreen">-To change its color, click on Change color in the menu\n-You can drag the edited plot with your finger\n-To rotate the plot, click on Rotate Mode and then drag the cursor in the bar below</string>
+   <color name="focused_plot">#7BB518</color>
 </resources>

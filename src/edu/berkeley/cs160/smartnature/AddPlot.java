@@ -8,7 +8,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-public class AddPlot extends Activity implements View.OnClickListener{
+public class AddPlot extends Activity implements View.OnClickListener {
 	EditText et_plot_name;
 	RadioButton rb_ellipse;
 	RadioButton rb_rectangle;

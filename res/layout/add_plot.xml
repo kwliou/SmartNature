@@ -9,33 +9,38 @@
 	android:paddingBottom="3dp"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
+
 	<EditText
 		android:id="@+id/et_plot_name"
 		android:hint="Set plot name"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
+
 	<RadioGroup
 		android:id="@+id/rg_shape"
-		android:layout_width="wrap_content"
+		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical">
-		<RadioButton
-			android:id="@+id/rb_ellipse"
-			android:checked="true"
-			android:text="Ellipse"
-			android:textSize="18sp"
-			android:paddingLeft="45dp"
-			android:paddingRight="5dp"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+
 		<RadioButton
 			android:id="@+id/rb_rectangle"
+			android:checked="true"
 			android:text="Rectangle"
 			android:textSize="18sp"
 			android:paddingLeft="45dp"
 			android:paddingRight="5dp"
-			android:layout_width="wrap_content"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
+
+		<RadioButton
+			android:id="@+id/rb_ellipse"
+			android:text="Ellipse"
+			android:textSize="18sp"
+			android:paddingLeft="45dp"
+			android:paddingRight="5dp"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
 		<RadioButton
 			android:id="@+id/rb_custom"
 			android:text="Custom (polygon)"
@@ -43,24 +48,30 @@
 			android:paddingLeft="45dp"
 			android:paddingRight="5dp"
 			android:layout_marginBottom="5dp"
-			android:layout_width="wrap_content"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
+	
 	</RadioGroup>
+
 	<LinearLayout
 		android:orientation="horizontal"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
+
 		<Button
 			android:id="@+id/b_add_confirm"
 			android:text="Add"
 			android:layout_weight="1"
-			android:layout_width="wrap_content"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
+
 		<Button
 			android:id="@+id/b_add_cancel"
 			android:text="Cancel"
 			android:layout_weight="1"
-			android:layout_width="wrap_content"
+			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
+
 	</LinearLayout>
+
 </LinearLayout>

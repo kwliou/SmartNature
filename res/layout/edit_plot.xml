@@ -9,6 +9,7 @@
 		android:id="@+id/edit_view"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent" />
+
 	<TextView
 		android:id="@+id/edit_hint"
 		android:textStyle="bold"
@@ -26,15 +27,7 @@
 		android:layout_gravity="top"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
-	<SeekBar 
-		android:id="@+id/sb_rotation"
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content" 
-		android:max="360"
-		android:progress="0"
-		android:layout_gravity="top"
-		android:visibility="invisible"
-		android:layout_below="@id/edit_hint"/>
+
 	<LinearLayout
 		android:id="@+id/footer"
 		style="@android:style/ButtonBar"
