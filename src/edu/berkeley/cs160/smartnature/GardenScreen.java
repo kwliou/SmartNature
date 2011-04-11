@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -68,8 +70,53 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
 	}
-
-  
+	
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		savedInstanceState.putInt("zoom_level", zoomLevel);
+		savedInstanceState.putBoolean("portrait_mode", gardenView.portraitMode);
+		float[] values = new float[9], bgvalues = new float[9];
+		gardenView.dragMatrix.getValues(values);
+		gardenView.bgDragMatrix.getValues(bgvalues);
+		savedInstanceState.putFloatArray("drag_matrix", values);
+		savedInstanceState.putFloatArray("bgdrag_matrix", bgvalues);
+		super.onSaveInstanceState(savedInstanceState);
+	}
+	
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		zoomLevel = savedInstanceState.getInt("zoom_level");
+		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
+		int orien = getResources().getConfiguration().orientation;
+		
+		float[] values = savedInstanceState.getFloatArray("drag_matrix");
+		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");
+		
+		if (orien == Configuration.ORIENTATION_PORTRAIT && !prevPortraitMode) {
+			// changed from landscape to portrait
+			float tmp = values[Matrix.MTRANS_X];
+			values[Matrix.MTRANS_X] = -values[Matrix.MTRANS_Y];
+			values[Matrix.MTRANS_Y] = tmp;
+			tmp = bgvalues[Matrix.MTRANS_X];
+			bgvalues[Matrix.MTRANS_X] = -bgvalues[Matrix.MTRANS_Y];
+			bgvalues[Matrix.MTRANS_Y] = tmp;
+		}
+		else if (orien == Configuration.ORIENTATION_LANDSCAPE && prevPortraitMode) {
+			// changed from portrait to landscape
+			float tmp = values[Matrix.MTRANS_X];
+			values[Matrix.MTRANS_X] = values[Matrix.MTRANS_Y];
+			values[Matrix.MTRANS_Y] = -tmp;
+			tmp = bgvalues[Matrix.MTRANS_X];
+			bgvalues[Matrix.MTRANS_X] = bgvalues[Matrix.MTRANS_Y];
+			bgvalues[Matrix.MTRANS_Y] = -tmp;
+		}
+		
+		gardenView.dragMatrix.setValues(values);
+		gardenView.bgDragMatrix.setValues(savedInstanceState.getFloatArray("bgdrag_matrix"));
+		gardenView.onAnimationEnd();	
+	}
+	
 	@Override
 	public Dialog onCreateDialog(int id) {
 		DialogInterface.OnClickListener cancelled = new DialogInterface.OnClickListener() {
@@ -183,19 +230,17 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				zoomPressed = true;
 				anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f);
 				anim.setDuration(400);
-				anim.setAnimationListener(animListen);
+				anim.setAnimationListener(new Animation.AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation anim) { }
+					@Override
+					public void onAnimationRepeat(Animation anim) { }
+					@Override
+					public void onAnimationEnd(Animation anim) { zoomLevel++; }
+				});
 				gardenView.startAnimation(anim);
 			}
 		}
-	};
-	
-	Animation.AnimationListener animListen = new Animation.AnimationListener() {
-		@Override
-		public void onAnimationStart(Animation anim) { }
-		@Override
-		public void onAnimationRepeat(Animation anim) { }
-		@Override
-		public void onAnimationEnd(Animation anim) { zoomLevel++; }
 	};
 	
 	View.OnClickListener zoomOut = new View.OnClickListener() {

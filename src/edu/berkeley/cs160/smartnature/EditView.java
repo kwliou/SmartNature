@@ -101,10 +101,10 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		m.reset();
 		RectF gardenBounds = context.showFullScreen ? garden.getBounds() : garden.getBounds(portraitMode);
 		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
-		if (portraitMode) {
-			m.postRotate(90);
-			m.postTranslate(width, 0);
-		}
+		
+		if (portraitMode)
+			m.postRotate(90, width /2f, width /2f);
+		
 		m.postConcat(dragMatrix);
 
 		if (zoomLevel != 0) {

@@ -3,7 +3,9 @@ package edu.berkeley.cs160.smartnature;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -104,7 +106,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		super.onWindowFocusChanged(hasFocus);
 		if (firstInit) {
 			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.footer).getHeight(), 0);
-			anim.setDuration(250);
+			anim.setDuration(300);
 			findViewById(R.id.footer).startAnimation(anim);
 		}
 	}
@@ -112,6 +114,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		savedInstanceState.putInt("zoom_level", zoomLevel);
+		savedInstanceState.putBoolean("portrait_mode", editView.portraitMode);
 		float[] values = new float[9], bgvalues = new float[9];
 		editView.dragMatrix.getValues(values);
 		editView.bgDragMatrix.getValues(bgvalues);
@@ -124,8 +127,33 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 		zoomLevel = savedInstanceState.getInt("zoom_level");
-		editView.dragMatrix.setValues(savedInstanceState.getFloatArray("drag_matrix"));
-		editView.bgDragMatrix.setValues(savedInstanceState.getFloatArray("bgdrag_matrix"));
+		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
+		int orien = getResources().getConfiguration().orientation;
+		
+		float[] values = savedInstanceState.getFloatArray("drag_matrix");
+		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");
+		
+		if (orien == Configuration.ORIENTATION_PORTRAIT && !prevPortraitMode) {
+			// changed from landscape to portrait
+			float tmp = values[Matrix.MTRANS_X];
+			values[Matrix.MTRANS_X] = -values[Matrix.MTRANS_Y];
+			values[Matrix.MTRANS_Y] = tmp;
+			tmp = bgvalues[Matrix.MTRANS_X];
+			bgvalues[Matrix.MTRANS_X] = -bgvalues[Matrix.MTRANS_Y];
+			bgvalues[Matrix.MTRANS_Y] = tmp;
+		}
+		else if (orien == Configuration.ORIENTATION_LANDSCAPE && prevPortraitMode) {
+			// changed from portrait to landscape
+			float tmp = values[Matrix.MTRANS_X];
+			values[Matrix.MTRANS_X] = values[Matrix.MTRANS_Y];
+			values[Matrix.MTRANS_Y] = -tmp;
+			tmp = bgvalues[Matrix.MTRANS_X];
+			bgvalues[Matrix.MTRANS_X] = bgvalues[Matrix.MTRANS_Y];
+			bgvalues[Matrix.MTRANS_Y] = -tmp;
+		}
+		
+		editView.dragMatrix.setValues(values);
+		editView.bgDragMatrix.setValues(bgvalues);
 		editView.onAnimationEnd();	
 	}
 	
