@@ -1,14 +1,10 @@
-User name:string password:string
-Garden name:string date_modified:date width:double height:double
-Plot garden_id:int name:string
-	shape:int color:int left:int right:int top:int bottom:int angle:double
-Point plot_id:int x:int y:int
-Plant name:string plot_id:int online_id:int
-GardensUsers user_id:int garden_id:int
+TODO:
+adding new polygon
+resizing plots
+
+sharing gardens
 
 Current issues:
-transformation matrix doesn't continue on in edit mode
-bounds are not realistic in rotated plots
 
 
 Kevin - start screen, garden screen

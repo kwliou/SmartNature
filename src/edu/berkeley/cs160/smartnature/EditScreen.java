@@ -2,6 +2,7 @@ package edu.berkeley.cs160.smartnature;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ZoomControls;
@@ -25,54 +27,56 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	ZoomControls zoom;
 	EditView editView;
 	Handler mHandler = new Handler();
-	boolean showLabels = true, showFullScreen, rotateMode = false, zoomAutoHidden;
+	boolean showLabels = true, showFullScreen, rotateMode, zoomAutoHidden;
+	boolean zoomPressed;
 	int zoomLevel;
-	Plot newPlot, oldPlot;
+	Plot plot, oldPlot;
 	Button rotateButton, saveButton;
 	TextView mode_rotate;
+	boolean firstInit = true;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		firstInit = savedInstanceState == null;
 		showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-
-		mockGarden = StartScreen.gardens.get(extras.getInt("id"));
+		
+		mockGarden = StartScreen.gardens.get(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
-
+		
 		if(extras.containsKey("type")){
-			if(extras.getString("type").equalsIgnoreCase("ellipse")) {
-				Rect bounds = new Rect(140, 120, 210, 190);
-				newPlot = new Plot(extras.getString("name"), bounds, 0, Plot.OVAL);
-			}
-			else if(extras.getString("type").equalsIgnoreCase("rectangle")) {
-				Rect bounds = new Rect(40, 60, 90, 200);
-				newPlot = new Plot(extras.getString("name"), bounds, 0, Plot.RECT);
-			}
-			else {
+			int type = extras.getInt("type"); 
+			String name = extras.getString("name");
+			if(type == Plot.POLY) {
 				Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
 				float[] pts = { 0, 0, 50, 10, 90, 100 };
-				newPlot = new Plot(extras.getString("name"), bounds, 0, pts);
+				plot = new Plot(name, bounds, 0, pts);
+			}	
+			else {
+				Rect bounds = new Rect(140, 120, 210, 190);
+				plot = new Plot(name, bounds, 0, type);
 			}
-			newPlot.getShape().getPaint().setStrokeWidth(7);
-			mockGarden.addPlot(newPlot);
+			mockGarden.addPlot(plot);
 		}
 		else {
-			newPlot = mockGarden.getPlots().get(extras.getInt("plot_name"));
-			if(newPlot.getType() == 0 || newPlot.getType() == 1) {
-				oldPlot = new Plot(newPlot.getName(), newPlot.getShape().copyBounds(), newPlot.getAngle(), newPlot.getType());
-				oldPlot.setColor(newPlot.getShape().getPaint().getColor());
-			}
-			else {
-				oldPlot = new Plot(newPlot.getName(), newPlot.getShape().copyBounds(), newPlot.getAngle(), newPlot.getPoint());
-				oldPlot.setColor(newPlot.getShape().getPaint().getColor());
-			}
+			plot = mockGarden.getPlots().get(extras.getInt("plot_id"));
+			oldPlot = new Plot(plot);
 		}
-				
+		plot.getPaint().setStrokeWidth(7);
+		
 		setContentView(R.layout.edit_plot);
 		editView = (EditView) findViewById(R.id.edit_view);
+		
+		if (firstInit) {
+			zoomLevel = extras.getInt("zoom_level");
+			editView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
+			editView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
+			editView.onAnimationEnd();
+		}
+		
 		zoom = (ZoomControls) findViewById(R.id.edit_zoom_controls);
 		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
@@ -91,14 +95,54 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		saveButton = (Button) findViewById(R.id.saveButton);
 		saveButton.setOnClickListener(save);
 		mode_rotate = (TextView) findViewById(R.id.mode_rotate);
-		
+
 		editView.invalidate();
 	}
 	
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (firstInit) {
+			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.footer).getHeight(), 0);
+			anim.setDuration(250);
+			findViewById(R.id.footer).startAnimation(anim);
+		}
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		savedInstanceState.putInt("zoom_level", zoomLevel);
+		float[] values = new float[9], bgvalues = new float[9];
+		editView.dragMatrix.getValues(values);
+		editView.bgDragMatrix.getValues(bgvalues);
+		savedInstanceState.putFloatArray("drag_matrix", values);
+		savedInstanceState.putFloatArray("bgdrag_matrix", bgvalues);
+		super.onSaveInstanceState(savedInstanceState);
+	}
+	
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		zoomLevel = savedInstanceState.getInt("zoom_level");
+		editView.dragMatrix.setValues(savedInstanceState.getFloatArray("drag_matrix"));
+		editView.bgDragMatrix.setValues(savedInstanceState.getFloatArray("bgdrag_matrix"));
+		editView.onAnimationEnd();	
+	}
+	
 	public void onBackPressed() {
-		newPlot.getShape().getPaint().setStrokeWidth(3);
-		mockGarden.refreshBounds();
+		plot.getPaint().setStrokeWidth(3);
+		Intent intent = new Intent();
+		Bundle bundle = new Bundle();
+		bundle.putInt("zoom_level", zoomLevel);
+		float[] values = new float[9], bgvalues = new float[9];
+		editView.dragMatrix.getValues(values);
+		editView.bgDragMatrix.getValues(bgvalues);
+		bundle.putFloatArray("drag_matrix", values);
+		bundle.putFloatArray("bgdrag_matrix", bgvalues);
+		intent.putExtras(bundle);
+		setResult(RESULT_OK, intent);
 		finish();
+		overridePendingTransition(0, 0);
 	}
 	
 	@Override
@@ -124,16 +168,17 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			int color = PreferenceManager.getDefaultSharedPreferences(EditScreen.this).getInt("color",Color.WHITE);
 			new ColorPickerDialog(EditScreen.this, EditScreen.this, color).show();
 			break;
-
+		case R.id.m_resetzoom:
+			zoomLevel = 0;
+			mockGarden.refreshBounds();
+			editView.reset();
+			break;
 		case R.id.m_revert:
-			newPlot.getShape().setBounds(oldPlot.getShape().getBounds());
-			newPlot.setColor(newPlot.getColor());
-			newPlot.getShape().getPaint().setColor(oldPlot.getColor());
-			newPlot.setAngle(oldPlot.getAngle());
+			plot.set(oldPlot);
+			plot.getPaint().setStrokeWidth(7);
 			editView.invalidate();
 			break;
 		}
-
 
 		return super.onOptionsItemSelected(item);
 	}
@@ -161,9 +206,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	View.OnClickListener save = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			newPlot.getShape().getPaint().setStrokeWidth(3);
-			mockGarden.refreshBounds();
-			finish();
+			onBackPressed();
 		}
 	};
 	
@@ -171,17 +214,20 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, editView.getWidth() / 2.0f, editView.getHeight() / 2.0f);
-			anim.setDuration(400);
-			anim.setAnimationListener(new Animation.AnimationListener() {
-				@Override
-				public void onAnimationStart(Animation anim) { }
-				@Override
-				public void onAnimationRepeat(Animation anim) { }
-				@Override
-				public void onAnimationEnd(Animation anim) { zoomLevel++; }
-			});
-			editView.startAnimation(anim);
+			if (!zoomPressed) {
+				zoomPressed = true;
+				ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, editView.getWidth() / 2.0f, editView.getHeight() / 2.0f);
+				anim.setDuration(400);
+				anim.setAnimationListener(new Animation.AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation anim) { }
+					@Override
+					public void onAnimationRepeat(Animation anim) { }
+					@Override
+					public void onAnimationEnd(Animation anim) { zoomLevel++; }
+				});
+				editView.startAnimation(anim);
+			}
 		}
 	};
 	
@@ -189,17 +235,20 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			ScaleAnimation anim = new ScaleAnimation(1, 1/1.5f, 1, 1/1.5f, editView.getWidth() / 2.0f, editView.getHeight() / 2.0f); 
-			anim.setDuration(400);
-			anim.setAnimationListener(new Animation.AnimationListener() {
-				@Override
-				public void onAnimationStart(Animation anim) { }				
-				@Override
-				public void onAnimationRepeat(Animation anim) { }
-				@Override
-				public void onAnimationEnd(Animation anim) { zoomLevel--; }
-			});
-			editView.startAnimation(anim);
+			if (!zoomPressed) {
+				zoomPressed = true;
+				ScaleAnimation anim = new ScaleAnimation(1, 1/1.5f, 1, 1/1.5f, editView.getWidth() / 2.0f, editView.getHeight() / 2.0f); 
+				anim.setDuration(400);
+				anim.setAnimationListener(new Animation.AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation anim) { }				
+					@Override
+					public void onAnimationRepeat(Animation anim) { }
+					@Override
+					public void onAnimationEnd(Animation anim) { zoomLevel--; }
+				});
+				editView.startAnimation(anim);
+			}
 		}
 	};
 
@@ -223,7 +272,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	@Override
 	public void colorChanged(int color) {
 		PreferenceManager.getDefaultSharedPreferences(this).edit().putInt("color", color).commit();
-		newPlot.getShape().getPaint().setColor(color);
+		plot.getPaint().setColor(color);
 		editView.invalidate();
 	}
 

@@ -5,15 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 public class AddPlot extends Activity implements View.OnClickListener {
 	EditText et_plot_name;
-	RadioButton rb_ellipse;
-	RadioButton rb_rectangle;
-	RadioButton	rb_custom;
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -22,9 +19,7 @@ public class AddPlot extends Activity implements View.OnClickListener {
 		findViewById(R.id.b_add_cancel).setOnClickListener(this);
 
 		et_plot_name = (EditText) findViewById(R.id.et_plot_name);
-		rb_ellipse = (RadioButton) findViewById(R.id.rb_ellipse);
-		rb_rectangle = (RadioButton) findViewById(R.id.rb_rectangle);
-		rb_custom = (RadioButton) findViewById(R.id.rb_custom);	
+			
 	}
 
 	@Override
@@ -35,20 +30,26 @@ public class AddPlot extends Activity implements View.OnClickListener {
 				return;
 			}
 			else {
-				Bundle extras = getIntent().getExtras();
+				Bundle bundle = new Bundle(getIntent().getExtras());
 				Intent intent = new Intent(this, EditScreen.class);
-				Bundle bundle = new Bundle();
+				//bundle.putInt("garden_id", bundle.getInt("garden_id"));
 				bundle.putString("name", et_plot_name.getText().toString());
-				if(rb_ellipse.isChecked())
-					bundle.putString("type", "ellipse");
-				else if(rb_rectangle.isChecked())
-					bundle.putString("type", "rectangle");
-				else if(rb_custom.isChecked())
-					bundle.putString("type", "custom");
-				bundle.putInt("id", extras.getInt("id"));
+				int radioId = ((RadioGroup)findViewById(R.id.rg_shape)).getCheckedRadioButtonId();
+				int shapeType;
+				switch (radioId) {
+					case R.id.rb_rectangle:
+						shapeType = Plot.RECT;
+						break;
+					case R.id.rb_ellipse:
+						shapeType = Plot.OVAL;
+						break;
+					default:
+						shapeType = Plot.POLY;
+						break;
+				}
+				bundle.putInt("type", shapeType);
 				intent.putExtras(bundle);
 				startActivity(intent);
-				Toast.makeText(this, bundle.getString("type") + " is selected", Toast.LENGTH_SHORT).show();
 			}
 		}
 		finish();

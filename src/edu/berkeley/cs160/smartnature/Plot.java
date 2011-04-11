@@ -2,8 +2,11 @@ package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
 
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.*;
 
@@ -13,9 +16,10 @@ public class Plot {
 	private String name;
 	private ShapeDrawable shape;
 	private int type;
-	private float[] polyPoints;
-	private float rotation; // angle of direction where 0 is "north"
 	private int color;
+	private float[] polyPoints;
+	/** angle of clockwise rotation in degrees */
+	private float rotation;
 	
 	private int id;
 	private ArrayList<Plant> plants = new ArrayList<Plant>();
@@ -37,6 +41,10 @@ public class Plot {
 		shape.setBounds(bounds);
 	}
 	
+	Plot(String plotName, Rect bounds, float[] points) {
+		this(plotName, bounds, 0, points);
+	}
+	
 	/** create a rectangular or elliptical plot */
 	Plot(String plotName, Rect bounds, float angle, int shapeType) {
 		name = plotName;
@@ -46,58 +54,38 @@ public class Plot {
 		shape.setBounds(bounds);
 	}
 		
-	
-	public ArrayList<Plant> getPlants() {
-		return plants;
+	Plot(String plotName, Rect bounds, int shapeType) {
+		this(plotName, bounds, 0, shapeType);
 	}
+	
+	/** creates a copy of a plot except for its plants */
+	Plot(Plot src) {
+		set(src);
+	}
+	
+	/** copies data from another plot */
+	public void set(Plot src) {
+		name = src.getName();
+		type = src.getType();
+		color = src.getColor();
+		rotation = src.getAngle();
+		
+		if (type == POLY) 
+			polyPoints = src.getPoints().clone();	
+		
+		try {
+			shape = new ShapeDrawable(src.getShape().getShape().clone());
+		} catch (CloneNotSupportedException e) { }
+		shape.setBounds(src.getShape().copyBounds());
+		getPaint().set(src.getPaint());
+		plants = src.getPlants();
+	}
+	
+	public ArrayList<Plant> getPlants() { return plants; }
 
 	public void addPlant(Plant p) {
 		p.setID(plants.size());
 		plants.add(p);
-	}
-	
-	public int getID(){
-		return id;
-	}
-	
-	public int setID(int i){
-		return id = i;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public float getAngle() {
-		return rotation;
-	}
-	
-	public void setAngle(float angle) {
-		this.rotation = angle;
-	}
-	
-	public int getColor() {
-		return color;
-	}
-	
-	public void setColor(int color) {
-		this.color = color;
-	}
-	
-	public float[] getPoint () {
-		return polyPoints;
-	}
-	
-	public ShapeDrawable getShape() {
-		return shape;
-	}
-	
-	public void setShape(ShapeDrawable shape) {
-		this.shape = shape;
 	}
 	
 	public boolean contains(float x, float y) {
@@ -109,13 +97,13 @@ public class Plot {
 			return rectContains(x, y);
 	}
 	
-	public boolean rectContains(float x, float y) {
+	private boolean rectContains(float x, float y) {
 		Rect bounds = shape.getBounds();
 		return bounds.left <= x && x <= bounds.right && bounds.top <= y && y <= bounds.bottom;  
 	}
 	
 	/** @see java.awt.geom.Ellipse2D#contains(double, double) */
-	public boolean ovalContains(float x, float y) {
+	private boolean ovalContains(float x, float y) {
 		Rect bounds = shape.getBounds();
 		float ellw = bounds.width(), ellh = bounds.height();
 		float normx = (x - bounds.left) / ellw - 0.5f;
@@ -124,7 +112,7 @@ public class Plot {
 	}
 	
 	/** @see <a href="http://alienryderflex.com/polygon">http://alienryderflex.com/polygon</a> */
-	public boolean pathContains(float x, float y) {
+	private boolean pathContains(float x, float y) {
 		x -= shape.getBounds().left;
 		y -= shape.getBounds().top;
 		int polySides = polyPoints.length / 2;
@@ -143,8 +131,41 @@ public class Plot {
 		return oddTransitions;
 	}
 	
-	public int getType() {
-		return type;
+	public Rect getBounds() { return shape.getBounds(); }
+	
+	/** bounds of plot taking rotation into account */
+	public RectF getRotateBounds() {
+		Matrix m = new Matrix();
+		RectF bounds = new RectF(shape.copyBounds());
+		m.setRotate(rotation, bounds.centerX(), bounds.centerY());
+		m.mapRect(bounds);
+		return bounds;
 	}
+	
+	public int getID(){ return id; }
+	
+	public int setID(int i) { return id = i; }
+	
+	public float getAngle() { return rotation; }
+	
+	public void setAngle(float angle) { this.rotation = angle; }
+	
+	public int getColor() { return color; }
+	
+	public void setColor(int color) { this.color = color; }
+	
+	public String getName() { return name; }
+	
+	public void setName(String name) { this.name = name; }
+	
+	public Paint getPaint() { return shape.getPaint(); }
+	
+	public float[] getPoints() { return polyPoints; }
+	
+	public ShapeDrawable getShape() { return shape; }
+	
+	public void setShape(ShapeDrawable shape) { this.shape = shape; }
+	
+	public int getType() { return type; }
 	
 }

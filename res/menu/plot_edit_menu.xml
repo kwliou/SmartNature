@@ -1,10 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/m_change_color"
-          android:icon="@drawable/ic_menu_colorpicker"
-          android:title="Change color" />
+	<item android:id="@+id/m_resetzoom"
+		android:icon="@android:drawable/ic_menu_zoom"
+		android:title="Zoom to fit" />
 	<item android:id="@+id/m_move_forward"
           android:icon="@drawable/ic_menu_move_up"
           android:title="Move to front" />
+	<item android:id="@+id/m_change_color"
+          android:icon="@drawable/ic_menu_colorpicker"
+          android:title="Change color" />
 	<item android:id="@+id/m_revert"
           android:icon="@android:drawable/ic_menu_revert"
           android:title="Revert changes" />

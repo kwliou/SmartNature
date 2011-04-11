@@ -16,15 +16,19 @@ public class Garden {
 	private Rect paddingLand = new Rect(20, 30, 20, 10);
 	private Rect paddingPort = new Rect(30, 20, 10, 20);
 	
-	Garden(String gardenName) {
+	Garden(int resId, String gardenName) {
 		name = gardenName;
 		plots = new ArrayList<Plot>();
 		bounds = new Rect();
+		previewId = resId;
 	}
 	
-	Garden(int resId, String gardenName) {
-		this(gardenName);
-		previewId = resId;
+	Garden(String gardenName) {
+		this(R.drawable.preview, gardenName);
+	}
+	
+	Garden() {
+		this(R.drawable.preview, "");
 	}
 	
 	public String getName() {

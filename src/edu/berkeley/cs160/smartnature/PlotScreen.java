@@ -43,8 +43,8 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
 			setTitle(extras.getString("name"));
-			gardenID = extras.getInt("gardenID");
-			plotID = extras.getInt("plotID");
+			gardenID = extras.getInt("garden_id");
+			plotID = extras.getInt("plot_id");
 		} else {
 			showDialog(0);
 		}

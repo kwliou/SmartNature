@@ -31,6 +31,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	GardenView gardenView;
 	Handler mHandler = new Handler();
 	boolean showLabels = true, showFullScreen, zoomAutoHidden;
+	boolean zoomPressed;
 	int zoomLevel;
 	int currentDialog; 
 	
@@ -48,36 +49,19 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			gardenID = extras.getInt("id");
 			setTitle(mockGarden.getName());
 		} else {
-			mockGarden = new Garden(R.drawable.preview, "");
+			mockGarden = new Garden();
 			showDialog(NEW_DIALOG);
 		}
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
+		
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
 		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
 			zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
-
-		
-
-		
-		/*gardenView.setOnClickListener(new OnClickListener() {
-
-	    public void onClick(View v) {
-	
-      	Intent intent = new Intent(GardenScreen.this, PlotScreen.class);
-				Bundle bundle = new Bundle(3);
-				bundle.putString("name", gardenView.focusedPlot.getName());
-				bundle.putInt("gardenID", gardenID);
-				bundle.putInt("plotID", gardenView.focusedPlot.getID());
-				intent.putExtras(bundle);      	
-				startActivity(intent);
-
-	    }
-	  });*/
-
+		//zoom.setZoomSpeed(1000);
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
@@ -136,6 +120,16 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	}
 	
 	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		Bundle extras = data.getExtras();
+		zoomLevel = extras.getInt("zoom_level");
+		gardenView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
+		gardenView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
+		gardenView.onAnimationEnd();
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.garden_menu, menu);
@@ -148,7 +142,11 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			case R.id.m_addregion:
 				Intent intent = new Intent(this, AddPlot.class);
 				Bundle bundle = new Bundle();
-				bundle.putInt("id", StartScreen.gardens.indexOf(mockGarden));
+				bundle.putInt("garden_id", StartScreen.gardens.indexOf(mockGarden));
+				bundle.putInt("zoom_level", zoomLevel);
+				float[] matrix = new float[9];
+				gardenView.m.getValues(matrix);
+				bundle.putFloatArray("drag_matrix", matrix);
 				intent.putExtras(bundle);
 				startActivity(intent);
 				break;
@@ -161,6 +159,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				break;
 			case R.id.m_resetzoom:
 				zoomLevel = 0;
+				mockGarden.refreshBounds();
 				gardenView.reset();
 				break;
 			case R.id.m_share:
@@ -174,40 +173,49 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
+	
+	ScaleAnimation anim;
 	View.OnClickListener zoomIn = new View.OnClickListener() {
 		@Override
-		public void onClick(View view) {
+		public void onClick(final View view) {
 			handleZoom();
-			ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f);
-			anim.setDuration(400);
-			anim.setAnimationListener(new Animation.AnimationListener() {
-				@Override
-				public void onAnimationStart(Animation anim) { }
-				@Override
-				public void onAnimationRepeat(Animation anim) { }
-				@Override
-				public void onAnimationEnd(Animation anim) { zoomLevel++; }
-			});
-			gardenView.startAnimation(anim);
+			if (!zoomPressed) {
+				zoomPressed = true;
+				anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f);
+				anim.setDuration(400);
+				anim.setAnimationListener(animListen);
+				gardenView.startAnimation(anim);
+			}
 		}
+	};
+	
+	Animation.AnimationListener animListen = new Animation.AnimationListener() {
+		@Override
+		public void onAnimationStart(Animation anim) { }
+		@Override
+		public void onAnimationRepeat(Animation anim) { }
+		@Override
+		public void onAnimationEnd(Animation anim) { zoomLevel++; }
 	};
 	
 	View.OnClickListener zoomOut = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			ScaleAnimation anim = new ScaleAnimation(1, 1/1.5f, 1, 1/1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f); 
-			anim.setDuration(400);
-			anim.setAnimationListener(new Animation.AnimationListener() {
-				@Override
-				public void onAnimationStart(Animation anim) { }				
-				@Override
-				public void onAnimationRepeat(Animation anim) { }
-				@Override
-				public void onAnimationEnd(Animation anim) { zoomLevel--; }
-			});
-			gardenView.startAnimation(anim);
+			if (!zoomPressed) {
+				zoomPressed = true;
+				ScaleAnimation anim = new ScaleAnimation(1, 1/1.5f, 1, 1/1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f); 
+				anim.setDuration(400);
+				anim.setAnimationListener(new Animation.AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation anim) { }				
+					@Override
+					public void onAnimationRepeat(Animation anim) { }
+					@Override
+					public void onAnimationEnd(Animation anim) { zoomLevel--; }
+				});
+				gardenView.startAnimation(anim);
+			}
 		}
 	};
 	

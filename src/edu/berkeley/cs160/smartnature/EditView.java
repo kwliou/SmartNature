@@ -18,9 +18,9 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	EditScreen context;
 	Garden garden;
 	/** plot that is currently pressed */
-	Plot focusedPlot;
+	Plot editPlot;
 	/** the entire transformation matrix applied to the canvas */
-	static Matrix m = new Matrix();
+	Matrix m = new Matrix();
 	/** translation matrix applied to the canvas */
 	Matrix dragMatrix = new Matrix();
 	/** translation matrix applied to the background */
@@ -31,17 +31,16 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	int zoomLevel;
 	float prevX, prevY, x, y, zoomScale = 1;
 	float textSize;
-	boolean portraitMode;
+	boolean portraitMode, focused;
 	int plotColor;
 	
 	private int status;
-	private final static int DRAG_NONE = 0;
-	private final static int DRAG_SHAPE = 1;
-	private final static int DRAG_SCREEN = 2;
+	private final static int DRAG_NONE = 0, DRAG_SHAPE = 1, DRAG_SCREEN = 2;
 	
 	public EditView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = (EditScreen) context;
+		editPlot = this.context.plot;
 		bg = getResources().getDrawable(R.drawable.tile);	
 		textSize = 15.5f * getResources().getDisplayMetrics().scaledDensity;
 		initPaint();
@@ -74,8 +73,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		rayPaint.setStyle(Paint.Style.STROKE);
 		rayPaint.setStrokeWidth(5);
 		rayPaint.setStrokeMiter(30);
-		//rayPaint.setStrokeCap(Paint.Cap.SQUARE);
-		//rayPaint.setStrokeJoin(Paint.Join.ROUND);
+		rayPaint.setStrokeCap(Paint.Cap.ROUND);
 	}
 	
 	/** called when user clicks "zoom to fit" */
@@ -118,9 +116,9 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		canvas.save();
 		canvas.concat(m);
 		for (Plot p: garden.getPlots()) {
-			if (p != context.newPlot) {
+			if (p != editPlot) {
 				canvas.save();
-				Rect shapeBounds = p.getShape().getBounds();
+				Rect shapeBounds = p.getBounds();
 				canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
 				p.getShape().draw(canvas);
 				canvas.restore();
@@ -134,17 +132,17 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		// draw plot being edited
 		canvas.save();
 		canvas.concat(m);
-		Rect shapeBounds = context.newPlot.getShape().getBounds();
-		canvas.rotate(context.newPlot.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
-		Paint paint = context.newPlot.getShape().getPaint();
+		Rect shapeBounds = editPlot.getBounds();
+		canvas.rotate(editPlot.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
+		Paint paint = editPlot.getShape().getPaint();
 		
 		int oldColor = paint.getColor();
 		paint.setColor(Color.WHITE);
 		paint.setStyle(Paint.Style.FILL);
-		context.newPlot.getShape().draw(canvas);
+		editPlot.getShape().draw(canvas);
 		paint.setColor(oldColor);
 		paint.setStyle(Paint.Style.STROKE);
-		context.newPlot.getShape().draw(canvas);
+		editPlot.getShape().draw(canvas);
 		if (context.rotateMode) {
 			canvas.drawLine(shapeBounds.centerX(), shapeBounds.centerY(), shapeBounds.centerX(), shapeBounds.top - 50, rayPaint);
 			Path path = new Path(arrow);
@@ -155,8 +153,12 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 
 		if (context.showLabels)
 			for (Plot p: garden.getPlots()) {
-				Rect bounds = p.getShape().getBounds();
-				float[] labelLoc = portraitMode ? new float[] {bounds.left - 10, bounds.centerY()} : new float[] {bounds.centerX(), bounds.top - 10};
+				float[] labelLoc;
+				RectF bounds = p.getRotateBounds(); // context.rotateMode ? new RectF(p.getBounds()) : p.getRotateBounds();
+				if (portraitMode)
+					labelLoc = new float[] { bounds.left - 10, bounds.centerY() };
+				else
+					labelLoc =  new float[] { bounds.centerX(), bounds.top - 10 };
 				m.mapPoints(labelLoc);
 				canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 			}
@@ -175,6 +177,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		zoomScale = (float) Math.pow(1.5, zoomLevel);
 		textPaint.setTextSize(Math.max(10, textSize * zoomScale));
 		invalidate();
+		context.zoomPressed = false; 
 	}
 	
 	@Override
@@ -204,15 +207,17 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			m.invert(inv);
 			float[] xy = { x, y };
 			inv.mapPoints(xy);
-			if (context.newPlot.contains(xy[0], xy[1])) {
-				focusedPlot = context.newPlot;
+			if (editPlot.contains(xy[0], xy[1])) {
+				focused = true;
 				// set focused plot appearance
-				plotColor = focusedPlot.getShape().getPaint().getColor();
-				focusedPlot.getShape().getPaint().setStrokeWidth(9);
-				focusedPlot.getShape().getPaint().setColor(getResources().getColor(R.color.focused_plot));
+				plotColor = editPlot.getPaint().getColor();
+				editPlot.getPaint().setStrokeWidth(9);
+				editPlot.getPaint().setColor(getResources().getColor(R.color.focused_plot));
 				status = DRAG_SHAPE;
-			} else
+			} else {
+				focused = false;
 				status = DRAG_SCREEN;
+			}
 			break;
 		
 		case MotionEvent.ACTION_MOVE:
@@ -221,7 +226,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				Matrix inverse = new Matrix();
 				m.invert(inverse);
 				inverse.mapPoints(dxy);
-				focusedPlot.getShape().getBounds().offset((int) (- dxy[2] + dxy[0]), (int) (- dxy[3] + dxy[1]));
+				editPlot.getBounds().offset((int) (- dxy[2] + dxy[0]), (int) (- dxy[3] + dxy[1]));
 			}
 			else {
 				float dx = x - prevX, dy = y - prevY;
@@ -232,10 +237,11 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		
 		case MotionEvent.ACTION_UP:
 			status = DRAG_NONE;
-			if(focusedPlot != null) {
-				focusedPlot.getShape().getPaint().setColor(plotColor);
-				focusedPlot.getShape().getPaint().setStrokeWidth(7);
+			if (focused) {
+				editPlot.getShape().getPaint().setColor(plotColor);
+				editPlot.getShape().getPaint().setStrokeWidth(7);
 			}
+			focused = false;
 			break;
 		}
 	}
@@ -245,11 +251,11 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		m.invert(inverse);
 		float[] xy = { x, y };
 		inverse.mapPoints(xy);
-		float dx = xy[0] - context.newPlot.getShape().getBounds().centerX();
-		float dy = xy[1] - context.newPlot.getShape().getBounds().centerY();
+		float dx = xy[0] - editPlot.getShape().getBounds().centerX();
+		float dy = xy[1] - editPlot.getShape().getBounds().centerY();
 		float angle = -(float)Math.toDegrees(Math.atan(dx/dy));
 		if (dy > 0) angle += 180;
-		context.newPlot.setAngle(angle);		
+		editPlot.setAngle(angle);		
 	}
 
 }
