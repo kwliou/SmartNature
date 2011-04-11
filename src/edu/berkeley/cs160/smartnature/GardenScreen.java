@@ -191,9 +191,11 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				Bundle bundle = new Bundle();
 				bundle.putInt("garden_id", StartScreen.gardens.indexOf(mockGarden));
 				bundle.putInt("zoom_level", zoomLevel);
-				float[] matrix = new float[9];
-				gardenView.m.getValues(matrix);
-				bundle.putFloatArray("drag_matrix", matrix);
+				float[] values = new float[9], bgvalues = new float[9];
+				gardenView.dragMatrix.getValues(values);
+				gardenView.bgDragMatrix.getValues(bgvalues);
+				bundle.putFloatArray("drag_matrix", values);
+				bundle.putFloatArray("bgdrag_matrix", bgvalues);
 				intent.putExtras(bundle);
 				startActivity(intent);
 				break;
@@ -221,14 +223,13 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		return super.onOptionsItemSelected(item);
 	}
 	
-	ScaleAnimation anim;
 	View.OnClickListener zoomIn = new View.OnClickListener() {
 		@Override
 		public void onClick(final View view) {
 			handleZoom();
 			if (!zoomPressed) {
 				zoomPressed = true;
-				anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f);
+				ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f);
 				anim.setDuration(400);
 				anim.setAnimationListener(new Animation.AnimationListener() {
 					@Override
@@ -268,7 +269,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		if (zoomAutoHidden) {
 			mHandler.removeCallbacks(autoHide);
 			if (!zoom.isShown())
-				zoom.show(); //zoom.setVisibility(View.VISIBLE);
+				zoom.show();
 			mHandler.postDelayed(autoHide, ZOOM_DURATION);
 		}
 	}
@@ -278,7 +279,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		public void run() {
 			if (zoom.isShown()) {
 				mHandler.removeCallbacks(autoHide);
-				zoom.hide(); //zoom.setVisibility(View.GONE);
+				zoom.hide();
 			}
 		}
 	};

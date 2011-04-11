@@ -7,23 +7,21 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class EditScreen extends Activity implements View.OnTouchListener, View.OnClickListener, ColorPickerDialog.OnColorChangedListener {
+public class EditScreen extends Activity implements View.OnClickListener, ColorPickerDialog.OnColorChangedListener {
 	final int ZOOM_DURATION = 3000;
 	Garden mockGarden;
 	ZoomControls zoom;
@@ -33,7 +31,6 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	boolean zoomPressed;
 	int zoomLevel;
 	Plot plot, oldPlot;
-	Button rotateButton, saveButton;
 	TextView mode_rotate;
 	boolean firstInit = true;
 	
@@ -49,24 +46,36 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		mockGarden = StartScreen.gardens.get(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		
-		if (extras.containsKey("type")) {
-			int type = extras.getInt("type"); 
-			String name = extras.getString("name");
-			if(type == Plot.POLY) {
-				Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
-				float[] pts = { 0, 0, 50, 10, 90, 100 };
-				plot = new Plot(name, bounds, 0, pts);
-			}	
-			else {
-				Rect bounds = new Rect(140, 120, 210, 190);
-				plot = new Plot(name, bounds, 0, type);
+		if (firstInit) {
+			if (extras.containsKey("type")) {
+				RectF gBounds = mockGarden.getRawBounds();
+				//int gardenWidth = (int) mockGarden.getRawBounds().width();
+				//int gardenHeight = (int) mockGarden.getRawBounds().height();
+				int type = extras.getInt("type");
+				String name = extras.getString("name");
+				if(type == Plot.POLY) {
+					Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
+					float[] pts = { 0, 0, 50, 10, 90, 100 };
+					plot = new Plot(name, bounds, 0, pts);
+				}
+				else {
+					Rect bounds = new Rect((int)gBounds.left, (int)gBounds.top, (int)gBounds.right, (int)gBounds.bottom);
+					bounds.inset((int)gBounds.width()/3, (int)gBounds.height()/3);
+					plot = new Plot(name, bounds, 0, type);
+				}
+				mockGarden.addPlot(plot);
 			}
-			mockGarden.addPlot(plot);
-		}
-		else {
-			plot = mockGarden.getPlots().get(extras.getInt("plot_id"));
+			else
+				plot = mockGarden.getPlots().get(extras.getInt("plot_id"));
+			
 			oldPlot = new Plot(plot);
+		} else {
+			if (extras.containsKey("type"))
+				plot = mockGarden.getPlot(mockGarden.size() - 1);
+			else
+				plot = mockGarden.getPlots().get(extras.getInt("plot_id"));
 		}
+			
 		plot.getPaint().setStrokeWidth(7);
 		
 		setContentView(R.layout.edit_plot);
@@ -91,24 +100,12 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 			((TextView)findViewById(R.id.edit_hint)).setText(R.string.hint_editscreen);
 			((TextView)findViewById(R.id.edit_hint)).setVisibility(View.VISIBLE);
 		}
-
-		rotateButton = (Button) findViewById(R.id.rotateButton);
-		rotateButton.setOnClickListener(rotate);
-		saveButton = (Button) findViewById(R.id.saveButton);
-		saveButton.setOnClickListener(save);
+		
+		findViewById(R.id.rotateButton).setOnClickListener(this);
+		findViewById(R.id.saveButton).setOnClickListener(this);
 		mode_rotate = (TextView) findViewById(R.id.mode_rotate);
 
 		editView.invalidate();
-	}
-	
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		if (firstInit) {
-			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.footer).getHeight(), 0);
-			anim.setDuration(300);
-			findViewById(R.id.footer).startAnimation(anim);
-		}
 	}
 	
 	@Override
@@ -174,12 +171,13 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-			onBackPressed();
-			return true;
-		} else
-			return super.onKeyDown(keyCode, event);
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (firstInit) {
+			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.footer).getHeight(), 0);
+			anim.setDuration(300);
+			findViewById(R.id.footer).startAnimation(anim);
+		}
 	}
 	
 	@Override
@@ -193,8 +191,8 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.m_change_color:
-			int color = PreferenceManager.getDefaultSharedPreferences(EditScreen.this).getInt("color",Color.WHITE);
-			new ColorPickerDialog(EditScreen.this, EditScreen.this, color).show();
+			int color = PreferenceManager.getDefaultSharedPreferences(this).getInt("color", Color.WHITE);
+			new ColorPickerDialog(this, this, color).show();
 			break;
 		case R.id.m_resetzoom:
 			zoomLevel = 0;
@@ -212,31 +210,18 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	}
 	
 	@Override
-	public boolean onTouch(View view, MotionEvent event) {
-		System.err.println("touched");
-		return false;
-	}
-
-	@Override
 	public void onClick(View view) {
-		System.err.println("clicked");
+		switch (view.getId()) {
+			case R.id.rotateButton:
+				rotateMode = !rotateMode;
+				((TextView)findViewById(R.id.mode_rotate)).setText("Rotate Mode is " + (rotateMode ? "ON" : "OFF"));
+				editView.invalidate();
+				break;
+			case R.id.saveButton:
+				onBackPressed();
+				break;
+		}
 	}
-	
-	View.OnClickListener rotate = new View.OnClickListener() {
-		@Override
-		public void onClick(View view) {			
-			rotateMode = !rotateMode;
-			mode_rotate.setText("Rotate Mode is " + (rotateMode ? "ON" : "OFF"));
-			editView.invalidate();
-		}
-	};
-	
-	View.OnClickListener save = new View.OnClickListener() {
-		@Override
-		public void onClick(View view) {
-			onBackPressed();
-		}
-	};
 	
 	View.OnClickListener zoomIn = new View.OnClickListener() {
 		@Override
@@ -283,7 +268,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 	public void handleZoom() {
 		mHandler.removeCallbacks(autoHide);
 		if (!zoom.isShown())
-			zoom.show(); //zoom.setVisibility(View.VISIBLE);
+			zoom.show();
 		mHandler.postDelayed(autoHide, ZOOM_DURATION);
 	}
 	
@@ -292,7 +277,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		public void run() {
 			if (zoom.isShown()) {
 				mHandler.removeCallbacks(autoHide);
-				zoom.hide(); //zoom.setVisibility(View.GONE);
+				zoom.hide();
 			}
 		}
 	};

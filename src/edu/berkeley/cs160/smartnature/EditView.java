@@ -227,6 +227,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				m.invert(inverse);
 				inverse.mapPoints(dxy);
 				editPlot.getBounds().offset((int) (- dxy[2] + dxy[0]), (int) (- dxy[3] + dxy[1]));
+				System.out.println(editPlot.getAngle());
 			}
 			else {
 				float dx = x - prevX, dy = y - prevY;

@@ -81,8 +81,6 @@ public class Plot {
 		plants = src.getPlants();
 	}
 	
-	public ArrayList<Plant> getPlants() { return plants; }
-
 	public void addPlant(Plant p) {
 		p.setID(plants.size());
 		plants.add(p);
@@ -153,8 +151,8 @@ public class Plot {
 			bounds = new RectF(getBounds());
 			m.mapRect(bounds);
 		}
-		return bounds;
 		
+		return bounds;	
 	}
 	
 	public Rect getBounds() { return shape.getBounds(); }
@@ -176,6 +174,8 @@ public class Plot {
 	public void setName(String name) { this.name = name; }
 	
 	public Paint getPaint() { return shape.getPaint(); }
+	
+	public ArrayList<Plant> getPlants() { return plants; }
 	
 	public float[] getPoints() { return polyPoints; }
 	

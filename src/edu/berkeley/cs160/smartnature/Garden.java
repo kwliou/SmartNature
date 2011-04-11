@@ -12,9 +12,9 @@ public class Garden {
 	private int previewId;
 	private ArrayList<Plot> plots;
 	private RectF bounds;
-	private Rect padding = new Rect(30, 30, 30, 30);
-	private Rect paddingLand = new Rect(20, 30, 20, 10);
-	private Rect paddingPort = new Rect(30, 20, 10, 20);
+	private static Rect padding = new Rect(30, 30, 30, 30);
+	private static Rect paddingLand = new Rect(20, 30, 20, 10);
+	private static Rect paddingPort = new Rect(30, 20, 10, 20);
 	
 	Garden(int resId, String gardenName) {
 		name = gardenName;
@@ -29,38 +29,6 @@ public class Garden {
 	
 	Garden() {
 		this(R.drawable.preview, "");
-	}
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public int getPreviewId() {
-		return previewId;
-	}
-
-	public void setPreviewId(int previewId) {
-		this.previewId = previewId;
-	}
-	
-	public ArrayList<Plot> getPlots() {
-		return plots;
-	}
-	
-	public Plot getPlot(int id) {
-		return plots.get(id);
-	}
-	
-	public int getPlotId(Plot plot) {
-		return plots.indexOf(plot);
-	}
-	
-	public void setPlot(int id, Plot plot) {
-		plots.add(id, plot);
 	}
 	
 	public void addPlot(Plot plot) {
@@ -87,10 +55,6 @@ public class Garden {
 	/** add a rectangular or elliptical plot */
 	public void addPlot(String plotName, Rect plotBounds, float rotation, int shapeType) {
 		addPlot(new Plot(plotName, plotBounds, rotation, shapeType)); 
-	}
-	
-	public RectF getRawBounds() {
-		return bounds;
 	}
 	
 	/** Used for full screen mode */
@@ -129,7 +93,6 @@ public class Garden {
 		}
 	}
 	
-	
 	/** finds a plot which contains (x, y) after being transformed by the matrix */ 
 	public Plot plotAt(float x, float y, Matrix matrix) {
 		Matrix inverse = new Matrix();
@@ -144,4 +107,25 @@ public class Garden {
 		}
 		return null;
 	}
+	
+	public String getName() { return name; }
+
+	public void setName(String name) { this.name = name; }
+
+	public int getPreviewId() { return previewId; }
+
+	public void setPreviewId(int previewId) { this.previewId = previewId; }
+	
+	public ArrayList<Plot> getPlots() { return plots; }
+	
+	public int getPlotId(Plot plot) { return plots.indexOf(plot); }
+	
+	public Plot getPlot(int id) { return plots.get(id); }
+	
+	public void setPlot(int id, Plot plot) { plots.add(id, plot); }
+
+	public RectF getRawBounds() { return bounds; }
+	
+	public int size() { return plots.size(); }
+	
 }

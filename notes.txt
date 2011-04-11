@@ -1,8 +1,9 @@
 TODO:
 adding new polygon
 resizing plots
-
 sharing gardens
+parsing encyclopedia(s)
+not using more than one encyclopedia source (maybe add options?)
 
 Current issues:
 
