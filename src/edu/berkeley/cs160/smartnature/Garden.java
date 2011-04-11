@@ -11,7 +11,7 @@ public class Garden {
 	private String name;
 	private int previewId;
 	private ArrayList<Plot> plots;
-	private Rect bounds;
+	private RectF bounds;
 	private Rect padding = new Rect(30, 30, 30, 30);
 	private Rect paddingLand = new Rect(20, 30, 20, 10);
 	private Rect paddingPort = new Rect(30, 20, 10, 20);
@@ -19,7 +19,7 @@ public class Garden {
 	Garden(int resId, String gardenName) {
 		name = gardenName;
 		plots = new ArrayList<Plot>();
-		bounds = new Rect();
+		bounds = new RectF();
 		previewId = resId;
 	}
 	
@@ -64,9 +64,9 @@ public class Garden {
 	}
 	
 	public void addPlot(Plot plot) {
-		Rect pBounds = plot.getShape().getBounds();
+		RectF pBounds = plot.getRotateBounds();
 		if (plots.isEmpty()) {
-			bounds = new Rect(pBounds);
+			bounds = new RectF(pBounds);
 		}
 		else {
 			bounds.left = Math.min(bounds.left, pBounds.left);
@@ -89,7 +89,7 @@ public class Garden {
 		addPlot(new Plot(plotName, plotBounds, rotation, shapeType)); 
 	}
 	
-	public Rect getRawBounds() {
+	public RectF getRawBounds() {
 		return bounds;
 	}
 	
@@ -116,11 +116,11 @@ public class Garden {
 	
 	public void refreshBounds() {
 		if (plots.isEmpty())
-			bounds = new Rect();
+			bounds = new RectF();
 		else {
-			bounds = plots.get(0).getShape().copyBounds();
+			bounds = plots.get(0).getRotateBounds();
 			for (Plot p : plots) {
-				Rect pBounds = p.getShape().getBounds();
+				RectF pBounds = p.getRotateBounds();
 				bounds.left = Math.min(bounds.left, pBounds.left);
 				bounds.top = Math.min(bounds.top, pBounds.top);
 				bounds.right = Math.max(bounds.right, pBounds.right);

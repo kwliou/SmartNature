@@ -131,16 +131,33 @@ public class Plot {
 		return oddTransitions;
 	}
 	
-	public Rect getBounds() { return shape.getBounds(); }
-	
 	/** bounds of plot taking rotation into account */
 	public RectF getRotateBounds() {
+		RectF bounds;
 		Matrix m = new Matrix();
-		RectF bounds = new RectF(shape.copyBounds());
-		m.setRotate(rotation, bounds.centerX(), bounds.centerY());
-		m.mapRect(bounds);
+		m.setRotate(rotation, getBounds().centerX(), getBounds().centerY());
+		
+		if (type == POLY) {
+			float[] rotPoints = new float[polyPoints.length];
+			m.preTranslate(getBounds().left, getBounds().top);
+			m.mapPoints(rotPoints, polyPoints);
+			bounds = new RectF(rotPoints[0], rotPoints[1], rotPoints[0], rotPoints[1]);
+			for (int i = 0; i < rotPoints.length; i += 2) {
+				bounds.left = Math.min(bounds.left, rotPoints[i]);
+				bounds.top = Math.min(bounds.top, rotPoints[i + 1]);
+				bounds.right = Math.max(bounds.right, rotPoints[i]);
+				bounds.bottom = Math.max(bounds.bottom, rotPoints[i + 1]);
+			}
+		}
+		else {
+			bounds = new RectF(getBounds());
+			m.mapRect(bounds);
+		}
 		return bounds;
+		
 	}
+	
+	public Rect getBounds() { return shape.getBounds(); }
 	
 	public int getID(){ return id; }
 	

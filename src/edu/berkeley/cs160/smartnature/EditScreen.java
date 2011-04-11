@@ -49,7 +49,7 @@ public class EditScreen extends Activity implements View.OnTouchListener, View.O
 		mockGarden = StartScreen.gardens.get(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		
-		if(extras.containsKey("type")){
+		if (extras.containsKey("type")) {
 			int type = extras.getInt("type"); 
 			String name = extras.getString("name");
 			if(type == Plot.POLY) {
