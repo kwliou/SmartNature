@@ -42,7 +42,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		this.context = (EditScreen) context;
 		editPlot = this.context.plot;
 		bg = getResources().getDrawable(R.drawable.tile);	
-		textSize = 15.5f * getResources().getDisplayMetrics().scaledDensity;
+		textSize = getResources().getDimension(R.dimen.labelsize_default);
 		initPaint();
 		initMockData();	
 		setOnClickListener(this);
@@ -66,14 +66,14 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		arrow.rLineTo(-2, 3);
 		arrow.close();
 		textPaint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FAKE_BOLD_TEXT_FLAG|Paint.DEV_KERN_TEXT_FLAG);
-		textPaint.setTextSize(textSize);
-		textPaint.setTextScaleX(1.2f);
 		textPaint.setTextAlign(Paint.Align.CENTER);
+		textPaint.setTextSize(textSize);
+		textPaint.setTextScaleX(getResources().getDimension(R.dimen.labelxscale_default));
 		rayPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		rayPaint.setStyle(Paint.Style.STROKE);
-		rayPaint.setStrokeWidth(5);
-		rayPaint.setStrokeMiter(30);
 		rayPaint.setStrokeCap(Paint.Cap.ROUND);
+		rayPaint.setStrokeMiter(getResources().getDimension(R.dimen.mitersize_default));
+		rayPaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 	}
 	
 	/** called when user clicks "zoom to fit" */
@@ -103,16 +103,13 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
 		
 		if (portraitMode)
-			m.postRotate(90, width /2f, width /2f);
+			m.postRotate(90, width/2f, width/2f);
 		
 		m.postConcat(dragMatrix);
-
-		if (zoomLevel != 0) {
-			float zoomShift = (1 - zoomScale) / 2;
-			m.postScale(zoomScale, zoomScale);
-			m.postTranslate(zoomShift * width, zoomShift * height);
-		}
-
+		
+		if (zoomLevel != 0)
+			m.postScale(zoomScale, zoomScale, width/2f, height/2f);
+		
 		canvas.save();
 		canvas.concat(m);
 		for (Plot p: garden.getPlots()) {
@@ -150,7 +147,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			canvas.drawPath(path, rayPaint);
 		}
 		canvas.restore();
-
+		
 		if (context.showLabels)
 			for (Plot p: garden.getPlots()) {
 				float[] labelLoc;
@@ -174,8 +171,8 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	@Override
 	public void onAnimationEnd() {
 		zoomLevel = context.zoomLevel;
-		zoomScale = (float) Math.pow(1.5, zoomLevel);
-		textPaint.setTextSize(Math.max(10, textSize * zoomScale));
+		zoomScale = (float) Math.pow(getResources().getDimension(R.dimen.zoom_scalar), zoomLevel);
+		textPaint.setTextSize(Math.max(textSize * zoomScale, getResources().getDimension(R.dimen.labelsize_min)));
 		invalidate();
 		context.zoomPressed = false; 
 	}
@@ -211,7 +208,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				focused = true;
 				// set focused plot appearance
 				plotColor = editPlot.getPaint().getColor();
-				editPlot.getPaint().setStrokeWidth(9);
+				editPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_editactive));
 				editPlot.getPaint().setColor(getResources().getColor(R.color.focused_plot));
 				status = DRAG_SHAPE;
 			} else {
@@ -240,7 +237,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			status = DRAG_NONE;
 			if (focused) {
 				editPlot.getShape().getPaint().setColor(plotColor);
-				editPlot.getShape().getPaint().setStrokeWidth(7);
+				editPlot.getShape().getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 			}
 			focused = false;
 			break;

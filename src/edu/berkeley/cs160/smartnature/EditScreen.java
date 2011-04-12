@@ -10,7 +10,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,7 +21,7 @@ import android.widget.TextView;
 import android.widget.ZoomControls;
 
 public class EditScreen extends Activity implements View.OnClickListener, ColorPickerDialog.OnColorChangedListener {
-	final int ZOOM_DURATION = 3000;
+	
 	Garden mockGarden;
 	ZoomControls zoom;
 	EditView editView;
@@ -32,6 +31,8 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	int zoomLevel;
 	Plot plot, oldPlot;
 	TextView mode_rotate;
+	boolean footerShown;
+	/** false if activity has been previously started */
 	boolean firstInit = true;
 	
 	@Override
@@ -49,8 +50,6 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		if (firstInit) {
 			if (extras.containsKey("type")) {
 				RectF gBounds = mockGarden.getRawBounds();
-				//int gardenWidth = (int) mockGarden.getRawBounds().width();
-				//int gardenHeight = (int) mockGarden.getRawBounds().height();
 				int type = extras.getInt("type");
 				String name = extras.getString("name");
 				if(type == Plot.POLY) {
@@ -75,7 +74,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			else
 				plot = mockGarden.getPlots().get(extras.getInt("plot_id"));
 		}
-			
+		
 		plot.getPaint().setStrokeWidth(7);
 		
 		setContentView(R.layout.edit_plot);
@@ -155,7 +154,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	}
 	
 	public void onBackPressed() {
-		plot.getPaint().setStrokeWidth(3);
+		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 		Intent intent = new Intent();
 		Bundle bundle = new Bundle();
 		bundle.putInt("zoom_level", zoomLevel);
@@ -173,7 +172,8 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (firstInit) {
+		if (firstInit && !footerShown) {
+			footerShown = true;
 			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.footer).getHeight(), 0);
 			anim.setDuration(300);
 			findViewById(R.id.footer).startAnimation(anim);
@@ -190,8 +190,8 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.m_change_color:
-			int color = PreferenceManager.getDefaultSharedPreferences(this).getInt("color", Color.WHITE);
+		case R.id.m_changecolor:
+			int color = getPreferences(MODE_PRIVATE).getInt("color", Color.WHITE);
 			new ColorPickerDialog(this, this, color).show();
 			break;
 		case R.id.m_resetzoom:
@@ -201,7 +201,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			break;
 		case R.id.m_revert:
 			plot.set(oldPlot);
-			plot.getPaint().setStrokeWidth(7);
+			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 			editView.invalidate();
 			break;
 		}
@@ -229,8 +229,9 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			handleZoom();
 			if (!zoomPressed) {
 				zoomPressed = true;
-				ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, editView.getWidth() / 2.0f, editView.getHeight() / 2.0f);
-				anim.setDuration(400);
+				float zoomScalar = getResources().getDimension(R.dimen.zoom_scalar);
+				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, editView.getWidth()/2f, editView.getHeight()/2f);
+				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
 				anim.setAnimationListener(new Animation.AnimationListener() {
 					@Override
 					public void onAnimationStart(Animation anim) { }
@@ -250,8 +251,9 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			handleZoom();
 			if (!zoomPressed) {
 				zoomPressed = true;
-				ScaleAnimation anim = new ScaleAnimation(1, 1/1.5f, 1, 1/1.5f, editView.getWidth() / 2.0f, editView.getHeight() / 2.0f); 
-				anim.setDuration(400);
+				float zoomScalar = 1/getResources().getDimension(R.dimen.zoom_scalar);
+				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, editView.getWidth()/2f, editView.getHeight()/2f); 
+				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
 				anim.setAnimationListener(new Animation.AnimationListener() {
 					@Override
 					public void onAnimationStart(Animation anim) { }				
@@ -269,7 +271,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		mHandler.removeCallbacks(autoHide);
 		if (!zoom.isShown())
 			zoom.show();
-		mHandler.postDelayed(autoHide, ZOOM_DURATION);
+		mHandler.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
 	}
 	
 	Runnable autoHide = new Runnable() {
@@ -284,7 +286,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 
 	@Override
 	public void colorChanged(int color) {
-		PreferenceManager.getDefaultSharedPreferences(this).edit().putInt("color", color).commit();
+		getPreferences(MODE_PRIVATE).edit().putInt("color", color).commit();
 		plot.getPaint().setColor(color);
 		editView.invalidate();
 	}

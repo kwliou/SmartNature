@@ -14,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class GardenView extends View implements View.OnClickListener, View.OnTouchListener, View.OnLongClickListener{
-
+	
 	GardenScreen context;
 	Garden garden;
 	/** plot that is currently pressed */
@@ -32,11 +32,11 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	float textSize;
 	boolean portraitMode, dragMode;
 	int tempColor;
-
+	
 	public GardenView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = (GardenScreen) context;
-		textSize = 15.5f * getResources().getDisplayMetrics().scaledDensity;
+		textSize = getResources().getDimension(R.dimen.labelsize_default);
 		initPaint();
 		bg = getResources().getDrawable(R.drawable.tile);	
 		initPaint();
@@ -45,36 +45,36 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		setOnTouchListener(this);
 		setOnLongClickListener(this);
 	}
-
+	
 	public void initMockData() {
 		garden = this.context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getPaint();
 			p.setStyle(Paint.Style.STROKE);
-			p.setStrokeWidth(3);
+			p.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 			p.setStrokeCap(Paint.Cap.ROUND);
 			p.setStrokeJoin(Paint.Join.ROUND);
-		}		
+		}
 	}
-
+	
 	public void initPaint() {
 		textPaint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FAKE_BOLD_TEXT_FLAG|Paint.DEV_KERN_TEXT_FLAG);
-		textPaint.setTextSize(textSize);
-		textPaint.setTextScaleX(1.2f);
 		textPaint.setTextAlign(Paint.Align.CENTER);
+		textPaint.setTextScaleX(getResources().getDimension(R.dimen.labelxscale_default));
+		textPaint.setTextSize(textSize);
 	}
-
+	
 	/** called when user clicks "zoom to fit" */
 	public void reset() {
 		zoomLevel = 0;
 		zoomScale = 1;
+		textPaint.setTextScaleX(getResources().getDimension(R.dimen.labelxscale_default));
 		textPaint.setTextSize(textSize);
-		textPaint.setTextScaleX(1.2f);
 		dragMatrix.reset();
 		bgDragMatrix.reset();
 		invalidate();
 	}
-
+	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
@@ -92,15 +92,12 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
 		
 		if (portraitMode)
-			m.postRotate(90, width /2f, width /2f);
+			m.postRotate(90, width/2f, width/2f);
 		
 		m.postConcat(dragMatrix);
 		
-		if (zoomLevel != 0) {
-			float zoomShift = (1 - zoomScale) / 2;
-			m.postScale(zoomScale, zoomScale);
-			m.postTranslate(zoomShift * width, zoomShift * height);
-		}
+		if (zoomLevel != 0)
+			m.postScale(zoomScale, zoomScale, width/2f, height/2f);
 		
 		canvas.save();
 		canvas.concat(m);
@@ -125,28 +122,28 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 				canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 			}
 	}
-
+	
 	public RectF getBounds() {
 		if (portraitMode)
 			return new RectF(getLeft(), getTop(), getBottom(), getRight());
 		else
 			return new RectF(getLeft(), getTop(), getRight(), getBottom());
 	}
-
+	
 	@Override
 	public void onAnimationEnd() {
 		zoomLevel = context.zoomLevel;
-		zoomScale = (float) Math.pow(1.5, zoomLevel);
-		textPaint.setTextSize(Math.max(10, textSize * zoomScale));
+		zoomScale = (float) Math.pow(getResources().getDimension(R.dimen.zoom_scalar), zoomLevel);
+		textPaint.setTextSize(Math.max(textSize * zoomScale, getResources().getDimension(R.dimen.labelsize_min)));
 		invalidate();
 		context.zoomPressed = false;
 	}
-
+	
 	@Override
 	public void onClick(View view) {
 		if (focusedPlot != null){
 			Intent intent = new Intent(context, PlotScreen.class);
-			Bundle bundle = new Bundle(3);
+			Bundle bundle = new Bundle();
 			bundle.putString("name", focusedPlot.getName());
 			bundle.putInt("garden_id", context.gardenID);
 			bundle.putInt("plot_id", garden.getPlots().indexOf(focusedPlot));
@@ -155,7 +152,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 			context.startActivity(intent);
 		}
 	}
-
+	
 	@Override
 	public boolean onLongClick(View v) {
 		if (focusedPlot != null) {
@@ -194,7 +191,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 				// set focused plot appearance
 				tempColor = focusedPlot.getPaint().getColor();
 				focusedPlot.getPaint().setColor(getResources().getColor(R.color.focused_plot));
-				focusedPlot.getPaint().setStrokeWidth(5);
+				focusedPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_active));
 			}
 		}
 		else {
@@ -206,7 +203,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 				if (dragMode && focusedPlot != null) {
 					// plot can no longer be clicked so reset appearance
 					focusedPlot.getPaint().setColor(tempColor);
-					focusedPlot.getPaint().setStrokeWidth(3);
+					focusedPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 					focusedPlot = null; 
 				}
 		}

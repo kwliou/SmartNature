@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="m_addplot">Add plot</string>
+	<string name="m_changecolor">Change color</string>
+	<string name="m_contact">Feedback</string>
+	<string name="m_deletegarden">Delete garden</string>
+	<string name="m_editgardendim">Edit dimensions</string>
+	<string name="m_gardenoptions">Garden options</string>
+	<string name="m_globaloptions">Settings</string>
+	<string name="m_help">Help</string>
+	<string name="m_hidelabels">Hide labels</string>
+	<string name="m_home">Home</string>
+	<string name="m_renamegarden">Rename garden</string>
+	<string name="m_resetzoom">Reset zoom</string>
+	<string name="m_revert">Revert changes</string>
+	<string name="m_sharegarden">Share garden</string>
+	<string name="m_showlabels">Hide labels</string>
+	<string name="m_syncgarden">Manual sync</string>
+</resources>

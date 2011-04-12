@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, StartScreen!</string>
-    <string name="app_name">GardenGnome</string>
-    <string name="dev_email">ben8043@gmail.com, deeptiraj7@gmail.com, dicz.hack@gmail.com, kwliou@gmail.com</string>
-    <string name="new_garden">Map a garden</string>
-    <string name="search_encyclopedia">Plant encyclopedia</string>
-    <string name="alert_dialog_ok">Create</string>
-    <string name="alert_dialog_cancel">Cancel</string>
-    <string name="alert_dialog_rename">Rename</string>
-    <string name="alert_dialog_share">Share</string>
-    <string name="new_garden_prompt">Enter garden name</string>
-    <string name="rename_garden_prompt">Edit garden name</string>
-    <string name="new_region_prompt">Enter region name</string>
-    <string name="new_plant_prompt">Enter plant name</string>
-    <string name="new_entry_prompt">Enter journal entry</string>
-    <string name="garden_list_title">My Gardens</string>
-    <string name="global_prefs_name">GardenGnome Settings</string>
-    <string name="show_hints_prompt">Show hints?</string>
-    <style name="Theme.Dialog.NoTitleBar" parent="@android:style/Theme.Dialog">
-        <item name="android:windowNoTitle">true</item>
-    </style>
-   <string name="hint_gardenscreen">-Click on Add Plot in the menu to add a plot\n-Press on a plot to view its plants/info\n-Long press on a plot to edit its shape</string>
-   <string name="hint_editscreen">-To change its color, click on Change color in the menu\n-You can drag the edited plot with your finger\n-To rotate the plot, click on Rotate Mode and then drag the cursor in the bar below</string>
-   <color name="focused_plot">#7BB518</color>
+	<string name="app_name">GardenGnome</string>
+	<string name="dev_email">ben8043@gmail.com, deeptiraj7@gmail.com, dicz.hack@gmail.com, kwliou@gmail.com</string>
+	<string name="new_garden">Map a garden</string>
+	<string name="search_encyclopedia">Plant encyclopedia</string>
+	<string name="alert_dialog_ok">Create</string>
+	<string name="alert_dialog_cancel">Cancel</string>
+	<string name="alert_dialog_rename">Rename</string>
+	<string name="alert_dialog_share">Share</string>
+	<string name="new_garden_prompt">Enter garden name</string>
+	<string name="rename_garden_prompt">Edit garden name</string>
+	<string name="new_region_prompt">Enter region name</string>
+	<string name="new_plant_prompt">Enter plant name</string>
+	<string name="new_entry_prompt">Enter journal entry</string>
+	<string name="garden_list_title">My Gardens</string>
+	<string name="global_prefs_name">GardenGnome Settings</string>
+	<string name="hint_gardenscreen">Click on Add Plot in the menu to add a plot\nPress on a plot to view its plants/info\nLong press on a plot to edit its shape</string>
+	<string name="hint_editscreen">To change its color, click on Change color in the menu\nYou can drag the edited plot with your finger\nTo rotate the plot, click on Rotate Mode and then drag the cursor in the bar below</string>
 </resources>

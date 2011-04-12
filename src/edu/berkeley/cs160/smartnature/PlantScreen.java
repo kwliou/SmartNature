@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -113,13 +112,6 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener,
 		switch (item.getItemId()) {
 		case R.id.m_home:
 			finish();
-			break;
-		case R.id.m_resetzoom:
-			break;
-		case R.id.m_share:
-			startActivity(new Intent(this, ShareGarden.class));
-			break;
-		case R.id.m_showlabels:
 			break;
 		}
 		return super.onOptionsItemSelected(item);

@@ -1,31 +1,31 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/m_addregion"
+	<item android:id="@+id/m_addplot"
 		android:icon="@android:drawable/ic_menu_add"
-		android:title="Add plot" />
+		android:title="@string/m_addplot" />
 	<item android:id="@+id/m_showlabels"
 		android:icon="@drawable/ic_menu_list"
-		android:title="Hide labels" />
+		android:title="@string/m_hidelabels" />
 	<item android:id="@+id/m_resetzoom"
 		android:icon="@android:drawable/ic_menu_zoom"
-		android:title="Zoom to fit" />
+		android:title="@string/m_resetzoom" />
 	<item android:id="@+id/m_gardenoptions"
 		android:icon="@android:drawable/ic_menu_manage"
-		android:title="Garden options">
+		android:title="@string/m_gardenoptions">
 		<menu>
-			<item android:id="@+id/m_rename_garden"
-				android:title="Rename" />
-			<item android:id="@+id/m_edit_garden_dim"
-				android:title="Edit dimensions" />
-			<item android:id="@+id/m_sync_garden"
-				android:title="Manual sync" />
-			<item android:id="@+id/m_delete_garden"
-				android:title="Delete" />
+			<item android:id="@+id/m_renamegarden"
+				android:title="@string/m_renamegarden" />
+			<item android:id="@+id/m_editgardendim"
+				android:title="@string/m_editgardendim" />
+			<item android:id="@+id/m_syncgarden"
+				android:title="@string/m_syncgarden" />
+			<item android:id="@+id/m_deletegarden"
+				android:title="@string/m_deletegarden" />
 		</menu>
 	</item>
-	<item android:id="@+id/m_share"
+	<item android:id="@+id/m_sharegarden"
 		android:icon="@android:drawable/ic_menu_share"
-		android:title="Share" />
+		android:title="@string/m_sharegarden" />
 	<item android:id="@+id/m_home"
 		android:icon="@drawable/ic_menu_home"
-		android:title="Home" />
+		android:title="@string/m_home" />
 </menu>

@@ -129,13 +129,6 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 			case R.id.m_home:
 				finish();
 				break;
-			case R.id.m_resetzoom:
-				break;
-			case R.id.m_share:
-				startActivity(new Intent(this, ShareGarden.class));
-				break;
-			case R.id.m_showlabels:			
-				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

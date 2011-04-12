@@ -24,7 +24,6 @@ import android.widget.ZoomControls;
 
 public class GardenScreen extends Activity implements DialogInterface.OnClickListener {
 	
-	final int ZOOM_DURATION = 3000;
 	final int NEW_DIALOG = 0, RENAME_DIALOG = 1;
 	Garden mockGarden;
 	View textEntryView;
@@ -41,7 +40,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
+		showFullScreen = getSharedPreferences("global", MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
@@ -58,12 +57,11 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		gardenView = (GardenView) findViewById(R.id.garden_view);
 		
 		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
-		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
+		zoomAutoHidden = getSharedPreferences("global", MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
 			zoom.setVisibility(View.GONE);
 		zoom.setOnZoomInClickListener(zoomIn);
 		zoom.setOnZoomOutClickListener(zoomOut);
-		//zoom.setZoomSpeed(1000);
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
@@ -174,6 +172,8 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		gardenView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
 		gardenView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
 		gardenView.onAnimationEnd();
+		if (zoomAutoHidden)
+			zoom.setVisibility(View.GONE); // Android bug?
 	}
 	
 	@Override
@@ -186,7 +186,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.m_addregion:
+			case R.id.m_addplot:
 				Intent intent = new Intent(this, AddPlot.class);
 				Bundle bundle = new Bundle();
 				bundle.putInt("garden_id", StartScreen.gardens.indexOf(mockGarden));
@@ -202,7 +202,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			case R.id.m_home:
 				finish();
 				break;
-			case R.id.m_rename_garden:
+			case R.id.m_renamegarden:
 				currentDialog = RENAME_DIALOG;
 				showDialog(RENAME_DIALOG);
 				break;
@@ -211,7 +211,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				mockGarden.refreshBounds();
 				gardenView.reset();
 				break;
-			case R.id.m_share:
+			case R.id.m_sharegarden:
 				startActivity(new Intent(this, ShareGarden.class));
 				break;
 			case R.id.m_showlabels:
@@ -229,8 +229,9 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			handleZoom();
 			if (!zoomPressed) {
 				zoomPressed = true;
-				ScaleAnimation anim = new ScaleAnimation(1, 1.5f, 1, 1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f);
-				anim.setDuration(400);
+				float zoomScalar = getResources().getDimension(R.dimen.zoom_scalar);
+				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, gardenView.getWidth()/2f, gardenView.getHeight()/2f);
+				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
 				anim.setAnimationListener(new Animation.AnimationListener() {
 					@Override
 					public void onAnimationStart(Animation anim) { }
@@ -250,8 +251,9 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			handleZoom();
 			if (!zoomPressed) {
 				zoomPressed = true;
-				ScaleAnimation anim = new ScaleAnimation(1, 1/1.5f, 1, 1/1.5f, gardenView.getWidth() / 2.0f, gardenView.getHeight() / 2.0f); 
-				anim.setDuration(400);
+				float zoomScalar = 1/getResources().getDimension(R.dimen.zoom_scalar);
+				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, gardenView.getWidth()/2f, gardenView.getHeight()/2f); 
+				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
 				anim.setAnimationListener(new Animation.AnimationListener() {
 					@Override
 					public void onAnimationStart(Animation anim) { }				
@@ -270,7 +272,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			mHandler.removeCallbacks(autoHide);
 			if (!zoom.isShown())
 				zoom.show();
-			mHandler.postDelayed(autoHide, ZOOM_DURATION);
+			mHandler.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
 		}
 	}
 	
