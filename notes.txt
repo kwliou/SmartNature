@@ -10,7 +10,6 @@ parsing encyclopedia(s)
 not using more than one encyclopedia source (maybe add options?)
 
 Current issues:
-Bad plot size when adding plot to empty garden
 what do when a plot completely overlaps another? introduce z-index?
 negative angle in Quadrant IV
 

@@ -24,6 +24,29 @@ public class Plot {
 	private int id;
 	private ArrayList<Plant> plants = new ArrayList<Plant>();
 	
+	/** creates a copy of a plot except for its plants */
+	Plot(Plot src) {
+		set(src);
+	}
+	
+	Plot(String plotName, Rect bounds, int shapeType) {
+		this(plotName, bounds, 0, shapeType);
+	}
+	
+	
+	Plot(String plotName, Rect bounds, float[] points) {
+		this(plotName, bounds, 0, points);
+	}	
+	
+	/** create a rectangular or elliptical plot */
+	Plot(String plotName, Rect bounds, float angle, int shapeType) {
+		name = plotName;
+		type = shapeType;
+		rotation = angle;
+		shape = new ShapeDrawable(type == OVAL ? new OvalShape() : new RectShape());
+		shape.setBounds(bounds);
+	}
+	
 	/** create a polygonal plot */
 	Plot(String plotName, Rect bounds, float angle, float[] points) {
 		name = plotName;
@@ -39,28 +62,6 @@ public class Plot {
 		PathShape pshape = new PathShape(p, bounds.width(), bounds.height());
 		shape = new ShapeDrawable(pshape);
 		shape.setBounds(bounds);
-	}
-	
-	Plot(String plotName, Rect bounds, float[] points) {
-		this(plotName, bounds, 0, points);
-	}
-	
-	/** create a rectangular or elliptical plot */
-	Plot(String plotName, Rect bounds, float angle, int shapeType) {
-		name = plotName;
-		type = shapeType;
-		rotation = angle;
-		shape = new ShapeDrawable(type == OVAL ? new OvalShape() : new RectShape());
-		shape.setBounds(bounds);
-	}
-		
-	Plot(String plotName, Rect bounds, int shapeType) {
-		this(plotName, bounds, 0, shapeType);
-	}
-	
-	/** creates a copy of a plot except for its plants */
-	Plot(Plot src) {
-		set(src);
 	}
 	
 	/** copies data from another plot */

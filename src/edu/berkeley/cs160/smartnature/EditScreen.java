@@ -103,7 +103,6 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			plot = new Plot(name, bounds, 0, type);
 		}
 		mockGarden.addPlot(plot);
-		mockGarden.addPlot(new Plot(plot)); // old copy
 	}
 	
 	public void loadPlot() {

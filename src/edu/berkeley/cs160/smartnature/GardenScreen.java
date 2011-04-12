@@ -168,12 +168,26 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		Bundle extras = data.getExtras();
-		zoomLevel = extras.getInt("zoom_level");
-		gardenView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
-		gardenView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
-		gardenView.onAnimationEnd();
-		if (zoomAutoHidden)
-			zoom.setVisibility(View.GONE); // Android bug?
+		if (extras.containsKey("name")) { // returning from AddPlot activity
+			extras.putInt("garden_id", StartScreen.gardens.indexOf(mockGarden));
+			extras.putInt("zoom_level", zoomLevel);
+			float[] values = new float[9], bgvalues = new float[9];
+			gardenView.dragMatrix.getValues(values);
+			gardenView.bgDragMatrix.getValues(bgvalues);
+			extras.putFloatArray("drag_matrix", values);
+			extras.putFloatArray("bgdrag_matrix", bgvalues);
+			data.putExtras(extras);
+			startActivityForResult(data, 0);
+			overridePendingTransition(0, 0);
+		}
+		else if (extras.containsKey("zoom_level")) { // returning from EditScreen activity
+			zoomLevel = extras.getInt("zoom_level");
+			gardenView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
+			gardenView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
+			gardenView.onAnimationEnd();
+			if (zoomAutoHidden)
+				zoom.setVisibility(View.GONE); // Android bug?
+		}
 	}
 	
 	@Override
@@ -187,17 +201,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.m_addplot:
-				Intent intent = new Intent(this, AddPlot.class);
-				Bundle bundle = new Bundle();
-				bundle.putInt("garden_id", StartScreen.gardens.indexOf(mockGarden));
-				bundle.putInt("zoom_level", zoomLevel);
-				float[] values = new float[9], bgvalues = new float[9];
-				gardenView.dragMatrix.getValues(values);
-				gardenView.bgDragMatrix.getValues(bgvalues);
-				bundle.putFloatArray("drag_matrix", values);
-				bundle.putFloatArray("bgdrag_matrix", bgvalues);
-				intent.putExtras(bundle);
-				startActivity(intent);
+				startActivityForResult(new Intent(this, AddPlot.class), 0);
 				break;
 			case R.id.m_home:
 				finish();

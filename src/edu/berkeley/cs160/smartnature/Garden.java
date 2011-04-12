@@ -10,25 +10,19 @@ public class Garden {
 
 	private String name;
 	private int previewId;
-	private ArrayList<Plot> plots;
-	private RectF bounds;
+	private ArrayList<Plot> plots = new ArrayList<Plot>();
+	private RectF bounds = new RectF(0, 0, 200, 200);
 	private static Rect padding = new Rect(30, 30, 30, 30);
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
 	private static Rect paddingPort = new Rect(30, 20, 10, 20);
 	
+	Garden() { this(R.drawable.preview, ""); }
+		
+	Garden(String gardenName) { this(R.drawable.preview, gardenName); }
+	
 	Garden(int resId, String gardenName) {
 		name = gardenName;
-		plots = new ArrayList<Plot>();
-		bounds = new RectF();
 		previewId = resId;
-	}
-	
-	Garden(String gardenName) {
-		this(R.drawable.preview, gardenName);
-	}
-	
-	Garden() {
-		this(R.drawable.preview, "");
 	}
 	
 	public void addPlot(Plot plot) {
@@ -125,6 +119,8 @@ public class Garden {
 	public Plot getPlot(int id) { return plots.get(id); }
 	
 	public int indexOf(Plot plot) { return plots.indexOf(plot); }
+	
+	public boolean isEmpty() { return plots.isEmpty(); }
 	
 	public void remove(Plot plot) { plots.remove(plot); }
 	

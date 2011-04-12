@@ -21,35 +21,36 @@ public class AddPlot extends Activity implements View.OnClickListener {
 	@Override
 	public void onClick(View view) {
 		EditText et_plot_name = (EditText) findViewById(R.id.et_plot_name);
-		if (view.getId() == R.id.b_add_confirm) {
-			
-			if(et_plot_name.getText().length() == 0) {
-				Toast.makeText(this, "Please set your plot name", Toast.LENGTH_SHORT).show();
-				return;
-			}
-			else {
-				Bundle bundle = new Bundle(getIntent().getExtras());
-				Intent intent = new Intent(this, EditScreen.class);
-				
-				bundle.putString("name", et_plot_name.getText().toString());
-				int radioId = ((RadioGroup)findViewById(R.id.rg_shape)).getCheckedRadioButtonId();
-				int shapeType;
-				switch (radioId) {
-					case R.id.rb_rectangle:
-						shapeType = Plot.RECT;
-						break;
-					case R.id.rb_ellipse:
-						shapeType = Plot.OVAL;
-						break;
-					default:
-						shapeType = Plot.POLY;
-						break;
-				}
-				bundle.putInt("type", shapeType);
-				intent.putExtras(bundle);
-				startActivity(intent);
-			}
+		
+		if (view.getId() == R.id.b_add_cancel) {
+			getIntent().putExtras(new Bundle());
+			setResult(RESULT_CANCELED, getIntent());
+			finish();
 		}
-		finish();
+		else if (et_plot_name.getText().length() == 0)
+			Toast.makeText(this, "Please set your plot name", Toast.LENGTH_SHORT).show();
+		else {
+			Intent intent = new Intent(this, EditScreen.class);
+			Bundle bundle = new Bundle();
+			
+			int radioId = ((RadioGroup)findViewById(R.id.rg_shape)).getCheckedRadioButtonId();
+			int shapeType;
+			switch (radioId) {
+				case R.id.rb_rectangle:
+					shapeType = Plot.RECT;
+					break;
+				case R.id.rb_ellipse:
+					shapeType = Plot.OVAL;
+					break;
+				default:
+					shapeType = Plot.POLY;
+					break;
+			}
+			bundle.putString("name", et_plot_name.getText().toString());
+			bundle.putInt("type", shapeType);
+			intent.putExtras(bundle);
+			setResult(RESULT_OK, intent);
+			finish();
+		}
 	}
 }
