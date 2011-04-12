@@ -3,4 +3,18 @@
 	<style name="Theme.Dialog.NoTitleBar" parent="@android:style/Theme.Dialog">
 		<item name="android:windowNoTitle">true</item>
 	</style>
+	<style name="GardenHint">
+		<item name="android:textStyle">bold</item>
+		<item name="android:textSize">@dimen/hintsize</item>
+		<item name="android:background">#44000000</item>
+		<item name="android:focusable">false</item>
+		<item name="android:paddingLeft">6sp</item>
+		<item name="android:paddingTop">3sp</item>
+		<item name="android:paddingRight">6sp</item>
+		<item name="android:paddingBottom">3sp</item>
+		<item name="android:lineSpacingExtra">1.5sp</item>
+		<item name="android:textColor">@android:color/white</item>
+		<item name="android:shadowColor">#BB000000</item>
+		<item name="android:shadowRadius">2.5</item>
+	</style>
 </resources>

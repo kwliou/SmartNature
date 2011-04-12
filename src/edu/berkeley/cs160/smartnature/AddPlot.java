@@ -9,7 +9,6 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 public class AddPlot extends Activity implements View.OnClickListener {
-	EditText et_plot_name;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -17,14 +16,13 @@ public class AddPlot extends Activity implements View.OnClickListener {
 		setContentView(R.layout.add_plot);
 		findViewById(R.id.b_add_confirm).setOnClickListener(this);
 		findViewById(R.id.b_add_cancel).setOnClickListener(this);
-
-		et_plot_name = (EditText) findViewById(R.id.et_plot_name);
-			
 	}
 
 	@Override
 	public void onClick(View view) {
+		EditText et_plot_name = (EditText) findViewById(R.id.et_plot_name);
 		if (view.getId() == R.id.b_add_confirm) {
+			
 			if(et_plot_name.getText().length() == 0) {
 				Toast.makeText(this, "Please set your plot name", Toast.LENGTH_SHORT).show();
 				return;
@@ -32,7 +30,7 @@ public class AddPlot extends Activity implements View.OnClickListener {
 			else {
 				Bundle bundle = new Bundle(getIntent().getExtras());
 				Intent intent = new Intent(this, EditScreen.class);
-				//bundle.putInt("garden_id", bundle.getInt("garden_id"));
+				
 				bundle.putString("name", et_plot_name.getText().toString());
 				int radioId = ((RadioGroup)findViewById(R.id.rg_shape)).getCheckedRadioButtonId();
 				int shapeType;

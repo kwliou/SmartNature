@@ -12,18 +12,8 @@
 
 	<TextView
 		android:id="@+id/edit_hint"
-		android:textStyle="bold"
+		style="@style/GardenHint"
 		android:visibility="gone"
-		android:background="#44000000"
-		android:focusable="false"
-		android:paddingTop="6dp"
-		android:paddingRight="6sp"
-		android:paddingBottom="3sp"
-		android:paddingLeft="6sp"
-		android:lineSpacingExtra="2dp"
-		android:textColor="@android:color/white"
-		android:shadowColor="#BB000000"
-		android:shadowRadius="2.5"
 		android:layout_gravity="top"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />

@@ -15,6 +15,6 @@
 	<string name="new_entry_prompt">Enter journal entry</string>
 	<string name="garden_list_title">My Gardens</string>
 	<string name="global_prefs_name">GardenGnome Settings</string>
-	<string name="hint_gardenscreen">Click on Add Plot in the menu to add a plot\nPress on a plot to view its plants/info\nLong press on a plot to edit its shape</string>
-	<string name="hint_editscreen">To change its color, click on Change color in the menu\nYou can drag the edited plot with your finger\nTo rotate the plot, click on Rotate Mode and then drag the cursor in the bar below</string>
+	<string name="hint_gardenscreen">Press <i>Add plot</i> in the menu to add a plot\nPress on a plot to view its plants/info\nLong press on a plot to edit its shape\nDrag the screen to pan the garden</string>
+	<string name="hint_editscreen">Drag the edited plot to move it around\nPress <i>Rotate mode</i> and press anywhere to rotate plot\nPress <i>Change color</i> in menu to change plot color</string>
 </resources>

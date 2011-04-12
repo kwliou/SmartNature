@@ -75,7 +75,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 				plot = mockGarden.getPlots().get(extras.getInt("plot_id"));
 		}
 		
-		plot.getPaint().setStrokeWidth(7);
+		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 		
 		setContentView(R.layout.edit_plot);
 		editView = (EditView) findViewById(R.id.edit_view);
@@ -169,13 +169,14 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		overridePendingTransition(0, 0);
 	}
 	
+	/** in this method views actually have valid dimensions */
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		if (firstInit && !footerShown) {
 			footerShown = true;
 			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.footer).getHeight(), 0);
-			anim.setDuration(300);
+			anim.setDuration(getResources().getInteger(R.integer.footer_duration));
 			findViewById(R.id.footer).startAnimation(anim);
 		}
 	}

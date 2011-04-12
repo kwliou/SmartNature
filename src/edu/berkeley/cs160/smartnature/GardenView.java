@@ -169,9 +169,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 			bundle.putFloatArray("bgdrag_matrix", bgvalues);
 			intent.putExtras(bundle);
 			focusedPlot.getPaint().setColor(tempColor);
-			focusedPlot.getPaint().setStrokeWidth(7);
-			//context.getWindow().setWindowAnimations(0);
-			context.startActivityForResult(intent, 0);
+			context.startActivityForResult(intent, 0); // context.getWindow().setWindowAnimations(0);
 			context.overridePendingTransition(0, 0);
 			return true;
 		}

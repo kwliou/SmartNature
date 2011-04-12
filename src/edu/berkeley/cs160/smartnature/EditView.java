@@ -124,7 +124,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 
 		// "shade" over everything
 		canvas.restore();
-		canvas.drawARGB(80, 0, 0, 0);
+		canvas.drawARGB(70, 0, 0, 0);
 
 		// draw plot being edited
 		canvas.save();
