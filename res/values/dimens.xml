@@ -2,12 +2,12 @@
 <resources>
 	<dimen name="labelsize_default">15.5sp</dimen>
 	<dimen name="labelsize_min">10sp</dimen>
-	<dimen name="labelxscale_default">1.2sp</dimen>
+	<dimen name="labelxscale_default">1.2px</dimen>
 	<dimen name="strokesize_default">3dp</dimen>
-	<dimen name="strokesize_active">3dp</dimen>
+	<dimen name="strokesize_active">4dp</dimen>
 	<dimen name="mitersize_default">20dp</dimen>
-	<dimen name="strokesize_edit">7dp</dimen>
-	<dimen name="strokesize_editactive">9dp</dimen>
+	<dimen name="strokesize_edit">5dp</dimen>
+	<dimen name="strokesize_editactive">7dp</dimen>
 	<dimen name="zoom_scalar">1.5dp</dimen>
 	<integer name="hidezoom_delay">3000</integer>
 	<integer name="zoom_duration">400</integer>
