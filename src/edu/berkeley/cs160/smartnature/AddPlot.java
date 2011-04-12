@@ -22,11 +22,8 @@ public class AddPlot extends Activity implements View.OnClickListener {
 	public void onClick(View view) {
 		EditText et_plot_name = (EditText) findViewById(R.id.et_plot_name);
 		
-		if (view.getId() == R.id.b_add_cancel) {
-			getIntent().putExtras(new Bundle());
-			setResult(RESULT_CANCELED, getIntent());
+		if (view.getId() == R.id.b_add_cancel)
 			finish();
-		}
 		else if (et_plot_name.getText().length() == 0)
 			Toast.makeText(this, "Please set your plot name", Toast.LENGTH_SHORT).show();
 		else {
