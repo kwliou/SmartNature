@@ -5,25 +5,21 @@
 	android:padding="5dp"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
-	android:orientation="vertical"
-	android:background="#ffffff">
+	android:orientation="vertical">
 
 	<TextView
 		android:id="@+id/entry_date"
+		android:text="sample date"
 		android:textSize="16sp"
 		android:layout_marginLeft="10dp"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" 
-		android:text="sample date"
-		/>
+		android:layout_height="wrap_content" />
 	<TextView
 		android:id="@+id/entry_name"
+		android:text="sample entry"
 		android:textSize="24sp"
 		android:layout_marginLeft="10dp"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" 
-		android:textColor="#000000"
-		android:text="sample entry"
-		/>
+		android:layout_height="wrap_content" />
 
 </LinearLayout>

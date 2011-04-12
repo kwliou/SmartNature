@@ -7,7 +7,7 @@ import android.graphics.RectF;
 import java.util.ArrayList;
 
 public class Garden {
-	
+
 	private String name;
 	private int previewId;
 	private ArrayList<Plot> plots;
@@ -109,22 +109,24 @@ public class Garden {
 	}
 	
 	public String getName() { return name; }
-
+	
 	public void setName(String name) { this.name = name; }
-
+	
 	public int getPreviewId() { return previewId; }
-
+	
 	public void setPreviewId(int previewId) { this.previewId = previewId; }
 	
 	public ArrayList<Plot> getPlots() { return plots; }
 	
-	public int getPlotId(Plot plot) { return plots.indexOf(plot); }
+	public RectF getRawBounds() { return bounds; }
+	
+	/** Helpful ArrayList-related methods */
 	
 	public Plot getPlot(int id) { return plots.get(id); }
 	
-	public void setPlot(int id, Plot plot) { plots.add(id, plot); }
-
-	public RectF getRawBounds() { return bounds; }
+	public int indexOf(Plot plot) { return plots.indexOf(plot); }
+	
+	public void remove(Plot plot) { plots.remove(plot); }
 	
 	public int size() { return plots.size(); }
 	

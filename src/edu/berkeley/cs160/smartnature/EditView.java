@@ -91,13 +91,13 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		super.onDraw(canvas);
 		int width = getWidth(), height = getHeight();
 		portraitMode = width < height;
-
+		
 		canvas.save();
 		canvas.concat(bgDragMatrix);	
 		bg.setBounds(canvas.getClipBounds());
-		bg.draw(canvas); //canvas.drawRGB(255, 255, 255);
+		bg.draw(canvas);
 		canvas.restore();
-
+		
 		m.reset();
 		RectF gardenBounds = context.showFullScreen ? garden.getBounds() : garden.getBounds(portraitMode);
 		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
@@ -113,7 +113,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		canvas.save();
 		canvas.concat(m);
 		for (Plot p: garden.getPlots()) {
-			if (p != editPlot) {
+			if (p != editPlot && p != context.oldPlot) {
 				canvas.save();
 				Rect shapeBounds = p.getBounds();
 				canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
@@ -121,11 +121,11 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				canvas.restore();
 			}
 		}
-
+		
 		// "shade" over everything
 		canvas.restore();
-		canvas.drawARGB(70, 0, 0, 0);
-
+		canvas.drawARGB(65, 0, 0, 0);
+		
 		// draw plot being edited
 		canvas.save();
 		canvas.concat(m);
@@ -150,14 +150,16 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		
 		if (context.showLabels)
 			for (Plot p: garden.getPlots()) {
-				float[] labelLoc;
-				RectF bounds = p.getRotateBounds(); // context.rotateMode ? new RectF(p.getBounds()) : p.getRotateBounds();
-				if (portraitMode)
-					labelLoc = new float[] { bounds.left - 10, bounds.centerY() };
-				else
-					labelLoc =  new float[] { bounds.centerX(), bounds.top - 10 };
-				m.mapPoints(labelLoc);
-				canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
+				if (p != context.oldPlot) {
+					float[] labelLoc;
+					RectF bounds = p.getRotateBounds(); // context.rotateMode ? new RectF(p.getBounds()) : p.getRotateBounds();
+					if (portraitMode)
+						labelLoc = new float[] { bounds.left - 10, bounds.centerY() };
+					else
+						labelLoc =  new float[] { bounds.centerX(), bounds.top - 10 };
+					m.mapPoints(labelLoc);
+					canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
+				}
 			}
 	}
 	

@@ -1,10 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/m_resetzoom"
-		android:icon="@android:drawable/ic_menu_zoom"
-		android:title="@string/m_resetzoom" />
 	<item android:id="@+id/m_move_forward"
           android:icon="@drawable/ic_menu_move_up"
           android:title="Move to front" />
+	<item android:id="@+id/m_resetzoom"
+		android:icon="@android:drawable/ic_menu_zoom"
+		android:title="@string/m_resetzoom" />
 	<item android:id="@+id/m_changecolor"
           android:icon="@drawable/ic_menu_colorpicker"
           android:title="@string/m_changecolor" />

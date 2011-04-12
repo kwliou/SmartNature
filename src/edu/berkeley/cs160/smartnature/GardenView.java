@@ -84,7 +84,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		canvas.save();
 		canvas.concat(bgDragMatrix);
 		bg.setBounds(canvas.getClipBounds());
-		bg.draw(canvas); //canvas.drawRGB(255, 255, 255);
+		bg.draw(canvas);
 		canvas.restore();
 		
 		m.reset();
@@ -160,7 +160,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 			Bundle bundle = new Bundle();
 			bundle.putString("name", focusedPlot.getName());
 			bundle.putInt("garden_id", StartScreen.gardens.indexOf(garden));
-			bundle.putInt("plot_id", garden.getPlotId(focusedPlot));
+			bundle.putInt("plot_id", garden.indexOf(focusedPlot));
 			bundle.putInt("zoom_level", zoomLevel);
 			float[] values = new float[9], bgvalues = new float[9];
 			dragMatrix.getValues(values);

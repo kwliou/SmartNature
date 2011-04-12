@@ -9,14 +9,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,11 +24,13 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	
 	final int NEW_DIALOG = 0, RENAME_DIALOG = 1;
 	Garden mockGarden;
+	GardenView gardenView;
 	View textEntryView;
 	AlertDialog dialog;
 	ZoomControls zoom;
-	GardenView gardenView;
-	Handler mHandler = new Handler();
+	
+	
+	/** User-related options */
 	boolean showLabels = true, showFullScreen, zoomAutoHidden;
 	boolean zoomPressed;
 	int zoomLevel;
@@ -144,11 +144,11 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		// automatically show soft keyboard
 		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-		    @Override
-		    public void onFocusChange(View v, boolean hasFocus) {
-		        if (hasFocus)
-		            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-		    }
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus)
+					dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			}
 		});
 		
 		return dialog;
@@ -232,14 +232,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				float zoomScalar = getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, gardenView.getWidth()/2f, gardenView.getHeight()/2f);
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
-				anim.setAnimationListener(new Animation.AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation anim) { }
-					@Override
-					public void onAnimationRepeat(Animation anim) { }
-					@Override
-					public void onAnimationEnd(Animation anim) { zoomLevel++; }
-				});
+				zoomLevel++;
 				gardenView.startAnimation(anim);
 			}
 		}
@@ -254,14 +247,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				float zoomScalar = 1/getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, gardenView.getWidth()/2f, gardenView.getHeight()/2f); 
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
-				anim.setAnimationListener(new Animation.AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation anim) { }				
-					@Override
-					public void onAnimationRepeat(Animation anim) { }
-					@Override
-					public void onAnimationEnd(Animation anim) { zoomLevel--; }
-				});
+				zoomLevel--;
 				gardenView.startAnimation(anim);
 			}
 		}
@@ -269,10 +255,10 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	
 	public void handleZoom() {
 		if (zoomAutoHidden) {
-			mHandler.removeCallbacks(autoHide);
+			zoom.removeCallbacks(autoHide);
 			if (!zoom.isShown())
 				zoom.show();
-			mHandler.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
+			zoom.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
 		}
 	}
 	
@@ -280,7 +266,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		@Override
 		public void run() {
 			if (zoom.isShown()) {
-				mHandler.removeCallbacks(autoHide);
+				zoom.removeCallbacks(this);
 				zoom.hide();
 			}
 		}

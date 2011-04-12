@@ -9,12 +9,10 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
@@ -23,17 +21,18 @@ import android.widget.ZoomControls;
 public class EditScreen extends Activity implements View.OnClickListener, ColorPickerDialog.OnColorChangedListener {
 	
 	Garden mockGarden;
-	ZoomControls zoom;
 	EditView editView;
-	Handler mHandler = new Handler();
-	boolean showLabels = true, showFullScreen, rotateMode, zoomAutoHidden;
-	boolean zoomPressed;
-	int zoomLevel;
 	Plot plot, oldPlot;
-	TextView mode_rotate;
-	boolean footerShown;
+	Bundle extras;
+	
+	ZoomControls zoom;
+	
+	boolean zoomPressed, footerShown;
 	/** false if activity has been previously started */
 	boolean firstInit = true;
+	/** User-related options */
+	boolean showLabels = true, rotateMode, showFullScreen, zoomAutoHidden;
+	int zoomLevel;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -42,42 +41,24 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
-		Bundle extras = getIntent().getExtras();
 		
+		extras = getIntent().getExtras();
 		mockGarden = StartScreen.gardens.get(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		
-		if (firstInit) {
-			if (extras.containsKey("type")) {
-				RectF gBounds = mockGarden.getRawBounds();
-				int type = extras.getInt("type");
-				String name = extras.getString("name");
-				if(type == Plot.POLY) {
-					Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
-					float[] pts = { 0, 0, 50, 10, 90, 100 };
-					plot = new Plot(name, bounds, 0, pts);
-				}
-				else {
-					Rect bounds = new Rect((int)gBounds.left, (int)gBounds.top, (int)gBounds.right, (int)gBounds.bottom);
-					bounds.inset((int)gBounds.width()/3, (int)gBounds.height()/3);
-					plot = new Plot(name, bounds, 0, type);
-				}
-				mockGarden.addPlot(plot);
-			}
-			else
-				plot = mockGarden.getPlots().get(extras.getInt("plot_id"));
-			
-			oldPlot = new Plot(plot);
-		} else {
-			if (extras.containsKey("type"))
-				plot = mockGarden.getPlot(mockGarden.size() - 1);
-			else
-				plot = mockGarden.getPlots().get(extras.getInt("plot_id"));
-		}
+		if (firstInit && extras.containsKey("type"))
+			createPlot();
+		else
+			loadPlot();
 		
-		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+		if (firstInit) { 
+			oldPlot = firstInit ? new Plot(plot) : mockGarden.getPlot(mockGarden.size() - 1);
+			mockGarden.addPlot(oldPlot);
+		} else
+			oldPlot = mockGarden.getPlot(mockGarden.size() - 1);
 		
 		setContentView(R.layout.edit_plot);
+		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 		editView = (EditView) findViewById(R.id.edit_view);
 		
 		if (firstInit) {
@@ -88,23 +69,48 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		}
 		
 		zoom = (ZoomControls) findViewById(R.id.edit_zoom_controls);
+		zoom.setOnZoomInClickListener(zoomIn);
+		zoom.setOnZoomOutClickListener(zoomOut);
 		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
 			zoom.setVisibility(View.GONE);
-		zoom.setOnZoomInClickListener(zoomIn);
-		zoom.setOnZoomOutClickListener(zoomOut);
-
+		
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
-			((TextView)findViewById(R.id.edit_hint)).setText(R.string.hint_editscreen);
-			((TextView)findViewById(R.id.edit_hint)).setVisibility(View.VISIBLE);
+			TextView hint = (TextView) findViewById(R.id.edit_hint);
+			hint.setText(R.string.hint_editscreen);
+			hint.setVisibility(View.VISIBLE);
 		}
 		
 		findViewById(R.id.rotateButton).setOnClickListener(this);
 		findViewById(R.id.saveButton).setOnClickListener(this);
-		mode_rotate = (TextView) findViewById(R.id.mode_rotate);
-
+		
 		editView.invalidate();
+	}
+	
+	public void createPlot() {
+		RectF gBounds = mockGarden.getRawBounds();
+		int type = extras.getInt("type");
+		String name = extras.getString("name");
+		if (type == Plot.POLY) {
+			Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
+			float[] pts = { 0, 0, 50, 10, 90, 100 };
+			plot = new Plot(name, bounds, 0, pts);
+		}
+		else {
+			Rect bounds = new Rect((int)gBounds.left, (int)gBounds.top, (int)gBounds.right, (int)gBounds.bottom);
+			bounds.inset((int)gBounds.width()/3, (int)gBounds.height()/3);
+			plot = new Plot(name, bounds, 0, type);
+		}
+		mockGarden.addPlot(plot);
+		mockGarden.addPlot(new Plot(plot)); // old copy
+	}
+	
+	public void loadPlot() {
+		if (extras.containsKey("type"))
+			plot = mockGarden.getPlot(mockGarden.size() - 2);
+		else
+			plot = mockGarden.getPlot(extras.getInt("plot_id"));
 	}
 	
 	@Override
@@ -150,10 +156,12 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		
 		editView.dragMatrix.setValues(values);
 		editView.bgDragMatrix.setValues(bgvalues);
-		editView.onAnimationEnd();	
+		editView.onAnimationEnd();
 	}
 	
+	@Override
 	public void onBackPressed() {
+		mockGarden.remove(oldPlot);
 		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 		Intent intent = new Intent();
 		Bundle bundle = new Bundle();
@@ -206,7 +214,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			editView.invalidate();
 			break;
 		}
-
+		
 		return super.onOptionsItemSelected(item);
 	}
 	
@@ -233,14 +241,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 				float zoomScalar = getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, editView.getWidth()/2f, editView.getHeight()/2f);
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
-				anim.setAnimationListener(new Animation.AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation anim) { }
-					@Override
-					public void onAnimationRepeat(Animation anim) { }
-					@Override
-					public void onAnimationEnd(Animation anim) { zoomLevel++; }
-				});
+				zoomLevel++;
 				editView.startAnimation(anim);
 			}
 		}
@@ -255,41 +256,34 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 				float zoomScalar = 1/getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, editView.getWidth()/2f, editView.getHeight()/2f); 
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
-				anim.setAnimationListener(new Animation.AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation anim) { }				
-					@Override
-					public void onAnimationRepeat(Animation anim) { }
-					@Override
-					public void onAnimationEnd(Animation anim) { zoomLevel--; }
-				});
+				zoomLevel--;
 				editView.startAnimation(anim);
 			}
 		}
 	};
-
+	
 	public void handleZoom() {
-		mHandler.removeCallbacks(autoHide);
+		zoom.removeCallbacks(autoHide);
 		if (!zoom.isShown())
 			zoom.show();
-		mHandler.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
+		zoom.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
 	}
 	
 	Runnable autoHide = new Runnable() {
 		@Override
 		public void run() {
 			if (zoom.isShown()) {
-				mHandler.removeCallbacks(autoHide);
+				zoom.removeCallbacks(this);
 				zoom.hide();
 			}
 		}
 	};
-
+	
 	@Override
 	public void colorChanged(int color) {
 		getPreferences(MODE_PRIVATE).edit().putInt("color", color).commit();
 		plot.getPaint().setColor(color);
 		editView.invalidate();
 	}
-
+	
 }

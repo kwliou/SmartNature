@@ -15,6 +15,7 @@
 
 		<ImageView
 			android:src="@drawable/icon"
+			android:paddingBottom="3dp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" />
 
@@ -28,17 +29,13 @@
 
 		<Button
 			android:id="@+id/searchButton"
+			android:text="Search"
+			android:layout_marginLeft="5dp"
+			android:layout_marginRight="5dp"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Search" />
+			android:layout_height="wrap_content" />
 
 	</LinearLayout>
-
-	<LinearLayout
-		android:id="@+id/separator"
-		android:layout_width="fill_parent"
-		android:layout_height="3px"
-		android:background="#cccccc" />
 
 	<ListView
 		android:id="@+id/android:list"

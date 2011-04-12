@@ -11,6 +11,6 @@
 	<dimen name="strokesize_editactive">6dp</dimen>
 	<dimen name="zoom_scalar">1.5dp</dimen>
 	<integer name="hidezoom_delay">3000</integer>
-	<integer name="zoom_duration">400</integer>
-	<integer name="footer_duration">300</integer>
+	<integer name="zoom_duration">350</integer>
+	<integer name="footer_duration">350</integer>
 </resources>
