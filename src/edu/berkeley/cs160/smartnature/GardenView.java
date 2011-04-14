@@ -27,11 +27,15 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	Matrix bgDragMatrix = new Matrix();
 	Drawable bg;
 	Paint textPaint;
-	int zoomLevel;
-	float prevX, prevY, downX, downY, x, y, zoomScale = 1;
+	float x, y, prevX, prevY, downX, downY;
+	float dist, prevDist; 
+	float zoomScale = 1;
 	float textSize;
-	boolean portraitMode, dragMode;
+	boolean portraitMode;
 	int tempColor;
+	
+	private int mode;
+	private final static int IDLE = 0, TOUCH_SCREEN = 1, DRAG_SCREEN = 2, PINCH_ZOOM = 3;
 	
 	public GardenView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -66,7 +70,6 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	
 	/** called when user clicks "zoom to fit" */
 	public void reset() {
-		zoomLevel = 0;
 		zoomScale = 1;
 		textPaint.setTextScaleX(getResources().getDimension(R.dimen.labelxscale_default));
 		textPaint.setTextSize(textSize);
@@ -90,14 +93,10 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		m.reset();
 		RectF gardenBounds = context.showFullScreen ? garden.getBounds() : garden.getBounds(portraitMode);
 		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
-		
 		if (portraitMode)
 			m.postRotate(90, width/2f, width/2f);
-		
 		m.postConcat(dragMatrix);
-		
-		if (zoomLevel != 0)
-			m.postScale(zoomScale, zoomScale, width/2f, height/2f);
+		m.postScale(zoomScale, zoomScale, width/2f, height/2f);
 		
 		canvas.save();
 		canvas.concat(m);
@@ -132,22 +131,20 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	
 	@Override
 	public void onAnimationEnd() {
-		zoomLevel = context.zoomLevel;
-		zoomScale = (float) Math.pow(getResources().getDimension(R.dimen.zoom_scalar), zoomLevel);
+		zoomScale *= Math.pow(getResources().getDimension(R.dimen.zoom_scalar), context.zoomPressed);
 		textPaint.setTextSize(Math.max(textSize * zoomScale, getResources().getDimension(R.dimen.labelsize_min)));
 		invalidate();
-		context.zoomPressed = false;
+		context.zoomPressed = 0;
 	}
 	
 	@Override
 	public void onClick(View view) {
-		if (focusedPlot != null){
+		if (focusedPlot != null) {
 			Intent intent = new Intent(context, PlotScreen.class);
 			Bundle bundle = new Bundle();
 			bundle.putString("name", focusedPlot.getName());
 			bundle.putInt("garden_id", context.gardenID);
 			bundle.putInt("plot_id", garden.getPlots().indexOf(focusedPlot));
-	
 			intent.putExtras(bundle);      	
 			context.startActivity(intent);
 		}
@@ -161,7 +158,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 			bundle.putString("name", focusedPlot.getName());
 			bundle.putInt("garden_id", StartScreen.gardens.indexOf(garden));
 			bundle.putInt("plot_id", garden.indexOf(focusedPlot));
-			bundle.putInt("zoom_level", zoomLevel);
+			bundle.putFloat("zoom_scale", zoomScale);
 			float[] values = new float[9], bgvalues = new float[9];
 			dragMatrix.getValues(values);
 			bgDragMatrix.getValues(bgvalues);
@@ -169,7 +166,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 			bundle.putFloatArray("bgdrag_matrix", bgvalues);
 			intent.putExtras(bundle);
 			focusedPlot.getPaint().setColor(tempColor);
-			context.startActivityForResult(intent, 0); // context.getWindow().setWindowAnimations(0);
+			context.startActivityForResult(intent, 0);
 			context.overridePendingTransition(0, 0);
 			return true;
 		}
@@ -181,8 +178,12 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		onTouchEvent(event);
 		context.handleZoom();
 		x = event.getX(); y = event.getY();
-		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			dragMode = false;
+		
+		System.out.println(event.getPointerCount() + " pointers, " + event.getAction());
+		switch (event.getAction() & MotionEvent.ACTION_MASK) {
+		case MotionEvent.ACTION_DOWN:
+			System.out.println("ACTION_DOWN");
+			mode = TOUCH_SCREEN;
 			downX = x; downY = y;
 			focusedPlot = garden.plotAt(x, y, m);
 			if (focusedPlot != null) {
@@ -191,31 +192,61 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 				focusedPlot.getPaint().setColor(getResources().getColor(R.color.focused_plot));
 				focusedPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_active));
 			}
-		}
-		else {
-			float dx = x - prevX, dy = y - prevY;
-			dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
-			bgDragMatrix.postTranslate(dx, dy);
-			if (!dragMode)
-				dragMode = Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5; // show some leniency
-			if (dragMode && focusedPlot != null) {
-				// plot can no longer be clicked so reset appearance
-				focusedPlot.getPaint().setColor(tempColor);
-				focusedPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-				focusedPlot = null; 
+			break;
+		case MotionEvent.ACTION_POINTER_DOWN:
+			float diffX = event.getX(0) - event.getX(1);
+			float diffY = event.getY(0) - event.getY(1);
+			dist = diffX * diffX + diffY * diffY;
+			if (dist > 10) {
+				mode = PINCH_ZOOM;
+				if (focusedPlot != null) {
+					focusedPlot.getPaint().setColor(tempColor);
+					focusedPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
+					focusedPlot = null;
+				}
 			}
-		}
-
-		if (event.getAction() == MotionEvent.ACTION_UP && !dragMode && focusedPlot != null) {
-			// reset clicked plot appearance
-			focusedPlot.getPaint().setColor(tempColor);
-			focusedPlot.getPaint().setStrokeWidth(3);
+			break;
+		case MotionEvent.ACTION_POINTER_UP:
+			mode = IDLE;
+			break;
+		case MotionEvent.ACTION_MOVE:
+			if (mode == PINCH_ZOOM) {
+				prevDist = dist;
+				diffX = event.getX(0) - event.getX(1);
+				diffY = event.getY(0) - event.getY(1);
+				dist = diffX * diffX + diffY * diffY;
+				zoomScale *= dist / prevDist;
+				onAnimationEnd();
+			}
+			else if (mode != IDLE) {
+				float dx = x - prevX, dy = y - prevY;
+				dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
+				bgDragMatrix.postTranslate(dx, dy);
+				if (mode == TOUCH_SCREEN && (Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5)) // show some leniency
+					mode = DRAG_SCREEN;
+				if (mode == DRAG_SCREEN && focusedPlot != null) {
+					// plot can no longer be clicked so reset appearance
+					focusedPlot.getPaint().setColor(tempColor);
+					focusedPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
+					focusedPlot = null; 
+				}
+			}
+			break;
+			
+		case MotionEvent.ACTION_UP:
+			mode = IDLE;
+			if (focusedPlot != null) {
+				// reset clicked plot appearance
+				focusedPlot.getPaint().setColor(tempColor);
+				focusedPlot.getPaint().setStrokeWidth(3);
+			}
+			break;
 		}
 		
 		prevX = x;
 		prevY = y;
 		invalidate();
-
+		
 		return true;
 	}
 	

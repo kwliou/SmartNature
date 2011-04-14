@@ -29,14 +29,13 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	Drawable bg;
 	Path arrow;
 	Paint boundPaint, rayPaint, resizePaint, textPaint;
-	int zoomLevel;
 	float prevX, prevY, x, y, zoomScale = 1;
 	float textSize;
 	boolean portraitMode, focused;
 	int plotColor;
 	
-	private int status;
-	private final static int DRAG_NONE = 0, DRAG_SHAPE = 1, DRAG_SCREEN = 2, RESIZE_SHAPE = 3;
+	private int mode;
+	private final static int IDLE = 0, DRAG_SHAPE = 1, DRAG_SCREEN = 2, RESIZE_SHAPE = 3;
 	
 	public EditView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -89,7 +88,6 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	
 	/** called when user clicks "zoom to fit" */
 	public void reset() {
-		zoomLevel = 0;
 		zoomScale = 1;
 		textPaint.setTextSize(textSize);
 		dragMatrix.reset();
@@ -112,14 +110,10 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		m.reset();
 		RectF gardenBounds = context.showFullScreen ? garden.getBounds() : garden.getBounds(portraitMode);
 		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
-		
 		if (portraitMode)
 			m.postRotate(90, width/2f, width/2f);
-		
 		m.postConcat(dragMatrix);
-		
-		if (zoomLevel != 0)
-			m.postScale(zoomScale, zoomScale, width/2f, height/2f);
+		m.postScale(zoomScale, zoomScale, width/2f, height/2f);
 		
 		canvas.save();
 		canvas.concat(m);
@@ -143,7 +137,9 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		Paint paint = editPlot.getShape().getPaint();
 		Rect shapeBounds = editPlot.getBounds();
 		canvas.rotate(editPlot.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
+		//draw rectangular bounds
 		canvas.drawRect(editPlot.getBounds(), boundPaint);
+		//draw shape
 		int oldColor = paint.getColor();
 		paint.setColor(Color.WHITE);
 		paint.setStyle(Paint.Style.FILL);
@@ -151,6 +147,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		paint.setColor(oldColor);
 		paint.setStyle(Paint.Style.STROKE);
 		editPlot.getShape().draw(canvas);
+		//draw resize box in bottom right corner
 		canvas.drawRect(editPlot.getResizeBox(portraitMode, getResources().getDimension(R.dimen.resizebox_min)), resizePaint);
 		if (context.rotateMode) {
 			canvas.drawLine(shapeBounds.centerX(), shapeBounds.centerY(), shapeBounds.centerX(), shapeBounds.top - 50, rayPaint);
@@ -184,11 +181,10 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	
 	@Override
 	public void onAnimationEnd() {
-		zoomLevel = context.zoomLevel;
-		zoomScale = (float) Math.pow(getResources().getDimension(R.dimen.zoom_scalar), zoomLevel);
+		zoomScale *= (float) Math.pow(getResources().getDimension(R.dimen.zoom_scalar), context.zoomPressed);
 		textPaint.setTextSize(Math.max(textSize * zoomScale, getResources().getDimension(R.dimen.labelsize_min)));
 		invalidate();
-		context.zoomPressed = false; 
+		context.zoomPressed = 0; 
 	}
 	
 	@Override
@@ -222,29 +218,30 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			inverse.postRotate(-editPlot.getAngle(), editPlot.getBounds().centerX(), editPlot.getBounds().centerY());
 			inverse.mapPoints(rxy);
 			plotColor = editPlot.getPaint().getColor();
-			RectF resizeBox = editPlot.getResizeBox(portraitMode, getResources().getDimension(R.dimen.resizebox_min) + 2); 
+			RectF resizeBox = editPlot.getResizeBox(portraitMode, getResources().getDimension(R.dimen.resizebox_min));
+			resizeBox.inset(-10, -10);
 			if (resizeBox.contains(rxy[0], rxy[1])) {
 				resizePaint.setColor(getResources().getColor(R.color.focused_plot));
-				status = RESIZE_SHAPE;
+				mode = RESIZE_SHAPE;
 			}
 			else if (editPlot.contains(xy[0], xy[1])) {
+				mode = DRAG_SHAPE;
 				// set focused plot appearance
 				editPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_editactive));
 				editPlot.getPaint().setColor(getResources().getColor(R.color.focused_plot));
-				status = DRAG_SHAPE;
 			} else
-				status = DRAG_SCREEN;
+				mode = DRAG_SCREEN;
 			
 			break;
 		
 		case MotionEvent.ACTION_MOVE:
-			if (status == DRAG_SHAPE) {
+			if (mode == DRAG_SHAPE) {
 				float[] dxy = { prevX, prevY, x, y };
 				m.invert(inverse);
 				inverse.mapPoints(dxy);
 				editPlot.getBounds().offset((int) (dxy[2] - dxy[0]), (int) (dxy[3] - dxy[1]));
 			}
-			else if (status == RESIZE_SHAPE) {
+			else if (mode == RESIZE_SHAPE) {
 				Rect newBounds = new Rect(editPlot.getBounds());
 				float[] dxy = { prevX, prevY, x, y };
 				m.invert(inverse);
@@ -266,7 +263,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			break;
 		
 		case MotionEvent.ACTION_UP:
-			status = DRAG_NONE;
+			mode = IDLE;
 			editPlot.getShape().getPaint().setColor(plotColor);
 			editPlot.getShape().getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 			resizePaint.setColor(Color.BLACK);

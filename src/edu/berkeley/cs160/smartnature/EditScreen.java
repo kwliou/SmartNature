@@ -27,13 +27,13 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	
 	ZoomControls zoom;
 	
-	boolean zoomPressed, footerShown;
+	boolean footerShown;
 	/** false if activity has been previously started */
 	boolean firstInit = true;
 	/** User-related options */
 	boolean showLabels = true, rotateMode, showFullScreen, zoomAutoHidden;
-	int zoomLevel;
-	
+	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
+	int zoomPressed;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		firstInit = savedInstanceState == null;
@@ -62,7 +62,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		editView = (EditView) findViewById(R.id.edit_view);
 		
 		if (firstInit) {
-			zoomLevel = extras.getInt("zoom_level");
+			editView.zoomScale = extras.getFloat("zoom_scale");
 			editView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
 			editView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
 			editView.onAnimationEnd();
@@ -114,7 +114,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
-		savedInstanceState.putInt("zoom_level", zoomLevel);
+		savedInstanceState.putFloat("zoom_scale", editView.zoomScale);
 		savedInstanceState.putBoolean("portrait_mode", editView.portraitMode);
 		float[] values = new float[9], bgvalues = new float[9];
 		editView.dragMatrix.getValues(values);
@@ -127,7 +127,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		zoomLevel = savedInstanceState.getInt("zoom_level");
+		editView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
 		int orien = getResources().getConfiguration().orientation;
 		
@@ -164,7 +164,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 		Intent intent = new Intent();
 		Bundle bundle = new Bundle();
-		bundle.putInt("zoom_level", zoomLevel);
+		bundle.putFloat("zoom_scale", editView.zoomScale);
 		float[] values = new float[9], bgvalues = new float[9];
 		editView.dragMatrix.getValues(values);
 		editView.bgDragMatrix.getValues(bgvalues);
@@ -203,7 +203,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			new ColorPickerDialog(this, this, color).show();
 			break;
 		case R.id.m_resetzoom:
-			zoomLevel = 0;
+			editView.zoomScale = 1;
 			mockGarden.refreshBounds();
 			editView.reset();
 			break;
@@ -235,12 +235,11 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			if (!zoomPressed) {
-				zoomPressed = true;
+			if (zoomPressed == 0) {
+				zoomPressed = 1;
 				float zoomScalar = getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, editView.getWidth()/2f, editView.getHeight()/2f);
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
-				zoomLevel++;
 				editView.startAnimation(anim);
 			}
 		}
@@ -250,12 +249,11 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			if (!zoomPressed) {
-				zoomPressed = true;
+			if (zoomPressed == 0) {
+				zoomPressed = 1;
 				float zoomScalar = 1/getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, editView.getWidth()/2f, editView.getHeight()/2f); 
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
-				zoomLevel--;
 				editView.startAnimation(anim);
 			}
 		}
