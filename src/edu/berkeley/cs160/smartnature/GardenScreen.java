@@ -110,7 +110,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		}
 		
 		gardenView.dragMatrix.setValues(values);
-		gardenView.bgDragMatrix.setValues(savedInstanceState.getFloatArray("bgdrag_matrix"));
+		gardenView.bgDragMatrix.setValues(bgvalues);
 		gardenView.onAnimationEnd();	
 	}
 	

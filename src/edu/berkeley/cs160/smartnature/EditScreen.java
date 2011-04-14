@@ -34,6 +34,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	boolean showLabels = true, rotateMode, showFullScreen, zoomAutoHidden;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		firstInit = savedInstanceState == null;
@@ -250,7 +251,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		public void onClick(View view) {
 			handleZoom();
 			if (zoomPressed == 0) {
-				zoomPressed = 1;
+				zoomPressed = -1;
 				float zoomScalar = 1/getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, editView.getWidth()/2f, editView.getHeight()/2f); 
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
