@@ -1,17 +1,20 @@
 New ideas:
-maybe have add plot on bottom bar on garden screen
-what about simply clicking plot in edit mode to toggle rotate mode?
+show the actual angle number somewhere when rotating plot
+show the actual dimensions somewhere when resizing plot
+maybe have bottom bar on garden screen with add plot, etc.
+show a shadow of old copy of plot when editing current copy
 
 TODO:
 adding new polygon
-resizing plots
-sharing gardens
 parsing encyclopedia(s)
 not using more than one encyclopedia source (maybe add options?)
+sharing gardens
+voice commands
+add dimensions to gardens/plots
+pinch and zoom
 
 Current issues:
 what do when a plot completely overlaps another? introduce z-index?
-negative angle in Quadrant IV
 
 Kevin - start screen, garden screen
 Joe - edit region/plot screen, new region/plot dialog

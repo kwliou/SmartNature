@@ -9,6 +9,7 @@
 	<dimen name="mitersize_default">20dp</dimen>
 	<dimen name="strokesize_edit">5dp</dimen>
 	<dimen name="strokesize_editactive">6dp</dimen>
+	<dimen name="resizebox_min">30dp</dimen>
 	<dimen name="zoom_scalar">1.5dp</dimen>
 	<integer name="hidezoom_delay">3000</integer>
 	<integer name="zoom_duration">350</integer>

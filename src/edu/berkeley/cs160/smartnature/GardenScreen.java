@@ -32,10 +32,9 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	
 	/** User-related options */
 	boolean showLabels = true, showFullScreen, zoomAutoHidden;
-	boolean zoomPressed;
-	int zoomLevel;
-	int currentDialog; 
-	
+	int currentDialog;
+	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
+	int zoomPressed;
 	int gardenID;
 	
 	@Override
@@ -71,7 +70,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
-		savedInstanceState.putInt("zoom_level", zoomLevel);
+		savedInstanceState.putFloat("zoom_scale", gardenView.zoomScale);
 		savedInstanceState.putBoolean("portrait_mode", gardenView.portraitMode);
 		float[] values = new float[9], bgvalues = new float[9];
 		gardenView.dragMatrix.getValues(values);
@@ -84,7 +83,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		zoomLevel = savedInstanceState.getInt("zoom_level");
+		gardenView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
 		int orien = getResources().getConfiguration().orientation;
 		
@@ -111,7 +110,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		}
 		
 		gardenView.dragMatrix.setValues(values);
-		gardenView.bgDragMatrix.setValues(savedInstanceState.getFloatArray("bgdrag_matrix"));
+		gardenView.bgDragMatrix.setValues(bgvalues);
 		gardenView.onAnimationEnd();	
 	}
 	
@@ -171,7 +170,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			Bundle extras = data.getExtras();
 			if (extras.containsKey("name")) { // returning from AddPlot activity
 				extras.putInt("garden_id", StartScreen.gardens.indexOf(mockGarden));
-				extras.putInt("zoom_level", zoomLevel);
+				extras.putFloat("zoom_scale", gardenView.zoomScale);
 				float[] values = new float[9], bgvalues = new float[9];
 				gardenView.dragMatrix.getValues(values);
 				gardenView.bgDragMatrix.getValues(bgvalues);
@@ -181,8 +180,8 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				startActivityForResult(data, 0);
 				overridePendingTransition(0, 0);
 			}
-			else if (extras.containsKey("zoom_level")) { // returning from EditScreen activity
-				zoomLevel = extras.getInt("zoom_level");
+			else if (extras.containsKey("zoom_scale")) { // returning from EditScreen activity
+				gardenView.zoomScale = extras.getFloat("zoom_scale");
 				gardenView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
 				gardenView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
 				gardenView.onAnimationEnd();
@@ -213,7 +212,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				showDialog(RENAME_DIALOG);
 				break;
 			case R.id.m_resetzoom:
-				zoomLevel = 0;
+				gardenView.zoomScale = 1;
 				mockGarden.refreshBounds();
 				gardenView.reset();
 				break;
@@ -233,12 +232,11 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		@Override
 		public void onClick(final View view) {
 			handleZoom();
-			if (!zoomPressed) {
-				zoomPressed = true;
+			if (zoomPressed == 0) {
+				zoomPressed = 1;
 				float zoomScalar = getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, gardenView.getWidth()/2f, gardenView.getHeight()/2f);
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
-				zoomLevel++;
 				gardenView.startAnimation(anim);
 			}
 		}
@@ -248,12 +246,11 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		@Override
 		public void onClick(View view) {
 			handleZoom();
-			if (!zoomPressed) {
-				zoomPressed = true;
+			if (zoomPressed == 0) {
+				zoomPressed = -1;
 				float zoomScalar = 1/getResources().getDimension(R.dimen.zoom_scalar);
 				ScaleAnimation anim = new ScaleAnimation(1, zoomScalar, 1, zoomScalar, gardenView.getWidth()/2f, gardenView.getHeight()/2f); 
 				anim.setDuration(getResources().getInteger(R.integer.zoom_duration));
-				zoomLevel--;
 				gardenView.startAnimation(anim);
 			}
 		}
