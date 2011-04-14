@@ -198,12 +198,12 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 			bgDragMatrix.postTranslate(dx, dy);
 			if (!dragMode)
 				dragMode = Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5; // show some leniency
-				if (dragMode && focusedPlot != null) {
-					// plot can no longer be clicked so reset appearance
-					focusedPlot.getPaint().setColor(tempColor);
-					focusedPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-					focusedPlot = null; 
-				}
+			if (dragMode && focusedPlot != null) {
+				// plot can no longer be clicked so reset appearance
+				focusedPlot.getPaint().setColor(tempColor);
+				focusedPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
+				focusedPlot = null; 
+			}
 		}
 
 		if (event.getAction() == MotionEvent.ACTION_UP && !dragMode && focusedPlot != null) {

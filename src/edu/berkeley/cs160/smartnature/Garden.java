@@ -94,7 +94,7 @@ public class Garden {
 		for (Plot p : plots) {
 			float[] point = { x, y };
 			Matrix tmp = new Matrix(inverse);
-			tmp.postRotate(-p.getAngle(), p.getShape().getBounds().centerX(), p.getShape().getBounds().centerY());
+			tmp.postRotate(-p.getAngle(), p.getBounds().centerX(), p.getBounds().centerY());
 			tmp.mapPoints(point);
 			if (p.contains(point[0], point[1]))
 				return p;
