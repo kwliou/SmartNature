@@ -114,6 +114,8 @@ public class Garden {
 	
 	public RectF getRawBounds() { return bounds; }
 	
+	public void setRawBounds(RectF bounds) { this.bounds = bounds; }
+	
 	/** Helpful ArrayList-related methods */
 	
 	public Plot getPlot(int id) { return plots.get(id); }
