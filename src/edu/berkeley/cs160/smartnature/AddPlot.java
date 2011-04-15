@@ -25,7 +25,7 @@ public class AddPlot extends Activity implements View.OnClickListener {
 		if (view.getId() == R.id.b_add_cancel)
 			finish();
 		else if (et_plot_name.getText().length() == 0)
-			Toast.makeText(this, "Please set your plot name", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Plot name cannot be blank", Toast.LENGTH_SHORT).show();
 		else {
 			Intent intent = new Intent(this, EditScreen.class);
 			Bundle bundle = new Bundle();
