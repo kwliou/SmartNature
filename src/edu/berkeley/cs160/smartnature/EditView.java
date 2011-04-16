@@ -27,7 +27,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	/** translation matrix applied to the background */
 	Matrix bgDragMatrix = new Matrix();
 	Drawable bg;
-	Path resizeArrow;
+	Path resizeArrow, rresizeArrow;
 	Paint boundPaint, rotatePaint, resizePaint, textPaint, whitePaint;
 	float prevX, prevY, x, y, zoomScale = 1;
 	float textSize;
@@ -76,6 +76,18 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		resizeArrow.rLineTo(3, -3);
 		resizeArrow.close();
 		
+		rresizeArrow = new Path();
+		rresizeArrow.moveTo(rarrowOffset, arrowOffset);
+		rresizeArrow.lineTo(arrowOffset, rarrowOffset);
+		rresizeArrow.moveTo(rarrowOffset, arrowOffset);
+		rresizeArrow.rLineTo(-2, 5);
+		rresizeArrow.rLineTo(-3, 3);
+		rresizeArrow.close();
+		rresizeArrow.moveTo(arrowOffset, rarrowOffset);
+		rresizeArrow.rLineTo(5, -2);
+		rresizeArrow.rLineTo(-3, 3);
+		rresizeArrow.close();
+				
 		whitePaint = new Paint();
 		whitePaint.setColor(Color.WHITE);
 		
@@ -162,7 +174,10 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		canvas.drawRect(resizeBox, whitePaint);
 		canvas.drawRect(resizeBox, resizePaint);
 		Path arrows = new Path();
-		resizeArrow.offset(resizeBox.left, resizeBox.top, arrows);
+		if (portraitMode)
+			rresizeArrow.offset(resizeBox.left, resizeBox.top, arrows);
+		else
+			resizeArrow.offset(resizeBox.left, resizeBox.top, arrows);
 		canvas.drawPath(arrows, resizePaint);
 		
 		// draw rotation circle/line

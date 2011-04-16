@@ -27,20 +27,6 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />
 
-	<TextView
-		android:id="@+id/mode_rotate"
-		android:textStyle="bold"
-		android:background="#44000000"
-		android:focusable="false"
-		android:textColor="@android:color/white"
-		android:shadowColor="#BB000000"
-		android:shadowRadius="2.5"
-		android:layout_above="@+id/footer"
-		android:layout_alignParentLeft="true"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="Rotate Mode is OFF" />
-
 	<LinearLayout
 		android:id="@+id/footer"
 		style="@android:style/ButtonBar"
