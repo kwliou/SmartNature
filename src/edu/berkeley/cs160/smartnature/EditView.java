@@ -166,9 +166,17 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		canvas.drawPath(arrows, resizePaint);
 		
 		// draw rotation circle/line
-		canvas.drawLine(shapeBounds.centerX(), shapeBounds.centerY(), shapeBounds.centerX(), shapeBounds.top - 35, rotatePaint);
-		canvas.drawCircle(shapeBounds.centerX(), shapeBounds.top - 50, 15, whitePaint);
-		canvas.drawCircle(shapeBounds.centerX(), shapeBounds.top - 50, 15, rotatePaint);
+		/*if (portraitMode) {
+			rotateX = shapeBounds.left - getResources().getDimension(R.dimen.rotate_offset);
+			rotateY = shapeBounds.centerY();
+			canvas.drawLine(shapeBounds.centerX(), shapeBounds.centerY(), rotateX - radius, rotateY, rotatePaint);
+		}*/ 
+		float radius = getResources().getDimension(R.dimen.rotate_radius);
+		float rotateX = shapeBounds.centerX();
+		float rotateY = shapeBounds.top - getResources().getDimension(R.dimen.rotate_offset);
+		canvas.drawLine(shapeBounds.centerX(), shapeBounds.centerY(), rotateX, rotateY - radius, rotatePaint);
+		canvas.drawCircle(rotateX, rotateY, radius, whitePaint);
+		canvas.drawCircle(rotateX, rotateY, radius, rotatePaint);
 		
 		canvas.restore();
 		
@@ -239,17 +247,20 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		plotColor = editPlot.getPaint().getColor();
 		RectF resizeBox = editPlot.getResizeBox(portraitMode, getResources().getDimension(R.dimen.resizebox_min));
 		float rdx = editPlot.getBounds().centerX() - rxy[0];
-		float rdy = editPlot.getBounds().top - 50 - rxy[1];
+		float rdy = editPlot.getBounds().top - getResources().getDimension(R.dimen.rotate_offset) - rxy[1];
+		//float rdx = !portraitMode ? editPlot.getBounds().centerX() : editPlot.getBounds().left - getResources().getDimension(R.dimen.rotate_offset);
+		//float rdy = portraitMode ? editPlot.getBounds().centerY() : editPlot.getBounds().top - getResources().getDimension(R.dimen.rotate_offset) - rxy[1];
+		float rRadius = getResources().getDimension(R.dimen.rotate_radius) + 4;
 		resizeBox.inset(-10, -10);
 		if (resizeBox.contains(rxy[0], rxy[1])) {
 			mode = RESIZE_SHAPE;
 			// set active resize appearance
 			resizePaint.setColor(focPlotColor);
-		} else if (rdx * rdx + rdy * rdy < 225) {
+		} else if (rdx * rdx + rdy * rdy < rRadius * rRadius) {
 			mode = ROTATE_SHAPE;
 			// set active rotate appearance
 			rotatePaint.setColor(focPlotColor);
-			rotatePaint.setShadowLayer(4, 0, 0, focPlotColor);
+			//rotatePaint.setShadowLayer(4, 0, 0, focPlotColor);
 		} else if (editPlot.contains(xy[0], xy[1])) {
 			mode = DRAG_SHAPE;
 			// set active resize appearance
