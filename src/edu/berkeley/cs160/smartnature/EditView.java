@@ -81,11 +81,11 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		rresizeArrow.lineTo(arrowOffset, rarrowOffset);
 		rresizeArrow.moveTo(rarrowOffset, arrowOffset);
 		rresizeArrow.rLineTo(-2, 5);
-		rresizeArrow.rLineTo(-3, 3);
+		rresizeArrow.rLineTo(-3, -3);
 		rresizeArrow.close();
 		rresizeArrow.moveTo(arrowOffset, rarrowOffset);
 		rresizeArrow.rLineTo(5, -2);
-		rresizeArrow.rLineTo(-3, 3);
+		rresizeArrow.rLineTo(-3, -3);
 		rresizeArrow.close();
 				
 		whitePaint = new Paint();
@@ -99,10 +99,12 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		rotatePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		rotatePaint.setColor(Color.DKGRAY);
 		rotatePaint.setStrokeCap(Paint.Cap.ROUND);
-		rotatePaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
+		rotatePaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_pixel));
 		rotatePaint.setStyle(Paint.Style.STROKE);
 		
 		resizePaint = new Paint(rotatePaint);
+		
+		rotatePaint.setPathEffect(new DashPathEffect(new float[] {6, 8}, 1));
 		
 		boundPaint = new Paint(resizePaint);
 		boundPaint.setColor(Color.GRAY);
