@@ -83,8 +83,8 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			hint.setVisibility(View.VISIBLE);
 		}
 		
-		findViewById(R.id.zoomfitButton).setOnClickListener(this);
-		findViewById(R.id.saveButton).setOnClickListener(this);
+		findViewById(R.id.save_btn).setOnClickListener(this);
+		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
 		
 		editView.invalidate();
 	}
@@ -216,13 +216,13 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-			case R.id.zoomfitButton:
+			case R.id.save_btn:
+				onBackPressed();
+				break;
+			case R.id.zoomfit_btn:
 				editView.zoomScale = 1;
 				mockGarden.refreshBounds();
 				editView.reset();
-				break;
-			case R.id.saveButton:
-				onBackPressed();
 				break;
 		}
 	}

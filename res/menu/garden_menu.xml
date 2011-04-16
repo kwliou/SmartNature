@@ -1,13 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/m_addplot"
-		android:icon="@android:drawable/ic_menu_add"
-		android:title="@string/m_addplot" />
 	<item android:id="@+id/m_showlabels"
 		android:icon="@drawable/ic_menu_list"
 		android:title="@string/m_hidelabels" />
-	<item android:id="@+id/m_resetzoom"
-		android:icon="@android:drawable/ic_menu_zoom"
-		android:title="@string/m_resetzoom" />
 	<item android:id="@+id/m_gardenoptions"
 		android:icon="@android:drawable/ic_menu_manage"
 		android:title="@string/m_gardenoptions">

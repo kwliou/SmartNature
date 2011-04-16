@@ -20,7 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class GardenScreen extends Activity implements DialogInterface.OnClickListener {
+public class GardenScreen extends Activity implements DialogInterface.OnClickListener, View.OnClickListener {
 	
 	final int NEW_DIALOG = 0, RENAME_DIALOG = 1;
 	Garden mockGarden;
@@ -66,6 +66,9 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
+		
+		findViewById(R.id.addplot_btn).setOnClickListener(this);
+		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
 	}
 	
 	@Override
@@ -112,6 +115,20 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		gardenView.dragMatrix.setValues(values);
 		gardenView.bgDragMatrix.setValues(bgvalues);
 		gardenView.onAnimationEnd();	
+	}
+	
+	@Override
+	public void onClick(View view) {
+		switch (view.getId()) {
+			case R.id.addplot_btn:
+				startActivityForResult(new Intent(this, AddPlot.class), 0);
+				break;
+			case R.id.zoomfit_btn:
+				gardenView.zoomScale = 1;
+				mockGarden.refreshBounds();
+				gardenView.reset();
+				break;
+		}
 	}
 	
 	@Override
@@ -201,20 +218,12 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.m_addplot:
-				startActivityForResult(new Intent(this, AddPlot.class), 0);
-				break;
 			case R.id.m_home:
 				finish();
 				break;
 			case R.id.m_renamegarden:
 				currentDialog = RENAME_DIALOG;
 				showDialog(RENAME_DIALOG);
-				break;
-			case R.id.m_resetzoom:
-				gardenView.zoomScale = 1;
-				mockGarden.refreshBounds();
-				gardenView.reset();
 				break;
 			case R.id.m_sharegarden:
 				startActivity(new Intent(this, ShareGarden.class));
@@ -274,5 +283,5 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			}
 		}
 	};
-	
+
 }

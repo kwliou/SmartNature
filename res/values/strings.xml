@@ -15,6 +15,6 @@
 	<string name="new_entry_prompt">Enter journal entry</string>
 	<string name="garden_list_title">My Gardens</string>
 	<string name="global_prefs_name">GardenGnome Settings</string>
-	<string name="hint_gardenscreen">Press <i>Add plot</i> in the menu to add a plot\nPress on a plot to view its plants/info\nLong press on a plot to edit its shape\nDrag the screen to pan the garden</string>
-	<string name="hint_editscreen">Drag the edited plot to move it around\nPress <i>Rotate mode</i> and press anywhere to rotate plot\nDrag the square in bottom right corner of plot to resize it</string>
+	<string name="hint_gardenscreen">Press on a plot to view its plants/info\nLong press on a plot to edit its shape\nDrag the screen to pan the garden</string>
+	<string name="hint_editscreen">Drag the edited plot to move it around\nDrag the circle to rotate the plot\nDrag the square in bottom right corner of plot to resize it</string>
 </resources>

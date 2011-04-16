@@ -27,8 +27,8 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	/** translation matrix applied to the background */
 	Matrix bgDragMatrix = new Matrix();
 	Drawable bg;
-	Path arrow, resizeArrow;
-	Paint boundPaint, rotatePaint, resizePaint, textPaint;
+	Path resizeArrow;
+	Paint boundPaint, rotatePaint, resizePaint, textPaint, whitePaint;
 	float prevX, prevY, x, y, zoomScale = 1;
 	float textSize;
 	boolean portraitMode;
@@ -60,25 +60,24 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	}
 	
 	public void initPaint() {
-		/*
-		arrow = new Path();
-		arrow.rLineTo(2, 7);
-		arrow.rLineTo(-2, -3);
-		arrow.rLineTo(-2, 3);
-		arrow.close();
-		*/
-		
 		focPlotColor = getResources().getColor(R.color.focused_plot);
 		
 		resizeArrow = new Path();
-		resizeArrow.moveTo(5, 5);
-		resizeArrow.lineTo(7, 10);
-		resizeArrow.lineTo(10, 7);
+		float arrowOffset = 5;
+		float rarrowOffset = getResources().getDimension(R.dimen.resizebox_min) - arrowOffset;
+		resizeArrow.moveTo(arrowOffset, arrowOffset);
+		resizeArrow.lineTo(rarrowOffset, rarrowOffset);
+		resizeArrow.moveTo(arrowOffset, arrowOffset);
+		resizeArrow.rLineTo(2, 5);
+		resizeArrow.rLineTo(3, -3);
 		resizeArrow.close();
-		resizeArrow.moveTo(25, 25);
-		resizeArrow.lineTo(20, 23);
-		resizeArrow.lineTo(23, 20);
+		resizeArrow.moveTo(rarrowOffset, rarrowOffset);
+		resizeArrow.rLineTo(-5, -2);
+		resizeArrow.rLineTo(3, -3);
 		resizeArrow.close();
+		
+		whitePaint = new Paint();
+		whitePaint.setColor(Color.WHITE);
 		
 		textPaint = new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FAKE_BOLD_TEXT_FLAG|Paint.DEV_KERN_TEXT_FLAG);
 		textPaint.setTextAlign(Paint.Align.CENTER);
@@ -152,25 +151,23 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		//draw rectangular bounds
 		canvas.drawRect(editPlot.getBounds(), boundPaint);
 		//draw shape
-		int oldColor = paint.getColor();
-		paint.setColor(Color.WHITE);
-		paint.setStyle(Paint.Style.FILL);
+		Paint oldPaint = new Paint(paint);
+		paint.set(whitePaint);
 		editPlot.getShape().draw(canvas);
-		paint.setColor(oldColor);
-		paint.setStyle(Paint.Style.STROKE);
+		paint.set(oldPaint);
 		editPlot.getShape().draw(canvas);
-		//draw resize box in bottom right corner
+		
+		// draw resize box in bottom right corner
 		RectF resizeBox = editPlot.getResizeBox(portraitMode, getResources().getDimension(R.dimen.resizebox_min));
+		canvas.drawRect(resizeBox, whitePaint);
 		canvas.drawRect(resizeBox, resizePaint);
+		Path arrows = new Path();
+		resizeArrow.offset(resizeBox.left, resizeBox.top, arrows);
+		canvas.drawPath(arrows, resizePaint);
 		
-		Path path = new Path();
-		resizeArrow.offset(resizeBox.left, resizeBox.top, path);
-		canvas.drawPath(path, resizePaint);
-		resizeBox.inset(5, 5);
-		canvas.drawLine(resizeBox.left, resizeBox.top, resizeBox.right, resizeBox.bottom, resizePaint);
-		
-		//draw rotation circle/line
+		// draw rotation circle/line
 		canvas.drawLine(shapeBounds.centerX(), shapeBounds.centerY(), shapeBounds.centerX(), shapeBounds.top - 35, rotatePaint);
+		canvas.drawCircle(shapeBounds.centerX(), shapeBounds.top - 50, 15, whitePaint);
 		canvas.drawCircle(shapeBounds.centerX(), shapeBounds.top - 50, 15, rotatePaint);
 		
 		canvas.restore();

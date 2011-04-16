@@ -182,7 +182,6 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		System.out.println(event.getPointerCount() + " pointers, " + event.getAction());
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 		case MotionEvent.ACTION_DOWN:
-			System.out.println("ACTION_DOWN");
 			mode = TOUCH_SCREEN;
 			downX = x; downY = y;
 			focusedPlot = garden.plotAt(x, y, m);
