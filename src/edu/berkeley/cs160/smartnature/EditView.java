@@ -81,11 +81,11 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		rresizeArrow.lineTo(arrowOffset, rarrowOffset);
 		rresizeArrow.moveTo(rarrowOffset, arrowOffset);
 		rresizeArrow.rLineTo(-2, 5);
-		rresizeArrow.rLineTo(-3, 3);
+		rresizeArrow.rLineTo(-3, -3);
 		rresizeArrow.close();
 		rresizeArrow.moveTo(arrowOffset, rarrowOffset);
 		rresizeArrow.rLineTo(5, -2);
-		rresizeArrow.rLineTo(-3, 3);
+		rresizeArrow.rLineTo(-3, -3);
 		rresizeArrow.close();
 				
 		whitePaint = new Paint();
