@@ -31,7 +31,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	/** false if activity has been previously started */
 	boolean firstInit = true;
 	/** User-related options */
-	boolean showLabels = true, rotateMode, showFullScreen, zoomAutoHidden;
+	boolean showLabels = true, showFullScreen, zoomAutoHidden;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
 	
@@ -83,7 +83,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			hint.setVisibility(View.VISIBLE);
 		}
 		
-		findViewById(R.id.rotateButton).setOnClickListener(this);
+		findViewById(R.id.zoomfitButton).setOnClickListener(this);
 		findViewById(R.id.saveButton).setOnClickListener(this);
 		
 		editView.invalidate();
@@ -203,11 +203,6 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			int color = getPreferences(MODE_PRIVATE).getInt("color", Color.WHITE);
 			new ColorPickerDialog(this, this, color).show();
 			break;
-		case R.id.m_resetzoom:
-			editView.zoomScale = 1;
-			mockGarden.refreshBounds();
-			editView.reset();
-			break;
 		case R.id.m_revert:
 			plot.set(oldPlot);
 			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
@@ -221,10 +216,10 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-			case R.id.rotateButton:
-				rotateMode = !rotateMode;
-				((TextView)findViewById(R.id.mode_rotate)).setText("Rotate Mode is " + (rotateMode ? "ON" : "OFF"));
-				editView.invalidate();
+			case R.id.zoomfitButton:
+				editView.zoomScale = 1;
+				mockGarden.refreshBounds();
+				editView.reset();
 				break;
 			case R.id.saveButton:
 				onBackPressed();

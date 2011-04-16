@@ -49,11 +49,11 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 		<Button
-			android:id="@+id/rotateButton"
+			android:id="@+id/zoomfitButton"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="Rotate mode" />
+			android:text="Reset zoom" />
 		<Button
 			android:id="@+id/saveButton"
 			android:layout_width="fill_parent"

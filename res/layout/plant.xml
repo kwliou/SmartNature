@@ -28,17 +28,9 @@
 
 	</LinearLayout>
 
-
-
-	<LinearLayout
-		android:id="@+id/separator"
-		android:layout_width="fill_parent"
-		android:layout_height="3px"
-		android:background="#cccccc" />
-
-
 	<LinearLayout
 		android:id="@+id/linearLayout2"
+		android:gravity="center"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal">
