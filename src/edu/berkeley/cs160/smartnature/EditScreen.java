@@ -3,7 +3,6 @@ package edu.berkeley.cs160.smartnature;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -130,12 +129,12 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		super.onRestoreInstanceState(savedInstanceState);
 		editView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
-		int orien = getResources().getConfiguration().orientation;
-		
+		boolean portraitMode = getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight();
 		float[] values = savedInstanceState.getFloatArray("drag_matrix");
 		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");
 		
-		if (orien == Configuration.ORIENTATION_PORTRAIT && !prevPortraitMode) {
+		System.out.println("editView=" + editView.getWidth() + "," + editView.getHeight());
+		if (portraitMode && !prevPortraitMode) {
 			// changed from landscape to portrait
 			float tmp = values[Matrix.MTRANS_X];
 			values[Matrix.MTRANS_X] = -values[Matrix.MTRANS_Y];
@@ -144,7 +143,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			bgvalues[Matrix.MTRANS_X] = -bgvalues[Matrix.MTRANS_Y];
 			bgvalues[Matrix.MTRANS_Y] = tmp;
 		}
-		else if (orien == Configuration.ORIENTATION_LANDSCAPE && prevPortraitMode) {
+		else if (!portraitMode && prevPortraitMode) {
 			// changed from portrait to landscape
 			float tmp = values[Matrix.MTRANS_X];
 			values[Matrix.MTRANS_X] = values[Matrix.MTRANS_Y];

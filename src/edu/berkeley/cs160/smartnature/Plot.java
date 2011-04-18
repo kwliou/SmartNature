@@ -165,7 +165,14 @@ public class Plot {
 			rbounds.top = rbounds.bottom - boxWidth;
 		return rbounds;
 	}
-	
+
+	public float[] getResizeCorner(boolean portraitMode) {
+		if (portraitMode)
+			return new float[] { getBounds().right, getBounds().top };
+		else
+			return new float[] { getBounds().right, getBounds().bottom };
+	}
+
 	public Rect getBounds() { return shape.getBounds(); }
 	
 	public int getID(){ return id; }
