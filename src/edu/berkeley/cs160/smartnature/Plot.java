@@ -156,23 +156,6 @@ public class Plot {
 		return bounds;	
 	}
 	
-	public RectF getResizeBox(boolean portraitMode, float boxWidth) {
-		RectF rbounds = new RectF(getBounds());
-		rbounds.left = rbounds.right - boxWidth; 
-		if (portraitMode)
-			rbounds.bottom = rbounds.top + boxWidth;
-		else
-			rbounds.top = rbounds.bottom - boxWidth;
-		return rbounds;
-	}
-
-	public float[] getResizeCorner(boolean portraitMode) {
-		if (portraitMode)
-			return new float[] { getBounds().right, getBounds().top };
-		else
-			return new float[] { getBounds().right, getBounds().bottom };
-	}
-
 	public Rect getBounds() { return shape.getBounds(); }
 	
 	public int getID(){ return id; }

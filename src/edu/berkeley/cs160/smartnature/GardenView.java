@@ -13,7 +13,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class GardenView extends View implements View.OnClickListener, View.OnTouchListener, View.OnLongClickListener{
+public class GardenView extends View implements View.OnClickListener, View.OnLongClickListener, View.OnTouchListener {
 	
 	GardenScreen context;
 	Garden garden;
@@ -28,7 +28,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	Drawable bg;
 	Paint textPaint;
 	float x, y, prevX, prevY, downX, downY;
-	float dist, prevDist; 
+	float dist, prevDist;
 	float zoomScale = 1;
 	float textSize;
 	boolean portraitMode;
@@ -84,6 +84,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		int width = getWidth(), height = getHeight();
 		portraitMode = width < height;
 		
+		// draw background grid
 		canvas.save();
 		canvas.concat(bgDragMatrix);
 		bg.setBounds(canvas.getClipBounds());
@@ -98,6 +99,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		m.postConcat(dragMatrix);
 		m.postScale(zoomScale, zoomScale, width/2f, height/2f);
 		
+		// draw plots
 		canvas.save();
 		canvas.concat(m);
 		for (Plot p: garden.getPlots()) {
@@ -109,6 +111,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 		}
 		canvas.restore();
 		
+		//draw labels
 		if (context.showLabels)
 			for (Plot p: garden.getPlots()) {
 				RectF rbounds = p.getRotateBounds(); 
@@ -151,7 +154,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnTou
 	}
 	
 	@Override
-	public boolean onLongClick(View v) {
+	public boolean onLongClick(View view) {
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, EditScreen.class);
 			Bundle bundle = new Bundle();

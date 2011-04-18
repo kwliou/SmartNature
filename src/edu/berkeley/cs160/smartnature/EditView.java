@@ -26,18 +26,17 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	Matrix dragMatrix = new Matrix();
 	/** translation matrix applied to the background */
 	Matrix bgDragMatrix = new Matrix();
-	/** coordinates of shape's center after transformation */ 
-	float[] shapeMid = new float[2];
-	/** coordinates of shape's top after transformation */ 
-	float[] shapeTop = new float[2];
+	/** coordinates of shape after transformation */ 
+	float[] shapeMid = new float[2], shapeTop = new float[2];
 	Drawable bg;
 	RectF resizeBox = new RectF();
-	Path resizeArrow, rresizeArrow;
+	Path resizeArrow = new Path();
 	Paint arrowPaint, boundPaint, rotatePaint, resizePaint, textPaint, whitePaint;
-	float prevX, prevY, x, y, zoomScale = 1;
+	float prevX, prevY, x, y;
 	float textSize;
+	float zoomClamp = 1, zoomScale = 1;
 	boolean portraitMode;
-	int plotColor, focPlotColor;
+	int tempColor, focPlotColor;
 	
 	private final static int IDLE = 0, DRAG_SCREEN = 1, DRAG_SHAPE = 2, ROTATE_SHAPE = 3, RESIZE_SHAPE = 4;
 	private int mode;
@@ -46,7 +45,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		super(context, attrs);
 		this.context = (EditScreen) context;
 		editPlot = this.context.plot;
-		bg = getResources().getDrawable(R.drawable.tile);	
+		bg = getResources().getDrawable(R.drawable.tile_dark);	
 		textSize = getResources().getDimension(R.dimen.labelsize_default);
 		initPaint();
 		initMockData();	
@@ -67,32 +66,6 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	public void initPaint() {
 		focPlotColor = getResources().getColor(R.color.focused_plot);
 		
-		resizeArrow = new Path();
-		float arrowOffset = 5;
-		float rarrowOffset = getResources().getDimension(R.dimen.resizebox_min) - arrowOffset;
-		resizeArrow.moveTo(arrowOffset, arrowOffset);
-		resizeArrow.lineTo(rarrowOffset, rarrowOffset);
-		resizeArrow.moveTo(arrowOffset, arrowOffset);
-		resizeArrow.rLineTo(2, 5);
-		resizeArrow.rLineTo(3, -3);
-		resizeArrow.close();
-		resizeArrow.moveTo(rarrowOffset, rarrowOffset);
-		resizeArrow.rLineTo(-5, -2);
-		resizeArrow.rLineTo(3, -3);
-		resizeArrow.close();
-		
-		rresizeArrow = new Path();
-		rresizeArrow.moveTo(rarrowOffset, arrowOffset);
-		rresizeArrow.lineTo(arrowOffset, rarrowOffset);
-		rresizeArrow.moveTo(rarrowOffset, arrowOffset);
-		rresizeArrow.rLineTo(-2, 5);
-		rresizeArrow.rLineTo(-3, -3);
-		rresizeArrow.close();
-		rresizeArrow.moveTo(arrowOffset, rarrowOffset);
-		rresizeArrow.rLineTo(5, -2);
-		rresizeArrow.rLineTo(-3, -3);
-		rresizeArrow.close();
-				
 		whitePaint = new Paint();
 		whitePaint.setColor(Color.WHITE);
 		
@@ -120,7 +93,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	
 	/** called when user clicks "zoom to fit" */
 	public void reset() {
-		zoomScale = 1;
+		zoomClamp = zoomScale = 1;
 		textPaint.setTextScaleX(getResources().getDimension(R.dimen.labelxscale_default));
 		textPaint.setTextSize(textSize);
 		dragMatrix.reset();
@@ -134,6 +107,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		int width = getWidth(), height = getHeight();
 		portraitMode = width < height;
 		
+		// draw background grid
 		canvas.save();
 		canvas.concat(bgDragMatrix);	
 		bg.setBounds(canvas.getClipBounds());
@@ -148,53 +122,56 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		m.postConcat(dragMatrix);
 		m.postScale(zoomScale, zoomScale, width/2f, height/2f);
 		
+		Rect shapeBounds = editPlot.getBounds();
+		shapeMid[0] = shapeBounds.centerX(); shapeMid[1] = shapeBounds.centerY();
+		shapeTop[0] = shapeBounds.left; shapeTop[1] = shapeBounds.top;
+		m.mapPoints(shapeMid);
+		m.mapPoints(shapeTop);
+
 		canvas.save();
+		drawPlots(canvas);
+		canvas.restore();
+		
+		canvas.save();
+		drawResizeBox(canvas);
+		drawRotate(canvas);
+		canvas.restore();
+		
+		if (context.showLabels)
+			drawLabels(canvas);
+		
+	}
+	
+	public void drawPlots(Canvas canvas) {
 		canvas.concat(m);
 		for (Plot p: garden.getPlots()) {
-			if (p != editPlot && p != context.oldPlot) {
+			if (p != context.oldPlot) {
 				canvas.save();
 				Rect shapeBounds = p.getBounds();
 				canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
+				// check special case
+				if (p == editPlot) {
+					Paint paint = editPlot.getShape().getPaint();
+					Paint oldPaint = new Paint(paint);
+					canvas.drawRect(shapeBounds, boundPaint); //draw rectangular bounds
+					paint.set(whitePaint);
+					editPlot.getShape().draw(canvas);
+					paint.set(oldPaint);
+				}				
 				p.getShape().draw(canvas);
 				canvas.restore();
 			}
 		}
-		
-		// "shade" over everything
-		canvas.restore();
-		canvas.drawARGB(65, 0, 0, 0);
-		
-		// draw plot being edited
-		canvas.save();
-		canvas.concat(m);
-		Paint paint = editPlot.getShape().getPaint();
+	}
+	
+	public void drawResizeBox(Canvas canvas) {
 		Rect shapeBounds = editPlot.getBounds();
-		canvas.rotate(editPlot.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
-		//draw rectangular bounds
-		canvas.drawRect(editPlot.getBounds(), boundPaint);
-		//draw shape
-		Paint oldPaint = new Paint(paint);
-		paint.set(whitePaint);
-		editPlot.getShape().draw(canvas);
-		paint.set(oldPaint);
-		editPlot.getShape().draw(canvas);
-		
-		// draw resize box in bottom right corner
-		float zoomClamp = Math.max(1, zoomScale);
 		float boxSize = zoomClamp * getResources().getDimension(R.dimen.resizebox_min);
-		float[] boxCorner = editPlot.getResizeCorner(portraitMode);
-		shapeMid = new float[] { shapeBounds.centerX(), shapeBounds.centerY() };
-		shapeTop = new float[] { shapeBounds.left, shapeBounds.top };
+		float[] boxCorner = { shapeBounds.right, portraitMode ? shapeBounds.top : shapeBounds.bottom };
 		
 		m.mapPoints(boxCorner);
-		m.mapPoints(shapeMid);
-		m.mapPoints(shapeTop);
-		canvas.restore();
-		
-		canvas.save();
-		canvas.rotate(editPlot.getAngle(), shapeMid[0], shapeMid[1]);
-		
 		resizeBox.set(boxCorner[0] - boxSize, boxCorner[1] - boxSize, boxCorner[0], boxCorner[1]);
+		canvas.rotate(editPlot.getAngle(), shapeMid[0], shapeMid[1]);
 		canvas.drawRect(resizeBox, whitePaint);
 		canvas.drawRect(resizeBox, resizePaint);
 		
@@ -202,8 +179,8 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		
 		float arrowOffset = 5;
 		float rarrowOffset = boxSize - 5;
-		float pt1 = 5 * zoomClamp;
-		float pt2 = 2 * zoomClamp;
+		float pt1 = 5 * zoomClamp * zoomClamp;
+		float pt2 = 2 * zoomClamp * zoomClamp;
 		float pt3 = pt1 - pt2;
 		resizeArrow.reset();
 		resizeArrow.moveTo(arrowOffset, arrowOffset);
@@ -218,30 +195,31 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		resizeArrow.lineTo(rarrowOffset, rarrowOffset);
 		resizeArrow.offset(resizeBox.left, resizeBox.top, arrows);
 		canvas.drawPath(arrows, arrowPaint);
-		
+	}
+	
+	public void drawRotate(Canvas canvas) {
 		float radius = zoomClamp * getResources().getDimension(R.dimen.rotate_radius);
 		float rotateX = shapeMid[0];
 		float rotateY = shapeTop[1] - zoomClamp * getResources().getDimension(R.dimen.rotate_offset);
 		canvas.drawLine(shapeMid[0], shapeMid[1], rotateX, rotateY - radius, rotatePaint);
 		canvas.drawCircle(rotateX, rotateY, radius, whitePaint);
 		canvas.drawCircle(rotateX, rotateY, radius, rotatePaint);
-		canvas.restore();
-		
-		if (context.showLabels)
-			for (Plot p: garden.getPlots()) {
-				if (p != context.oldPlot) {
-					float[] labelLoc;
-					RectF bounds = p.getRotateBounds();
-					if (portraitMode)
-						labelLoc = new float[] { bounds.left - 10, bounds.centerY() };
-					else
-						labelLoc =  new float[] { bounds.centerX(), bounds.top - 10 };
-					m.mapPoints(labelLoc);
-					canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
-				}
-			}
 	}
 	
+	public void drawLabels(Canvas canvas) {
+		for (Plot p: garden.getPlots()) {
+			if (p != context.oldPlot) {
+				float[] labelLoc;
+				RectF bounds = p.getRotateBounds();
+				if (portraitMode)
+					labelLoc = new float[] { bounds.left - 10, bounds.centerY() };
+				else
+					labelLoc =  new float[] { bounds.centerX(), bounds.top - 10 };
+				m.mapPoints(labelLoc);
+				canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
+			}
+		}
+	}
 	public RectF getBounds() {
 		if (portraitMode)
 			return new RectF(getLeft(), getTop(), getBottom(), getRight());
@@ -252,6 +230,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	@Override
 	public void onAnimationEnd() {
 		zoomScale *= (float) Math.pow(getResources().getDimension(R.dimen.zoom_scalar), context.zoomPressed);
+		zoomClamp = Math.max(1, zoomScale);
 		textPaint.setTextSize(Math.max(textSize * zoomScale, getResources().getDimension(R.dimen.labelsize_min)));
 		invalidate();
 		context.zoomPressed = 0; 
@@ -285,12 +264,14 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	}
 	
 	public void handleDown() {
-		plotColor = editPlot.getPaint().getColor(); // backup data
-		resizeBox.inset(-5, -5);
+		tempColor = editPlot.getPaint().getColor(); // backup data
+		
+		// check if resize box hit
 		float[] rxy = { x, y };
 		Matrix rot = new Matrix();
 		rot.setRotate(-editPlot.getAngle(), shapeMid[0], shapeMid[1]);
 		rot.mapPoints(rxy); // transformed coordinates with plot's rotation 
+		resizeBox.inset(-5, -5);
 		
 		if (resizeBox.contains(rxy[0], rxy[1])) {
 			mode = RESIZE_SHAPE;
@@ -300,7 +281,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			return;
 		}
 		
-		float zoomClamp = Math.max(1, zoomScale);
+		// check if rotate circle hit
 		float rRadius = zoomClamp * getResources().getDimension(R.dimen.rotate_radius) + 5;
 		float rdx = shapeMid[0] - rxy[0];
 		float rdy = shapeTop[1] - zoomClamp * getResources().getDimension(R.dimen.rotate_offset) - rxy[1];
@@ -312,6 +293,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 			return;
 		}
 		
+		// check if shape hit
 		float[] xy = { x, y };
 		Matrix inverse = new Matrix();
 		m.invert(inverse);
@@ -329,14 +311,16 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	}
 	
 	public void handleMove() {
-		Matrix inverse = new Matrix();
 		float[] dxy = { prevX, prevY, x, y };
 		if (mode == DRAG_SCREEN) {
 			float dx = dxy[2] - dxy[0], dy = dxy[3] - dxy[1];
 			dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
 			bgDragMatrix.postTranslate(dx, dy);
-		} else
-			m.invert(inverse);
+			return;
+		}
+		
+		Matrix inverse = new Matrix();
+		m.invert(inverse);
 		
 		if (mode == DRAG_SHAPE) {
 			inverse.mapPoints(dxy);
@@ -364,17 +348,17 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 				angle += 360;
 			
 			editPlot.setAngle(angle);
-		}		
+		}
 	}
 	
 	public void handleUp() {
 		mode = IDLE;
-		editPlot.getShape().getPaint().setColor(plotColor);
+		editPlot.getShape().getPaint().setColor(tempColor);
 		editPlot.getShape().getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 		arrowPaint.setColor(Color.DKGRAY);
 		resizePaint.setColor(Color.DKGRAY);
 		rotatePaint.setColor(Color.DKGRAY);
-		rotatePaint.clearShadowLayer();
+		//rotatePaint.clearShadowLayer();
 	}
 	
 }

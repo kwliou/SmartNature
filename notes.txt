@@ -23,6 +23,8 @@ pinch and zoom
 
 Current issues:
 what do when a plot completely overlaps another? introduce z-index?
+dotted circle might be obscured in edit mode
+button bar might obscure plot after "reset zoom"
 
 Kevin - start screen, garden screen
 Joe - edit region/plot screen, new region/plot dialog
