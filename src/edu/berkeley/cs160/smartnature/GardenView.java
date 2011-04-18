@@ -34,8 +34,8 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	boolean portraitMode;
 	int tempColor;
 	
-	private int mode;
 	private final static int IDLE = 0, TOUCH_SCREEN = 1, DRAG_SCREEN = 2, PINCH_ZOOM = 3;
+	private int mode;
 	
 	public GardenView(Context context, AttributeSet attrs) {
 		super(context, attrs);

@@ -6,10 +6,8 @@
 	<dimen name="labelxscale_default">1.2px</dimen>
 	<dimen name="strokesize_default">3px</dimen>
 	<dimen name="strokesize_active">4px</dimen>
-	<dimen name="mitersize_default">20px</dimen>
 	<dimen name="strokesize_edit">5px</dimen>
 	<dimen name="strokesize_editactive">6px</dimen>
-	<dimen name="strokesize_pixel">3px</dimen>
 	<dimen name="resizebox_min">30dp</dimen>
 	<dimen name="rotate_radius">20dp</dimen>
 	<dimen name="rotate_offset">50dp</dimen>

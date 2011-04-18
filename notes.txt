@@ -19,7 +19,8 @@ not using more than one encyclopedia source (maybe add options?)
 sharing gardens
 voice commands
 add dimensions to gardens/plots
-pinch and zoom
+pinch and zoom for editview
+add alternate plot list view for gardens
 
 Current issues:
 what do when a plot completely overlaps another? introduce z-index?

@@ -73,7 +73,7 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 	public void initMockData() {
 		plants.add(new Plant("Carrot"));
 		plants.add(new Plant("Tomato"));
-		adapter = new PlantAdapter(this, R.layout.list_item, StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants());
+		adapter = new PlantAdapter(this, R.layout.plant_list_item, StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants());
 		setListAdapter(adapter);
 
 	}
@@ -153,7 +153,7 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View v = convertView;
 			if (v == null)
-				v = li.inflate(R.layout.plant_list, null);
+				v = li.inflate(R.layout.plant_list_item, null);
 			Plant p = items.get(position);
 			((TextView) v.findViewById(R.id.plant_name)).setText(p.getName());
 			return v;

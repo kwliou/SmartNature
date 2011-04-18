@@ -23,8 +23,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	EditView editView;
 	Plot plot, oldPlot;
 	Bundle extras;
-	
-	ZoomControls zoom;
+	ZoomControls zoomControls;
 	
 	boolean footerShown;
 	/** false if activity has been previously started */
@@ -52,13 +51,13 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			loadPlot();
 		
 		if (firstInit) { 
-			oldPlot = firstInit ? new Plot(plot) : mockGarden.getPlot(mockGarden.size() - 1);
+			oldPlot = new Plot(plot);
 			mockGarden.addPlot(oldPlot);
 		} else
 			oldPlot = mockGarden.getPlot(mockGarden.size() - 1);
 		
-		setContentView(R.layout.edit_plot);
 		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+		setContentView(R.layout.edit_plot);
 		editView = (EditView) findViewById(R.id.edit_view);
 		
 		if (firstInit) {
@@ -67,13 +66,6 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			editView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
 			editView.onAnimationEnd();
 		}
-		
-		zoom = (ZoomControls) findViewById(R.id.edit_zoom_controls);
-		zoom.setOnZoomInClickListener(zoomIn);
-		zoom.setOnZoomOutClickListener(zoomOut);
-		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
-		if (zoomAutoHidden)
-			zoom.setVisibility(View.GONE);
 		
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
@@ -84,6 +76,13 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		
 		findViewById(R.id.save_btn).setOnClickListener(this);
 		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
+		
+		zoomControls = (ZoomControls) findViewById(R.id.edit_zoom_controls);
+		zoomControls.setOnZoomInClickListener(zoomIn);
+		zoomControls.setOnZoomOutClickListener(zoomOut);
+		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
+		if (zoomAutoHidden)
+			zoomControls.setVisibility(View.GONE);
 		
 		editView.invalidate();
 	}
@@ -255,18 +254,18 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	};
 	
 	public void handleZoom() {
-		zoom.removeCallbacks(autoHide);
-		if (!zoom.isShown())
-			zoom.show();
-		zoom.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
+		zoomControls.removeCallbacks(autoHide);
+		if (!zoomControls.isShown())
+			zoomControls.show();
+		zoomControls.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
 	}
 	
 	Runnable autoHide = new Runnable() {
 		@Override
 		public void run() {
-			if (zoom.isShown()) {
-				zoom.removeCallbacks(this);
-				zoom.hide();
+			if (zoomControls.isShown()) {
+				zoomControls.removeCallbacks(this);
+				zoomControls.hide();
 			}
 		}
 	};

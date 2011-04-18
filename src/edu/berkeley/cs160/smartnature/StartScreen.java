@@ -70,7 +70,7 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 			gardens.add(g1);
 			gardens.add(g2);
 		}
-		adapter = new GardenAdapter(this, R.layout.list_item, gardens);
+		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
 		setListAdapter(adapter);
 	}
 
@@ -126,12 +126,12 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 			li = ((ListActivity) context).getLayoutInflater();
 			this.items = items;
 		}
-
+		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View v = convertView;
 			if (v == null)
-				v = li.inflate(R.layout.list_item, null);
+				v = li.inflate(R.layout.garden_list_item, null);
 			Garden g = items.get(position);
 			((TextView) v.findViewById(R.id.garden_name)).setText(g.getName());
 			((ImageView) v.findViewById(R.id.preview_img)).setImageResource(g.getPreviewId());

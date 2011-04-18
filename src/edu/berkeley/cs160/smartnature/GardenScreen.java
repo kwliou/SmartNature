@@ -27,7 +27,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	GardenView gardenView;
 	View textEntryView;
 	AlertDialog dialog;
-	ZoomControls zoom;
+	ZoomControls zoomControls;
 	
 	
 	/** User-related options */
@@ -55,12 +55,6 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
 		
-		zoom = (ZoomControls) findViewById(R.id.zoom_controls);
-		zoomAutoHidden = getSharedPreferences("global", MODE_PRIVATE).getBoolean("zoom_autohide", false);
-		if (zoomAutoHidden)
-			zoom.setVisibility(View.GONE);
-		zoom.setOnZoomInClickListener(zoomIn);
-		zoom.setOnZoomOutClickListener(zoomOut);
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
@@ -69,6 +63,12 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		
 		findViewById(R.id.addplot_btn).setOnClickListener(this);
 		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
+		zoomControls = (ZoomControls) findViewById(R.id.zoom_controls);
+		zoomAutoHidden = getSharedPreferences("global", MODE_PRIVATE).getBoolean("zoom_autohide", false);
+		if (zoomAutoHidden)
+			zoomControls.setVisibility(View.GONE);
+		zoomControls.setOnZoomInClickListener(zoomIn);
+		zoomControls.setOnZoomOutClickListener(zoomOut);
 	}
 	
 	@Override
@@ -203,7 +203,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 				gardenView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
 				gardenView.onAnimationEnd();
 				if (zoomAutoHidden)
-					zoom.setVisibility(View.GONE); // Android bug?
+					zoomControls.setVisibility(View.GONE); // Android bug?
 			}
 		}
 	}
@@ -267,19 +267,19 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	
 	public void handleZoom() {
 		if (zoomAutoHidden) {
-			zoom.removeCallbacks(autoHide);
-			if (!zoom.isShown())
-				zoom.show();
-			zoom.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
+			zoomControls.removeCallbacks(autoHide);
+			if (!zoomControls.isShown())
+				zoomControls.show();
+			zoomControls.postDelayed(autoHide, getResources().getInteger(R.integer.hidezoom_delay));
 		}
 	}
 	
 	Runnable autoHide = new Runnable() {
 		@Override
 		public void run() {
-			if (zoom.isShown()) {
-				zoom.removeCallbacks(this);
-				zoom.hide();
+			if (zoomControls.isShown()) {
+				zoomControls.removeCallbacks(this);
+				zoomControls.hide();
 			}
 		}
 	};

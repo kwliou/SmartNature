@@ -77,7 +77,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		resizePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		resizePaint.setColor(Color.DKGRAY);
 		resizePaint.setStrokeCap(Paint.Cap.ROUND);
-		resizePaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_pixel));
+		resizePaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 		resizePaint.setStyle(Paint.Style.STROKE);
 		
 		arrowPaint = new Paint(resizePaint);
@@ -139,7 +139,6 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		
 		if (context.showLabels)
 			drawLabels(canvas);
-		
 	}
 	
 	public void drawPlots(Canvas canvas) {
@@ -176,11 +175,10 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		canvas.drawRect(resizeBox, resizePaint);
 		
 		Path arrows = new Path();
-		
 		float arrowOffset = 5;
 		float rarrowOffset = boxSize - 5;
-		float pt1 = 5 * zoomClamp * zoomClamp;
-		float pt2 = 2 * zoomClamp * zoomClamp;
+		float pt1 = 5 * zoomClamp * (zoomClamp == 1 ? 1 : 1.5f);
+		float pt2 = pt1 / 2.5f;
 		float pt3 = pt1 - pt2;
 		resizeArrow.reset();
 		resizeArrow.moveTo(arrowOffset, arrowOffset);
@@ -272,7 +270,6 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		rot.setRotate(-editPlot.getAngle(), shapeMid[0], shapeMid[1]);
 		rot.mapPoints(rxy); // transformed coordinates with plot's rotation 
 		resizeBox.inset(-5, -5);
-		
 		if (resizeBox.contains(rxy[0], rxy[1])) {
 			mode = RESIZE_SHAPE;
 			// set active resize appearance

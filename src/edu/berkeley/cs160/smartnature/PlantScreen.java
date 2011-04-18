@@ -23,8 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class PlantScreen extends ListActivity implements View.OnTouchListener,
-		View.OnClickListener, AdapterView.OnItemClickListener {
+public class PlantScreen extends ListActivity implements View.OnClickListener, View.OnTouchListener, AdapterView.OnItemClickListener {
 
 	AlertDialog dialog;
 
@@ -95,7 +94,7 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener,
 
 	public void initMockData() {
 
-		adapter = new EntryAdapter(this, R.layout.list_item,
+		adapter = new EntryAdapter(this, R.layout.journal_list_item,
 				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries());
 		setListAdapter(adapter);
 	}
@@ -136,7 +135,7 @@ public class PlantScreen extends ListActivity implements View.OnTouchListener,
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View v = convertView;
 			if (v == null)
-				v = li.inflate(R.layout.entry_list, null);
+				v = li.inflate(R.layout.journal_list_item, null);
 			Entry e = items.get(position);
 			((TextView) v.findViewById(R.id.entry_name)).setText(e.getName());
 			((TextView) v.findViewById(R.id.entry_date)).setText(e.getDate());
