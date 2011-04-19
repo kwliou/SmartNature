@@ -12,7 +12,7 @@ import android.graphics.drawable.shapes.*;
 
 public class Plot {
 	
-	static final int RECT = 0, OVAL = 1, POLY = 2;
+	static final int RECT = 1, OVAL = 2, POLY = 3;
 	private String name;
 	private ShapeDrawable shape;
 	private int type;
@@ -154,6 +154,19 @@ public class Plot {
 		}
 		
 		return bounds;	
+	}
+	
+	public float[] getCenter() {
+		if (type == POLY) {
+			float centerX = 0, centerY = 0;
+			for (int i = 0; i < polyPoints.length; i += 2) {
+				centerX += polyPoints[i];
+				centerY += polyPoints[i + 1];
+			}
+			return new float[] { centerX * 2/polyPoints.length, centerY * 2/polyPoints.length };
+		}
+		
+		return new float[] { getBounds().centerX(), getBounds().centerY() };
 	}
 	
 	public Rect getBounds() { return shape.getBounds(); }

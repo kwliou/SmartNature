@@ -1,5 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -28,6 +30,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	Matrix bgDragMatrix = new Matrix();
 	/** coordinates of shape after transformation */ 
 	float[] shapeMid = new float[2], shapeTop = new float[2];
+	ArrayList<Float> polyPts = new ArrayList<Float>();
 	Drawable bg;
 	RectF resizeBox = new RectF();
 	Path resizeArrow = new Path();
@@ -38,7 +41,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	boolean portraitMode;
 	int tempColor, focPlotColor;
 	
-	private final static int IDLE = 0, DRAG_SCREEN = 1, DRAG_SHAPE = 2, ROTATE_SHAPE = 3, RESIZE_SHAPE = 4;
+	private final static int IDLE = 0, DRAG_SCREEN = 1, DRAG_SHAPE = 2, ROTATE_SHAPE = 3, RESIZE_SHAPE = 4, DRAW_POLY = 5;
 	private int mode;
 	
 	public EditView(Context context, AttributeSet attrs) {
@@ -132,10 +135,14 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		drawPlots(canvas);
 		canvas.restore();
 		
-		canvas.save();
-		drawResizeBox(canvas);
-		drawRotate(canvas);
-		canvas.restore();
+		if (context.createPoly) 
+			drawPoly(canvas);
+		else {
+			canvas.save();
+			drawResizeBox(canvas);
+			drawRotate(canvas);
+			canvas.restore();
+		}
 		
 		if (context.showLabels)
 			drawLabels(canvas);
@@ -163,13 +170,30 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		}
 	}
 	
+	public void drawPoly(Canvas canvas) {
+		canvas.save();
+		canvas.concat(m);
+		Float[] pts = new Float[polyPts.size()];
+		polyPts.toArray(pts);
+		for (int i = 0; i < pts.length; i += 2) {
+			//canvas.drawPoint(pts[i], pts[i+1], arrowPaint);
+			//canvas.drawCircle(pts[i], pts[i+1], (i+1)/2f, arrowPaint);
+			canvas.drawCircle(pts[i], pts[i+1], 4, arrowPaint);
+		}
+		if (pts.length >= 4)
+			for (int i = 0; i < pts.length - 2; i += 2) {
+				canvas.drawLine(pts[i], pts[i+1], pts[i+2], pts[i+3], boundPaint);
+			}
+		canvas.restore();
+	}
+	
 	public void drawResizeBox(Canvas canvas) {
 		Rect shapeBounds = editPlot.getBounds();
 		float boxSize = zoomClamp * getResources().getDimension(R.dimen.resizebox_min);
 		float[] boxCorner = { shapeBounds.right, portraitMode ? shapeBounds.top : shapeBounds.bottom };
 		
 		m.mapPoints(boxCorner);
-		resizeBox.set(boxCorner[0] - boxSize, boxCorner[1] - boxSize, boxCorner[0], boxCorner[1]);
+			resizeBox.set(boxCorner[0] - boxSize, boxCorner[1] - boxSize, boxCorner[0], boxCorner[1]);
 		canvas.rotate(editPlot.getAngle(), shapeMid[0], shapeMid[1]);
 		canvas.drawRect(resizeBox, whitePaint);
 		canvas.drawRect(resizeBox, resizePaint);
@@ -262,6 +286,48 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	}
 	
 	public void handleDown() {
+		
+		if (context.createPoly) {
+			float[] xy = { x, y };
+			Matrix inverse = new Matrix();
+			m.invert(inverse);
+			inverse.mapPoints(xy);
+			
+			polyPts.add(xy[0]);
+			polyPts.add(xy[1]);
+			
+			float centerX = 0, centerY = 0;
+			for (int i = 0; i < polyPts.size(); i += 2) {
+				centerX += polyPts.get(i);
+				centerY += polyPts.get(i + 1);
+			}
+			centerX /= polyPts.size()/2;
+			centerY /= polyPts.size()/2;
+			ArrayList<Float> polyPts2 = new ArrayList<Float>();
+			//polyPts.removeAll(polyPts);
+			for (int j = 0; j < polyPts.size(); j += 2) {
+				double thisAngle = Math.atan2(polyPts.get(j) - centerX, polyPts.get(j+1) - centerY); //Math.atan2(xy[0] - centerX, xy[1] - centerY);
+				int i;
+				for (i = 0; i < polyPts2.size(); i += 2) {
+					double angle = Math.atan2(polyPts2.get(i) - centerX, polyPts2.get(i+1) - centerY);
+					if (thisAngle < angle) { // >
+						polyPts2.add(i, polyPts.get(j));
+						polyPts2.add(i+1, polyPts.get(j+1));
+						break;
+					}
+				}
+				if (i == polyPts2.size()) {
+					polyPts2.add(polyPts.get(j));
+					polyPts2.add(polyPts.get(j+1));
+				}
+			}
+			polyPts = polyPts2; 
+			//polyPts.add(xy[0]);
+			//polyPts.add(xy[1]);
+			
+			return;
+		}
+		
 		tempColor = editPlot.getPaint().getColor(); // backup data
 		
 		// check if resize box hit

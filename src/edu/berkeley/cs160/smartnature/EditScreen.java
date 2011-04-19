@@ -1,5 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +31,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	/** false if activity has been previously started */
 	boolean firstInit = true;
 	/** User-related options */
+	boolean createPoly;
 	boolean showLabels = true, showFullScreen, zoomAutoHidden;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
@@ -44,6 +47,9 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		extras = getIntent().getExtras();
 		mockGarden = StartScreen.gardens.get(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
+		
+		if (extras.containsKey("type") && extras.getInt("type") == Plot.POLY)
+			createPoly = true;
 		
 		if (firstInit && extras.containsKey("type"))
 			createPlot();
@@ -71,6 +77,9 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		if (hintsOn) {
 			TextView hint = (TextView) findViewById(R.id.edit_hint);
 			hint.setText(R.string.hint_editscreen);
+			if (createPoly)
+				hint.setText(R.string.hint_editpoly); 
+			
 			hint.setVisibility(View.VISIBLE);
 		}
 		
