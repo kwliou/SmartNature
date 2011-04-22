@@ -198,6 +198,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		}
 	}
 	
+	/** draws polygon points when creating a polygon */
 	public void drawPoly(Canvas canvas) {
 		float[] pts = EditScreen.toFloatArray(polyPts);
 		m.mapPoints(pts);
@@ -363,6 +364,8 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 				if (dx * dx + dy * dy < hitRadius * hitRadius) {
 					mode = TOUCH_POINT;
 					focPoint = i;
+					if (focPoint == 0 || focPoint == polyPts.size() - 2)
+						boundPaint.setColor(focPlotColor);
 					break;
 				}
 			}
@@ -391,6 +394,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 				polyPts.remove(focPoint + 1);
 				polyPts.remove(focPoint);
 			}
+			boundPaint.setColor(Color.GRAY);
 			mode = IDLE;
 			focPoint = -1;
 		}
@@ -410,6 +414,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 			// set active resize appearance
 			resizePaint.setColor(focPlotColor);
 			arrowPaint.setColor(focPlotColor);
+			boundPaint.setColor(focPlotColor);
 			return;
 		}
 		
@@ -490,6 +495,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		editPlot.getShape().getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 		int medGray = getResources().getColor(R.color.MEDGRAY);
 		arrowPaint.setColor(medGray);
+		boundPaint.setColor(Color.GRAY);
 		resizePaint.setColor(medGray);
 		rotatePaint.setColor(medGray);
 		//rotatePaint.clearShadowLayer();

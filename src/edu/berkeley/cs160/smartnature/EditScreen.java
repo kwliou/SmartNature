@@ -13,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ZoomControls;
@@ -216,12 +215,14 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
+		/*
 		if (firstInit && !footerShown) {
 			footerShown = true;
 			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.edit_footer).getHeight(), 0);
 			anim.setDuration(getResources().getInteger(R.integer.footer_duration));
 			findViewById(R.id.edit_footer).startAnimation(anim);
 		}
+		*/
 	}
 	
 	@Override

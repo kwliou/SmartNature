@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<color name="MEDGRAY">#666666</color>
-	<color name="focused_plot">#7BB518</color>
+	<color name="focused_plot">#FF9000</color>
 </resources>
