@@ -34,6 +34,7 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 	AlertDialog dialog;
 	
 	static PlantAdapter adapter;
+	Plant p;
 	int gardenID, plotID; 
 	
 	@Override
@@ -150,16 +151,44 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			View v = convertView;
 			if (v == null)
 				v = li.inflate(R.layout.plant_list_item, null);
-			Plant p = items.get(position);
+			p = items.get(position);
 			((TextView) v.findViewById(R.id.plant_name)).setText(p.getName());
+			
+			((Button) v.findViewById(R.id.lookup_plant)).setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+  				Intent intent = new Intent(PlotScreen.this, Encyclopedia.class);
+  				Bundle bundle = new Bundle(1);
+  				bundle.putString("name", p.getName());
+
+  				
+  				intent.putExtras(bundle);
+  				startActivity(intent);
+        }
+    });
+			((Button) v.findViewById(R.id.add_journal)).setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+      		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
+      		Bundle bundle = new Bundle(4);
+      		bundle.putString("name", StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(position).getName());
+      		bundle.putInt("gardenID", gardenID);
+      		bundle.putInt("plotID", plotID);
+      		bundle.putInt("plantID", position);
+      		
+      		intent.putExtras(bundle);
+      		startActivity(intent);
+        }
+    });
+    
+			
 			return v;
 		}
+		
 	}
-
+	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
@@ -172,5 +201,5 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		intent.putExtras(bundle);
 		startActivity(intent);
 	}
-	
+		
 }
