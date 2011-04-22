@@ -29,25 +29,6 @@ public class Plot {
 		set(src);
 	}
 	
-	/*Plot(String plotName, int shapeType) {
-		name = plotName;
-		type = shapeType;
-		Shape s;
-		switch (type) {
-			case POLY:
-				s = new PathShape(new Path(), 1, 1);
-				break;
-			case OVAL:
-				s = new OvalShape();
-				break;
-			default:
-				s = new RectShape();
-				break;
-		}
-		shape = new ShapeDrawable(s);
-		shape.setBounds(0, 0, 0, 0);
-	}*/
-	
 	Plot(String plotName, Rect bounds, int shapeType) {
 		this(plotName, bounds, 0, shapeType);
 	}

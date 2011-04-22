@@ -183,8 +183,7 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	public void onBackPressed() {
 		if (createPoly) {
 			float[] pts = toFloatArray(editView.polyPts);
-			Plot newPlot = new Plot(plot.getName(), pts); 
-			plot.set(newPlot);
+			plot.set(new Plot(plot.getName(), pts));
 			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 			oldPlot.set(plot);
 			((Button)findViewById(R.id.save_btn)).setText(R.string.btn_save_edit);

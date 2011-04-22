@@ -210,7 +210,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		if (focPoint != -1 && len >= 4) {
 			if (focPoint <= len - 4)
 				canvas.drawLine(pts[focPoint], pts[focPoint+1], pts[focPoint+2], pts[focPoint+3], focPolyPaint);		
-			if (focPoint > 2)
+			if (focPoint >= 2)
 				canvas.drawLine(pts[focPoint-2], pts[focPoint-1], pts[focPoint], pts[focPoint+1], focPolyPaint);
 		}
 		

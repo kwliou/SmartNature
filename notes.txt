@@ -9,11 +9,10 @@ GardensUsers user_id:int garden_id:int
 New ideas:
 show the actual angle number somewhere when rotating plot
 show the actual dimensions somewhere when resizing plot
-maybe have bottom bar on garden screen with add plot, etc.
 show a shadow of old copy of plot when editing current copy
 
 TODO:
-adding, resizing polygon
+resizing polygons, going back into edit point mode?
 parsing encyclopedia(s)
 not using more than one encyclopedia source (maybe add options?)
 sharing gardens
@@ -25,7 +24,6 @@ add alternate plot list view for gardens
 Current issues:
 what do when a plot completely overlaps another? introduce z-index?
 dotted circle might be obscured in edit mode
-button bar might obscure plot after "reset zoom"
 
 "Main"/home screen
 - start a new garden (Button)
