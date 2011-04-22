@@ -40,7 +40,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	EditText entryText;
 	ImageView addImage;
 	TextView plantTextView, plantHint;
-	Button addEntryButton, backButton;
+	Button addEntryButton, deleteEntryButton;
 
 
 	@Override
@@ -54,7 +54,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			gardenID = extras.getInt("gardenID");
 			plotID = extras.getInt("plotID");
 			plantID = extras.getInt("plantID");
-			setTitle(name);
+			setTitle("Plant Screen");
 		} else {
 			showDialog(0);
 		}
@@ -157,9 +157,17 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			View v = convertView;
 			if (v == null)
 				v = li.inflate(R.layout.journal_list_item, null);
-			Entry e = items.get(position);
+			final Entry e = items.get(position);
 			((TextView) v.findViewById(R.id.entry_name)).setText(e.getName());
 			((TextView) v.findViewById(R.id.entry_date)).setText(e.getDate());
+			
+			((Button) v.findViewById(R.id.delete_journal)).setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+        	remove(e);
+        }
+			});
+			
+			
 			return v;
 		}
 	}

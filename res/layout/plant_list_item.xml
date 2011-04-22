@@ -1,40 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+
+<LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="horizontal"
-	android:id="@+id/plant_layout"
 	android:padding="5dp"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+
 
 	<TextView
 		android:id="@+id/plant_name"
 		android:ellipsize="marquee"
 		android:textSize="24sp"
+		android:text="sample"
 		android:layout_alignParentLeft="true"
 		android:layout_centerInParent="true"
 		android:layout_marginLeft="10dp"
-		android:layout_toLeftOf="@+id/add_journal"
-		android:layout_width="wrap_content"
+		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" 
 		/>
+	<RelativeLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal"
+		android:id="@+id/plant_layout"
+		android:padding="5dp"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		<Button
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:layout_toLeftOf="@+id/lookup_plant"
+			android:id="@+id/add_journal"
+			android:text="Add Entry" 
+			/>
+		<Button
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_toLeftOf="@+id/delete_plant"
+			android:layout_centerInParent="true"
+			android:id="@+id/lookup_plant"
+			android:text="Search Plant" 
+			/>
+		<Button
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:layout_alignParentRight="true"
+			android:id="@+id/delete_plant"
+			android:text="Delete" 
+			/>
+	</RelativeLayout>
 
-	<Button
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_centerInParent="true"
-		android:layout_toLeftOf="@+id/lookup_plant"
-		android:id="@+id/add_journal"
-		android:text="Add Entry" 
-		/>
-	<Button
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentRight="true"
-		android:layout_centerInParent="true"
-		android:id="@+id/lookup_plant"
-		android:text="Search Plant" 
-		/>
-
-</RelativeLayout>
+</LinearLayout>

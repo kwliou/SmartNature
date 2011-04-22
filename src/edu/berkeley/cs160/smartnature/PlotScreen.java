@@ -27,9 +27,9 @@ import android.widget.TextView;
 
 public class PlotScreen extends ListActivity implements View.OnTouchListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
-	static ArrayList<Plant> plants = new ArrayList<Plant>();
 	TextView text, plotTitle;
 	ListView plantListView;
+	EditText plantName;
 	Button addPlantButton, backButton;
 	AlertDialog dialog;
 	
@@ -44,7 +44,7 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
-			setTitle(extras.getString("name"));
+			setTitle("Plot Screen");
 			gardenID = extras.getInt("garden_id");
 			plotID = extras.getInt("plot_id");
 		} else {
@@ -58,11 +58,16 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		plotTitle = (TextView) findViewById(R.id.plotTextView);
 		plotTitle.setText(extras.getString("name"));
 		addPlantButton = (Button) findViewById(R.id.addPlantButton);
+		plantName = (EditText) findViewById(R.id.new_plant_name);
+		
 		addPlantButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-  				showDialog(0);
-        }
+  				//showDialog(0);
+				StartScreen.gardens.get(gardenID).getPlots().get(plotID).addPlant( new Plant(plantName.getText().toString()) );
+				plantName.setText("");
+				adapter.notifyDataSetChanged(); //refresh ListView
+			}
     });
 		/*
 		backButton = (Button) findViewById(R.id.backButton);
@@ -75,8 +80,6 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 	}
 	
 	public void initMockData() {
-		plants.add(new Plant("Carrot"));
-		plants.add(new Plant("Tomato"));
 		adapter = new PlantAdapter(this, R.layout.plant_list_item, StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants());
 		setListAdapter(adapter);
 
@@ -163,7 +166,7 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
   				intent.putExtras(bundle);
   				startActivity(intent);
         }
-    });
+			});
 			((Button) v.findViewById(R.id.add_journal)).setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
       		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
@@ -176,8 +179,12 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
       		intent.putExtras(bundle);
       		startActivity(intent);
         }
-    });
-    
+			});
+			((Button) v.findViewById(R.id.delete_plant)).setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+        	remove(p);
+        }
+			});
 			
 			return v;
 		}
