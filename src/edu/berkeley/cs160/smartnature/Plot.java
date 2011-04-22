@@ -12,12 +12,12 @@ import android.graphics.drawable.shapes.*;
 
 public class Plot {
 	
-	static final int RECT = 0, OVAL = 1, POLY = 2;
+	static final int RECT = 1, OVAL = 2, POLY = 3;
 	private String name;
 	private ShapeDrawable shape;
 	private int type;
 	private int color;
-	private float[] polyPoints;
+	private float[] polyPoints = {};
 	/** angle of clockwise rotation in degrees */
 	private float rotation;
 	
@@ -29,14 +29,66 @@ public class Plot {
 		set(src);
 	}
 	
+	/*Plot(String plotName, int shapeType) {
+		name = plotName;
+		type = shapeType;
+		Shape s;
+		switch (type) {
+			case POLY:
+				s = new PathShape(new Path(), 1, 1);
+				break;
+			case OVAL:
+				s = new OvalShape();
+				break;
+			default:
+				s = new RectShape();
+				break;
+		}
+		shape = new ShapeDrawable(s);
+		shape.setBounds(0, 0, 0, 0);
+	}*/
+	
 	Plot(String plotName, Rect bounds, int shapeType) {
 		this(plotName, bounds, 0, shapeType);
 	}
 	
-	
+
 	Plot(String plotName, Rect bounds, float[] points) {
 		this(plotName, bounds, 0, points);
-	}	
+	}
+
+	Plot(String plotName, float[] points) {
+		name = plotName;
+		type = POLY;
+		
+		// compute bounds 
+		RectF boundsF = new RectF(points[0], points[1], points[0], points[1]);
+		for (int i = 2; i < points.length; i += 2) {
+			boundsF.left = Math.min(boundsF.left, points[i]);
+			boundsF.top = Math.min(boundsF.top, points[i + 1]);
+			boundsF.right = Math.max(boundsF.right, points[i]);
+			boundsF.bottom = Math.max(boundsF.bottom, points[i + 1]);
+		}
+		
+		points[0] -= boundsF.left;
+		points[1] -= boundsF.top;
+		Path p = new Path();
+		p.moveTo(points[0], points[1]);
+		for (int i = 2; i < points.length; i += 2) {
+			// translate
+			points[i] -= boundsF.left;
+			points[i + 1] -= boundsF.top;
+			p.lineTo(points[i], points[i + 1]);
+		}
+		p.close();
+		polyPoints = points;
+		Rect bounds = new Rect((int) boundsF.left, (int) boundsF.top, (int) boundsF.right, (int) boundsF.bottom);
+		//boundsF.roundOut(bounds);
+		PathShape pshape = new PathShape(p, bounds.width(), bounds.height());
+		shape = new ShapeDrawable(pshape);
+		shape.setBounds(bounds);
+		initPaint();
+	}
 	
 	/** create a rectangular or elliptical plot */
 	Plot(String plotName, Rect bounds, float angle, int shapeType) {
@@ -45,6 +97,7 @@ public class Plot {
 		rotation = angle;
 		shape = new ShapeDrawable(type == OVAL ? new OvalShape() : new RectShape());
 		shape.setBounds(bounds);
+		initPaint();
 	}
 	
 	/** create a polygonal plot */
@@ -53,7 +106,6 @@ public class Plot {
 		type = POLY;
 		polyPoints = points;
 		rotation = angle;
-		color = 0;
 		Path p = new Path();
 		p.moveTo(points[0], points[1]);
 		for (int i = 2; i < points.length; i += 2)
@@ -62,24 +114,32 @@ public class Plot {
 		PathShape pshape = new PathShape(p, bounds.width(), bounds.height());
 		shape = new ShapeDrawable(pshape);
 		shape.setBounds(bounds);
+		initPaint();
 	}
 	
-	/** copies data from another plot */
+	/** clones data from another plot except for plants */
 	public void set(Plot src) {
 		name = src.getName();
 		type = src.getType();
 		color = src.getColor();
 		rotation = src.getAngle();
 		
-		if (type == POLY) 
+		if (type == POLY)
 			polyPoints = src.getPoints().clone();	
 		
 		try {
 			shape = new ShapeDrawable(src.getShape().getShape().clone());
-		} catch (CloneNotSupportedException e) { }
+		} catch (CloneNotSupportedException e) { e.printStackTrace(); }
 		shape.setBounds(src.getShape().copyBounds());
 		getPaint().set(src.getPaint());
 		plants = src.getPlants();
+	}
+	
+	public void initPaint() {
+		Paint paint = shape.getPaint();
+		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeCap(Paint.Cap.ROUND);
+		paint.setStrokeJoin(Paint.Join.ROUND);
 	}
 	
 	public void addPlant(Plant p) {
@@ -132,6 +192,9 @@ public class Plot {
 	
 	/** bounds of plot taking rotation into account */
 	public RectF getRotateBounds() {
+		if (rotation == 0)
+			return new RectF(shape.getBounds());
+		
 		RectF bounds;
 		Matrix m = new Matrix();
 		m.setRotate(rotation, getBounds().centerX(), getBounds().centerY());
@@ -154,6 +217,19 @@ public class Plot {
 		}
 		
 		return bounds;	
+	}
+	
+	public float[] getCenter() {
+		if (type == POLY) {
+			float centerX = 0, centerY = 0;
+			for (int i = 0; i < polyPoints.length; i += 2) {
+				centerX += polyPoints[i];
+				centerY += polyPoints[i + 1];
+			}
+			return new float[] { centerX * 2/polyPoints.length, centerY * 2/polyPoints.length };
+		}
+		
+		return new float[] { getBounds().centerX(), getBounds().centerY() };
 	}
 	
 	public Rect getBounds() { return shape.getBounds(); }
@@ -179,6 +255,8 @@ public class Plot {
 	public ArrayList<Plant> getPlants() { return plants; }
 	
 	public float[] getPoints() { return polyPoints; }
+	
+	public void setPoints(float[] points) { polyPoints = points; }
 	
 	public ShapeDrawable getShape() { return shape; }
 	

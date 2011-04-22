@@ -48,6 +48,8 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			mockGarden = StartScreen.gardens.get(extras.getInt("id"));
 			gardenID = extras.getInt("id");
 			setTitle(mockGarden.getName());
+			if (savedInstanceState == null) // first init
+				mockGarden.refreshBounds();
 		} else {
 			mockGarden = new Garden();
 			showDialog(NEW_DIALOG);
@@ -61,8 +63,11 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
 		
-		findViewById(R.id.addplot_btn).setOnClickListener(this);
 		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
+		findViewById(R.id.addplot_btn).setOnClickListener(this);
+		findViewById(R.id.garden_footer).getBackground().setAlpha(0x50);
+		findViewById(R.id.addplot_btn).getBackground().setAlpha(0xc0);
+		findViewById(R.id.zoomfit_btn).getBackground().setAlpha(0xc0);
 		zoomControls = (ZoomControls) findViewById(R.id.zoom_controls);
 		zoomAutoHidden = getSharedPreferences("global", MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)

@@ -1,5 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,8 +15,9 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.GestureDetector;
 
-public class EditView extends View implements View.OnClickListener, View.OnTouchListener {
+public class EditView extends View implements View.OnClickListener, View.OnLongClickListener, View.OnTouchListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
 	EditScreen context;
 	Garden garden;
@@ -28,17 +31,23 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	Matrix bgDragMatrix = new Matrix();
 	/** coordinates of shape after transformation */ 
 	float[] shapeMid = new float[2], shapeTop = new float[2];
+	ArrayList<Float> polyPts = new ArrayList<Float>();
+	GestureDetector gestureScanner;
 	Drawable bg;
 	RectF resizeBox = new RectF();
 	Path resizeArrow = new Path();
 	Paint arrowPaint, boundPaint, rotatePaint, resizePaint, textPaint, whitePaint;
+	Paint pointPaint, focPointPaint, lastPointPaint;
 	float prevX, prevY, x, y;
 	float textSize;
 	float zoomClamp = 1, zoomScale = 1;
 	boolean portraitMode;
 	int tempColor, focPlotColor;
+	/** index of focused point */
+	int focPoint = -1;
 	
 	private final static int IDLE = 0, DRAG_SCREEN = 1, DRAG_SHAPE = 2, ROTATE_SHAPE = 3, RESIZE_SHAPE = 4;
+	private final static int TOUCH_POINT = 5, DRAG_POINT = 6;
 	private int mode;
 	
 	public EditView(Context context, AttributeSet attrs) {
@@ -50,7 +59,11 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		initPaint();
 		initMockData();	
 		setOnClickListener(this);
+		setOnLongClickListener(this);
 		setOnTouchListener(this);
+		//GestureOverlayView gestures = (GestureOverlayView) findViewById(R.id.addEntryButton);
+		gestureScanner = new GestureDetector(context, this);
+		//gestureScanner.setOnDoubleTapListener(this);
 	}
 	
 	public void initMockData() {
@@ -75,10 +88,24 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		textPaint.setTextSize(textSize);
 		
 		resizePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		resizePaint.setColor(Color.DKGRAY);
+		int medGray = getResources().getColor(R.color.MEDGRAY);
+		resizePaint.setColor(medGray);
 		resizePaint.setStrokeCap(Paint.Cap.ROUND);
 		resizePaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 		resizePaint.setStyle(Paint.Style.STROKE);
+		
+		pointPaint = new Paint(resizePaint);
+		pointPaint.setColor(Color.DKGRAY);
+		pointPaint.setStrokeWidth(2 * getResources().getDimension(R.dimen.point_radius));
+		
+		lastPointPaint = new Paint(pointPaint);
+		lastPointPaint.setColor(0xff700000);
+		
+		focPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		focPointPaint.setColor(focPlotColor);
+		focPointPaint.setStyle(Paint.Style.STROKE);
+		focPointPaint.setStrokeWidth(getResources().getDimension(R.dimen.point_radius) / 2);
+		focPointPaint.setShadowLayer(2, 0, 0, focPlotColor);
 		
 		arrowPaint = new Paint(resizePaint);
 		arrowPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -132,10 +159,14 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		drawPlots(canvas);
 		canvas.restore();
 		
-		canvas.save();
-		drawResizeBox(canvas);
-		drawRotate(canvas);
-		canvas.restore();
+		if (context.createPoly) 
+			drawPoly(canvas);
+		else {
+			canvas.save();
+			drawResizeBox(canvas);
+			drawRotate(canvas);
+			canvas.restore();
+		}
 		
 		if (context.showLabels)
 			drawLabels(canvas);
@@ -143,24 +174,52 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	
 	public void drawPlots(Canvas canvas) {
 		canvas.concat(m);
-		for (Plot p: garden.getPlots()) {
-			if (p != context.oldPlot) {
-				canvas.save();
-				Rect shapeBounds = p.getBounds();
-				canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
-				// check special case
-				if (p == editPlot) {
-					Paint paint = editPlot.getShape().getPaint();
-					Paint oldPaint = new Paint(paint);
-					canvas.drawRect(shapeBounds, boundPaint); //draw rectangular bounds
-					paint.set(whitePaint);
-					editPlot.getShape().draw(canvas);
-					paint.set(oldPaint);
-				}				
-				p.getShape().draw(canvas);
-				canvas.restore();
+		for (int i = 0; i < garden.size() - (context.createPoly ? 2 : 1); i++) {
+			Plot p = garden.getPlot(i);
+			canvas.save();
+			Rect shapeBounds = p.getBounds();
+			canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
+			// check special case
+			if (p == editPlot) {
+				Paint paint = editPlot.getShape().getPaint();
+				Paint oldPaint = new Paint(paint);
+				canvas.drawRect(shapeBounds, boundPaint); //draw rectangular bounds
+				paint.set(whitePaint);
+				editPlot.getShape().draw(canvas);
+				paint.set(oldPaint);
+			}				
+			p.getShape().draw(canvas);
+			canvas.restore();
+		}
+	}
+	
+	public void drawPoly(Canvas canvas) {
+		canvas.save();
+		canvas.concat(m);
+		Float[] pts = new Float[polyPts.size()];
+		polyPts.toArray(pts);
+		if (pts.length >= 4) {
+			for (int i = 0; i < pts.length - 2; i += 2) {
+				if (i == focPoint - 2 || i == focPoint)
+					canvas.drawLine(pts[i], pts[i+1], pts[i+2], pts[i+3], focPointPaint);
+				else
+					canvas.drawLine(pts[i], pts[i+1], pts[i+2], pts[i+3], resizePaint);
 			}
 		}
+		if (pts.length >= 6)
+			canvas.drawLine(pts[pts.length - 2], pts[pts.length - 1], pts[0], pts[1], boundPaint);
+		
+		for (int i = 0; i < pts.length - 2; i += 2) {
+			//canvas.drawCircle(pts[i], pts[i+1], ptRadius, arrowPaint);
+			canvas.drawPoint(pts[i], pts[i+1], pointPaint);
+		}
+		if (pts.length > 0)
+			canvas.drawPoint(pts[pts.length - 2], pts[pts.length - 1], lastPointPaint);
+		
+		float ptRadius = getResources().getDimension(R.dimen.point_radius);
+		if (focPoint != -1)
+			canvas.drawCircle(polyPts.get(focPoint), polyPts.get(focPoint + 1), ptRadius + 10, focPointPaint);
+		canvas.restore();
 	}
 	
 	public void drawResizeBox(Canvas canvas) {
@@ -169,7 +228,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		float[] boxCorner = { shapeBounds.right, portraitMode ? shapeBounds.top : shapeBounds.bottom };
 		
 		m.mapPoints(boxCorner);
-		resizeBox.set(boxCorner[0] - boxSize, boxCorner[1] - boxSize, boxCorner[0], boxCorner[1]);
+			resizeBox.set(boxCorner[0] - boxSize, boxCorner[1] - boxSize, boxCorner[0], boxCorner[1]);
 		canvas.rotate(editPlot.getAngle(), shapeMid[0], shapeMid[1]);
 		canvas.drawRect(resizeBox, whitePaint);
 		canvas.drawRect(resizeBox, resizePaint);
@@ -205,17 +264,16 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	}
 	
 	public void drawLabels(Canvas canvas) {
-		for (Plot p: garden.getPlots()) {
-			if (p != context.oldPlot) {
-				float[] labelLoc;
-				RectF bounds = p.getRotateBounds();
-				if (portraitMode)
-					labelLoc = new float[] { bounds.left - 10, bounds.centerY() };
-				else
-					labelLoc =  new float[] { bounds.centerX(), bounds.top - 10 };
-				m.mapPoints(labelLoc);
-				canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
-			}
+		for (int i = 0; i < garden.size() - (context.createPoly ? 2 : 1); i++) {
+			Plot p = garden.getPlot(i);
+			float[] labelLoc;
+			RectF bounds = p.getRotateBounds();
+			if (portraitMode)
+				labelLoc = new float[] { bounds.left - 10, bounds.centerY() };
+			else
+				labelLoc =  new float[] { bounds.centerX(), bounds.top - 10 };
+			m.mapPoints(labelLoc);
+			canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 		}
 	}
 	public RectF getBounds() {
@@ -238,13 +296,31 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	public void onClick(View view) {
 	}
 	
+
+	@Override
+	public boolean onLongClick(View view) {
+		System.out.println("LONG CLICK");
+		if (context.createPoly && mode != DRAG_POINT && focPoint != -1) {
+			polyPts.remove(focPoint + 1);
+			polyPts.remove(focPoint);
+			mode = IDLE;
+			focPoint = -1;
+			return true;
+		}
+		
+		return false;
+	}
+	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
+		gestureScanner.onTouchEvent(event);
 		onTouchEvent(event);
 		context.handleZoom();
 		x = event.getX();
 		y = event.getY();
-		switch (event.getAction()) {
+		if (context.createPoly)
+			handlePoly(event);
+		else switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				handleDown();
 				break;
@@ -259,6 +335,56 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		prevY = y;
 		invalidate();
 		return true;
+	}
+	
+	float downX, downY;
+	
+	public void handlePoly(MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN && mode != DRAG_POINT) { // so that created point won't respond to long click 
+			System.out.println("ACTION DOWN");
+			downX = x;
+			downY = y;
+			float[] xy = { x, y };
+			Matrix inverse = new Matrix();
+			m.invert(inverse);
+			inverse.mapPoints(xy);
+			
+			float hitRadius = 2 * getResources().getDimension(R.dimen.point_radius);
+			for (int i = 0; i < polyPts.size(); i += 2) {
+				float dx = xy[0] - polyPts.get(i);
+				float dy = xy[1] - polyPts.get(i + 1);
+				
+				if (dx * dx + dy * dy < hitRadius * hitRadius) {
+					mode = TOUCH_POINT;
+					focPoint = i;
+					break;
+				}
+			}
+			
+		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			System.out.println("ACTION MOVE");
+			if (mode == TOUCH_POINT && (Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5)) // show some leniency
+				mode = DRAG_POINT;
+			if (mode == TOUCH_POINT || mode == DRAG_POINT) {
+				float[] xy = { x, y };
+				Matrix inverse = new Matrix();
+				m.invert(inverse);
+				inverse.mapPoints(xy);
+				polyPts.set(focPoint, xy[0]);
+				polyPts.set(focPoint + 1, xy[1]);
+				
+				return;
+			}
+			if (mode != DRAG_SCREEN && (Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5)) // show some leniency
+				mode = DRAG_SCREEN;
+			if (mode == DRAG_SCREEN)
+				handleMove();
+			
+		} else if (event.getAction() == MotionEvent.ACTION_UP) {
+			System.out.println("ACTION UP");
+			mode = IDLE;
+			focPoint = -1;
+		}
 	}
 	
 	public void handleDown() {
@@ -309,6 +435,7 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 	
 	public void handleMove() {
 		float[] dxy = { prevX, prevY, x, y };
+		
 		if (mode == DRAG_SCREEN) {
 			float dx = dxy[2] - dxy[0], dy = dxy[3] - dxy[1];
 			dragMatrix.postTranslate(dx / zoomScale, dy / zoomScale);
@@ -352,10 +479,49 @@ public class EditView extends View implements View.OnClickListener, View.OnTouch
 		mode = IDLE;
 		editPlot.getShape().getPaint().setColor(tempColor);
 		editPlot.getShape().getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
-		arrowPaint.setColor(Color.DKGRAY);
-		resizePaint.setColor(Color.DKGRAY);
-		rotatePaint.setColor(Color.DKGRAY);
+		int medGray = getResources().getColor(R.color.MEDGRAY);
+		arrowPaint.setColor(medGray);
+		resizePaint.setColor(medGray);
+		rotatePaint.setColor(medGray);
 		//rotatePaint.clearShadowLayer();
+	}
+
+	@Override public boolean onDoubleTap(MotionEvent e) {
+		System.out.println("DOUBLE TAP");
+		if (context.createPoly) {
+			float[] xy = { e.getX(), e.getY() };
+			Matrix inverse = new Matrix();
+			m.invert(inverse);
+			inverse.mapPoints(xy);
+			polyPts.add(xy[0]);
+			polyPts.add(xy[1]);
+		}
+		
+		focPoint = polyPts.size() - 2;
+		mode = DRAG_POINT;
+		return false;
+	}
+
+	@Override public boolean onDoubleTapEvent(MotionEvent e) { return false; }
+
+	@Override public boolean onSingleTapConfirmed(MotionEvent e) {
+		System.out.println("SINGLE CONFIRMED");
+		return false;
+	}
+
+	@Override public boolean onDown(MotionEvent e) { return false; }
+
+	@Override public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) { return false; }
+
+	@Override public void onLongPress(MotionEvent e) { }
+
+	@Override public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
+
+	@Override public void onShowPress(MotionEvent e) { }
+
+	@Override public boolean onSingleTapUp(MotionEvent e) {
+		System.out.println("SINGLE TAP UP");
+		return false;
 	}
 	
 }

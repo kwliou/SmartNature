@@ -24,10 +24,10 @@ public class DatabaseHelper {
 	private static final String TABLE_NAME_MAP_GP = "map_garden_plot";
 	private static final String TABLE_NAME_MAP_PP = "map_plot_plant";
 	private static final String TABLE_NAME_MAP_PE = "map_plant_entry";
-	private static final String INSERT_GARDEN = "insert into " + TABLE_NAME_GARDEN + " (g_pk, name, previewId, plots, bounds) values (NULL, ?, ?, ?, ?)";
-	private static final String INSERT_PLOT = "insert into " + TABLE_NAME_PLOT + " (po_pk, name, shape, type, color, polyPoints, rotation, id, plants) values (NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
-	private static final String INSERT_PLANT = "insert into " + TABLE_NAME_PLANT + " (pa_pk, name, id, entries) values (NULL, ?, ?, ?)";
-	private static final String INSERT_ENTRY = "insert into " + TABLE_NAME_ENTRY + " (name, date) values (?, ?)";
+	private static final String INSERT_GARDEN = "insert into " + TABLE_NAME_GARDEN + " (g_pk, name, previewId, bounds) values (NULL, ?, ?, ?)";
+	private static final String INSERT_PLOT = "insert into " + TABLE_NAME_PLOT + " (po_pk, name, shape, type, color, polyPoints, rotation, id) values (NULL, ?, ?, ?, ?, ?, ?, ?)";
+	private static final String INSERT_PLANT = "insert into " + TABLE_NAME_PLANT + " (pa_pk, name, id) values (NULL, ?, ?)";
+	private static final String INSERT_ENTRY = "insert into " + TABLE_NAME_ENTRY + " (e_pk, name, date) values (NULL, ?, ?)";
 	private static final String INSERT_MAP_GP = "insert into " + TABLE_NAME_MAP_GP + " (g_map, po_map) values (?, ?)";
 	private static final String INSERT_MAP_PP = "insert into " + TABLE_NAME_MAP_PP + " (po_map, pa_map) values (?, ?)";
 	private static final String INSERT_MAP_PE = "insert into " + TABLE_NAME_MAP_PE + " (pa_map, e_map) values (?, ?)";
@@ -50,20 +50,18 @@ public class DatabaseHelper {
 		this.insertStmt_map_pe = this.db.compileStatement(INSERT_MAP_PE);
 	}
 
-	public long insert_garden(String name, int previewId, String plots, String bounds) {
+	public long insert_garden(String name, int previewId, String bounds) {
 		this.insertStmt_garden.clearBindings();
 		this.insertStmt_garden.bindString(1, name);
 		this.insertStmt_garden.bindLong(2, (long) previewId);
-		this.insertStmt_garden.bindString(3, plots);
-		this.insertStmt_garden.bindString(4, bounds);
+		this.insertStmt_garden.bindString(3, bounds);
 		return this.insertStmt_garden.executeInsert();
 	}
 
-	public long update_garden(int g_pk, String name, int previewId, String plots, String bounds) {
+	public long update_garden(int g_pk, String name, int previewId, String bounds) {
 		ContentValues cv = new ContentValues();
 		cv.put("name", name);
 		cv.put("previewId", previewId);
-		cv.put("plots", plots);
 		cv.put("bounds", bounds);
 		String selection = "g_pk = ?";
 		return db.update(TABLE_NAME_GARDEN, cv, selection, new String[] {Integer.toString(g_pk)});
@@ -85,9 +83,8 @@ public class DatabaseHelper {
 		if (cursor.moveToFirst()) {
 			do {
 				temp = new Garden(Integer.parseInt(cursor.getString(cursor.getColumnIndex("previewId"))), cursor.getString(cursor.getColumnIndex("name")));
-				//String[] plots = cursor.getString(cursor.getColumnIndex("plots")).split(",");
 				String[] bound_s = cursor.getString(cursor.getColumnIndex("bounds")).split(",");
-				RectF bound_rf = new RectF(Integer.parseInt(bound_s[0]), Integer.parseInt(bound_s[1]), Integer.parseInt(bound_s[2]), Integer.parseInt(bound_s[3]));
+				RectF bound_rf = new RectF(Integer.parseInt(bound_s[0].trim()), Integer.parseInt(bound_s[1].trim()), Integer.parseInt(bound_s[2].trim()), Integer.parseInt(bound_s[3].trim()));
 				temp.setRawBounds(bound_rf);
 			} while (cursor.moveToNext());
 		}
@@ -109,7 +106,7 @@ public class DatabaseHelper {
 		return list;
 	}
 
-	public long insert_plot(String name, String shape, int type, int color, String polyPoints, float rotation, int id, String plants) {
+	public long insert_plot(String name, String shape, int type, int color, String polyPoints, float rotation, int id) {
 		this.insertStmt_plot.clearBindings();
 		this.insertStmt_plot.bindString(1, name);
 		this.insertStmt_plot.bindString(2, shape);
@@ -118,7 +115,6 @@ public class DatabaseHelper {
 		this.insertStmt_plot.bindString(5, polyPoints);
 		this.insertStmt_plot.bindDouble(6, (double) rotation);
 		this.insertStmt_plot.bindLong(7, (long) id);
-		this.insertStmt_plot.bindString(8, plants);
 		return this.insertStmt_plot.executeInsert();
 	}
 
@@ -131,16 +127,15 @@ public class DatabaseHelper {
 				String[] shape_s = cursor.getString(cursor.getColumnIndex("shape")).split(",");
 				Rect bound_r = new Rect(Integer.parseInt(shape_s[0]), Integer.parseInt(shape_s[1]), Integer.parseInt(shape_s[2]), Integer.parseInt(shape_s[3]));
 				int color = Integer.parseInt(shape_s[4]);
-				if(cursor.getColumnIndex("type") == 0 || cursor.getColumnIndex("type") == 1)
+				if(cursor.getInt(cursor.getColumnIndex("type")) == 0 || cursor.getInt(cursor.getColumnIndex("type")) == 1)
 					temp = new Plot(cursor.getString(cursor.getColumnIndex("name")), bound_r, cursor.getFloat(cursor.getColumnIndex("rotation")), cursor.getInt(cursor.getColumnIndex("type")));
 				else {
 					String[] polyPoints_s = cursor.getString(cursor.getColumnIndex("polyPoints")).split(",");
 					float[] polyPoints_f = new float[polyPoints_s.length];
 					for(int i = 0; i < polyPoints_f.length; i++)
-						polyPoints_f[i] = Float.valueOf(polyPoints_s[i].trim()).floatValue();
+						polyPoints_f[i] = Float.valueOf(polyPoints_s[i].trim());
 					temp = new Plot(cursor.getString(cursor.getColumnIndex("name")), bound_r, cursor.getFloat(cursor.getColumnIndex("rotation")), polyPoints_f);
 				}
-				//String[] plants = cursor.getString(cursor.getColumnIndex("plants")).split(",");
 				temp.setColor(cursor.getInt(cursor.getColumnIndex("color")));
 				temp.getPaint().setColor(color);
 			} while (cursor.moveToNext());
@@ -150,11 +145,10 @@ public class DatabaseHelper {
 		return temp;
 	}
 
-	public long insert_plant(String name, int id, String entries) {
+	public long insert_plant(String name, int id) {
 		this.insertStmt_plant.clearBindings();
 		this.insertStmt_plant.bindString(1, name);
 		this.insertStmt_plant.bindLong(2, (long)id);
-		this.insertStmt_plant.bindString(3, entries);
 		return this.insertStmt_plant.executeInsert();
 	}
 
@@ -165,7 +159,6 @@ public class DatabaseHelper {
 		if (cursor.moveToFirst()) {
 			do {
 				temp = new Plant(cursor.getString(cursor.getColumnIndex("name")));
-				//String[] plants = cursor.getString(cursor.getColumnIndex("plants")).split(",");
 				temp.setID(cursor.getInt(cursor.getColumnIndex("id")));
 			} while (cursor.moveToNext());
 		}
@@ -265,13 +258,13 @@ public class DatabaseHelper {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + TABLE_NAME_GARDEN + " (g_pk INT PRIMARY KEY, name TEXT, previewId INT, plots TEXT, bounds TEXT)");
-			db.execSQL("CREATE TABLE " + TABLE_NAME_PLOT + " (po_pk INT PRIMARY KEY, name TEXT, shape TEXT, type INT, color INT, polyPoints TEXT, rotation REAL, id INT, plants TEXT)");
-			db.execSQL("CREATE TABLE " + TABLE_NAME_PLANT + " (pa_pk INT PRIMARY KEY, name TEXT, id INT, entries TEXT)");
+			db.execSQL("CREATE TABLE " + TABLE_NAME_GARDEN + " (g_pk INT PRIMARY KEY, name TEXT, previewId INT, bounds TEXT)");
+			db.execSQL("CREATE TABLE " + TABLE_NAME_PLOT + " (po_pk INT PRIMARY KEY, name TEXT, shape TEXT, type INT, color INT, polyPoints TEXT, rotation REAL, id INT)");
+			db.execSQL("CREATE TABLE " + TABLE_NAME_PLANT + " (pa_pk INT PRIMARY KEY, name TEXT, id INT)");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_ENTRY + " (e_pk INT PRIMARY KEY, name TEXT, date TEXT)");
-			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_GP + " (g_map INT, po_map INT, FOREIGN KEY (g_map) REFERENCES (g_pk), FOREIGN KEY(po_map) REFERENCES (po_pk))");
-			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PP + " (po_map INT, pa_map INT, FOREIGN KEY (po_map) REFERENCES (po_pk), FOREIGN KEY(pa_map) REFERENCES (pa_pk))");
-			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PE + " (pa_map INT, e_map INT, FOREIGN KEY (pa_map) REFERENCES (pa_pk), FOREIGN KEY(e_map) REFERENCES (e_pk))");		
+			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_GP + " (g_map INT, po_map INT, FOREIGN KEY(g_map) REFERENCES garden(g_pk), FOREIGN KEY(po_map) REFERENCES plot(po_pk))");
+			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PP + " (po_map INT, pa_map INT, FOREIGN KEY(po_map) REFERENCES plot(po_pk), FOREIGN KEY(pa_map) REFERENCES plant(pa_pk))");
+			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PE + " (pa_map INT, e_map INT, FOREIGN KEY(pa_map) REFERENCES plant(pa_pk), FOREIGN KEY(e_map) REFERENCES entry(e_pk))");		
 		}
 
 		@Override

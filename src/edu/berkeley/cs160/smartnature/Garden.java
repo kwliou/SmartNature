@@ -26,6 +26,8 @@ public class Garden {
 	}
 	
 	public void addPlot(Plot plot) {
+		// do not immediately refresh bounds to preserve viewport
+		/*
 		RectF pBounds = plot.getRotateBounds();
 		if (plots.isEmpty()) {
 			bounds = new RectF(pBounds);
@@ -36,6 +38,7 @@ public class Garden {
 			bounds.right = Math.max(bounds.right, pBounds.right);
 			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
 		}
+		*/
 		
 		plot.setID(plots.size());
 		plots.add(plot);
