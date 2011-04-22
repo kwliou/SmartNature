@@ -36,8 +36,8 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	Drawable bg;
 	RectF resizeBox = new RectF();
 	Path resizeArrow = new Path();
-	Paint arrowPaint, boundPaint, rotatePaint, resizePaint, textPaint, whitePaint;
-	Paint pointPaint, focPointPaint, lastPointPaint;
+	Paint textPaint, whitePaint, boundPaint, arrowPaint, resizePaint, rotatePaint;
+	Paint polyPaint, pointPaint, focPolyPaint, lastPointPaint;
 	float prevX, prevY, x, y;
 	float textSize;
 	float zoomClamp = 1, zoomScale = 1;
@@ -47,7 +47,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	int focPoint = -1;
 	
 	private final static int IDLE = 0, DRAG_SCREEN = 1, DRAG_SHAPE = 2, ROTATE_SHAPE = 3, RESIZE_SHAPE = 4;
-	private final static int TOUCH_POINT = 5, DRAG_POINT = 6;
+	private final static int TOUCH_POINT = 5, DRAG_POINT = 6, HOLD_POINT = 7;
 	private int mode;
 	
 	public EditView(Context context, AttributeSet attrs) {
@@ -94,18 +94,22 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		resizePaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 		resizePaint.setStyle(Paint.Style.STROKE);
 		
+		polyPaint = new Paint(resizePaint);
+		polyPaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+		
 		pointPaint = new Paint(resizePaint);
 		pointPaint.setColor(Color.DKGRAY);
-		pointPaint.setStrokeWidth(2 * getResources().getDimension(R.dimen.point_radius));
+		pointPaint.setStrokeWidth(zoomClamp * getResources().getDimension(R.dimen.point_size));
 		
 		lastPointPaint = new Paint(pointPaint);
 		lastPointPaint.setColor(0xff700000);
+		lastPointPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 		
-		focPointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		focPointPaint.setColor(focPlotColor);
-		focPointPaint.setStyle(Paint.Style.STROKE);
-		focPointPaint.setStrokeWidth(getResources().getDimension(R.dimen.point_radius) / 2);
-		focPointPaint.setShadowLayer(2, 0, 0, focPlotColor);
+		focPolyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		focPolyPaint.setColor(focPlotColor);
+		focPolyPaint.setStyle(Paint.Style.STROKE);
+		focPolyPaint.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_editactive));//getResources().getDimension(R.dimen.point_size) / 4);
+		//focPolyPaint.setShadowLayer(2, 0, 0, focPlotColor);
 		
 		arrowPaint = new Paint(resizePaint);
 		arrowPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -123,6 +127,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		zoomClamp = zoomScale = 1;
 		textPaint.setTextScaleX(getResources().getDimension(R.dimen.labelxscale_default));
 		textPaint.setTextSize(textSize);
+		pointPaint.setStrokeWidth(getResources().getDimension(R.dimen.point_size));
 		dragMatrix.reset();
 		bgDragMatrix.reset();
 		invalidate();
@@ -194,32 +199,30 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	}
 	
 	public void drawPoly(Canvas canvas) {
-		canvas.save();
-		canvas.concat(m);
-		Float[] pts = new Float[polyPts.size()];
-		polyPts.toArray(pts);
-		if (pts.length >= 4) {
-			for (int i = 0; i < pts.length - 2; i += 2) {
-				if (i == focPoint - 2 || i == focPoint)
-					canvas.drawLine(pts[i], pts[i+1], pts[i+2], pts[i+3], focPointPaint);
-				else
-					canvas.drawLine(pts[i], pts[i+1], pts[i+2], pts[i+3], resizePaint);
-			}
+		float[] pts = EditScreen.toFloatArray(polyPts);
+		m.mapPoints(pts);
+		int len = pts.length;
+		canvas.drawLines(pts, polyPaint);
+		if (len >= 6) {
+			canvas.drawLines(pts, 2, len - 2, polyPaint);
+			canvas.drawLine(pts[len - 2], pts[len - 1], pts[0], pts[1], boundPaint);
 		}
-		if (pts.length >= 6)
-			canvas.drawLine(pts[pts.length - 2], pts[pts.length - 1], pts[0], pts[1], boundPaint);
+		if (focPoint != -1 && len >= 4) {
+			if (focPoint <= len - 4)
+				canvas.drawLine(pts[focPoint], pts[focPoint+1], pts[focPoint+2], pts[focPoint+3], focPolyPaint);		
+			if (focPoint > 2)
+				canvas.drawLine(pts[focPoint-2], pts[focPoint-1], pts[focPoint], pts[focPoint+1], focPolyPaint);
+		}
 		
-		for (int i = 0; i < pts.length - 2; i += 2) {
-			//canvas.drawCircle(pts[i], pts[i+1], ptRadius, arrowPaint);
-			canvas.drawPoint(pts[i], pts[i+1], pointPaint);
-		}
+		canvas.drawPoints(pts, pointPaint);
+		lastPointPaint.setStrokeWidth(pointPaint.getStrokeWidth());
 		if (pts.length > 0)
-			canvas.drawPoint(pts[pts.length - 2], pts[pts.length - 1], lastPointPaint);
+			canvas.drawPoint(pts[len - 2], pts[len - 1], lastPointPaint);
 		
-		float ptRadius = getResources().getDimension(R.dimen.point_radius);
-		if (focPoint != -1)
-			canvas.drawCircle(polyPts.get(focPoint), polyPts.get(focPoint + 1), ptRadius + 10, focPointPaint);
-		canvas.restore();
+		if (focPoint != -1) {
+			float ptRadius = pointPaint.getStrokeWidth() / 2;
+			canvas.drawCircle(pts[focPoint], pts[focPoint + 1], ptRadius + 10, focPolyPaint);
+		}
 	}
 	
 	public void drawResizeBox(Canvas canvas) {
@@ -276,6 +279,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 			canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 		}
 	}
+	
 	public RectF getBounds() {
 		if (portraitMode)
 			return new RectF(getLeft(), getTop(), getBottom(), getRight());
@@ -288,6 +292,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		zoomScale *= (float) Math.pow(getResources().getDimension(R.dimen.zoom_scalar), context.zoomPressed);
 		zoomClamp = Math.max(1, zoomScale);
 		textPaint.setTextSize(Math.max(textSize * zoomScale, getResources().getDimension(R.dimen.labelsize_min)));
+		pointPaint.setStrokeWidth(zoomClamp * getResources().getDimension(R.dimen.point_size));
 		invalidate();
 		context.zoomPressed = 0; 
 	}
@@ -301,10 +306,11 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	public boolean onLongClick(View view) {
 		System.out.println("LONG CLICK");
 		if (context.createPoly && mode != DRAG_POINT && focPoint != -1) {
-			polyPts.remove(focPoint + 1);
+			/*polyPts.remove(focPoint + 1);
 			polyPts.remove(focPoint);
 			mode = IDLE;
-			focPoint = -1;
+			focPoint = -1;*/
+			mode = HOLD_POINT;
 			return true;
 		}
 		
@@ -340,7 +346,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	float downX, downY;
 	
 	public void handlePoly(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_DOWN && mode != DRAG_POINT) { // so that created point won't respond to long click 
+		if (event.getAction() == MotionEvent.ACTION_DOWN && mode != DRAG_POINT) { // so that created point won't respond to long click
 			System.out.println("ACTION DOWN");
 			downX = x;
 			downY = y;
@@ -349,7 +355,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 			m.invert(inverse);
 			inverse.mapPoints(xy);
 			
-			float hitRadius = 2 * getResources().getDimension(R.dimen.point_radius);
+			float hitRadius = getResources().getDimension(R.dimen.point_size) / 2 + 10;
 			for (int i = 0; i < polyPts.size(); i += 2) {
 				float dx = xy[0] - polyPts.get(i);
 				float dy = xy[1] - polyPts.get(i + 1);
@@ -360,12 +366,11 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 					break;
 				}
 			}
-			
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
 			System.out.println("ACTION MOVE");
-			if (mode == TOUCH_POINT && (Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5)) // show some leniency
+			if ((mode == TOUCH_POINT || mode == HOLD_POINT) && (Math.abs(downX - x) > 5 || Math.abs(downY - y) > 5)) // show some leniency
 				mode = DRAG_POINT;
-			if (mode == TOUCH_POINT || mode == DRAG_POINT) {
+			if (mode == TOUCH_POINT || mode == DRAG_POINT || mode == HOLD_POINT) { // simply focPoint != 1?
 				float[] xy = { x, y };
 				Matrix inverse = new Matrix();
 				m.invert(inverse);
@@ -382,6 +387,10 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 			
 		} else if (event.getAction() == MotionEvent.ACTION_UP) {
 			System.out.println("ACTION UP");
+			if (mode == HOLD_POINT) {
+				polyPts.remove(focPoint + 1);
+				polyPts.remove(focPoint);
+			}
 			mode = IDLE;
 			focPoint = -1;
 		}
@@ -488,17 +497,18 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 
 	@Override public boolean onDoubleTap(MotionEvent e) {
 		System.out.println("DOUBLE TAP");
-		if (context.createPoly) {
+		if (context.createPoly && mode == IDLE) {
 			float[] xy = { e.getX(), e.getY() };
 			Matrix inverse = new Matrix();
 			m.invert(inverse);
 			inverse.mapPoints(xy);
 			polyPts.add(xy[0]);
 			polyPts.add(xy[1]);
-		}
+		
 		
 		focPoint = polyPts.size() - 2;
 		mode = DRAG_POINT;
+		}
 		return false;
 	}
 

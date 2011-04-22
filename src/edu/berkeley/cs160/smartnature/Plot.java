@@ -1,7 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -24,7 +23,6 @@ public class Plot {
 	
 	private int id;
 	private ArrayList<Plant> plants = new ArrayList<Plant>();
-	private ArrayList<Plant> temp = new ArrayList<Plant>(); 
 	
 	/** creates a copy of a plot except for its plants */
 	Plot(Plot src) {
@@ -147,7 +145,6 @@ public class Plot {
 	public void addPlant(Plant p) {
 		p.setID(plants.size());
 		plants.add(p);
-		//temp.add(p);
 	}
 	
 	public boolean contains(float x, float y) {
@@ -235,27 +232,36 @@ public class Plot {
 		return new float[] { getBounds().centerX(), getBounds().centerY() };
 	}
 	
-	public ArrayList<Plant> getPlants() { 
-		//Collections.copy(temp, plants);
-		//Collections.reverse(temp); 
-		//return temp; 
-		return plants;
-	}	
-	
 	public Rect getBounds() { return shape.getBounds(); }
+	
 	public int getID(){ return id; }
+	
 	public int setID(int i) { return id = i; }
+	
 	public float getAngle() { return rotation; }
+	
 	public void setAngle(float angle) { this.rotation = angle; }
-	public int getColor() { return color; }	
-	public void setColor(int color) { this.color = color; }	
-	public String getName() { return name; }	
-	public void setName(String name) { this.name = name; }	
-	public Paint getPaint() { return shape.getPaint(); }	
-	public float[] getPoints() { return polyPoints; }	
-	public void setPoints(float[] points) { polyPoints = points; }	
-	public ShapeDrawable getShape() { return shape; }	
-	public void setShape(ShapeDrawable shape) { this.shape = shape; }	
+	
+	public int getColor() { return color; }
+	
+	public void setColor(int color) { this.color = color; }
+	
+	public String getName() { return name; }
+	
+	public void setName(String name) { this.name = name; }
+	
+	public Paint getPaint() { return shape.getPaint(); }
+	
+	public ArrayList<Plant> getPlants() { return plants; }
+	
+	public float[] getPoints() { return polyPoints; }
+	
+	public void setPoints(float[] points) { polyPoints = points; }
+	
+	public ShapeDrawable getShape() { return shape; }
+	
+	public void setShape(ShapeDrawable shape) { this.shape = shape; }
+	
 	public int getType() { return type; }
 	
 }

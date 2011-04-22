@@ -8,7 +8,7 @@
 	<dimen name="strokesize_active">4px</dimen>
 	<dimen name="strokesize_edit">5px</dimen>
 	<dimen name="strokesize_editactive">6px</dimen>
-	<dimen name="point_radius">8dp</dimen>
+	<dimen name="point_size">18dp</dimen>
 	<dimen name="resizebox_min">30dp</dimen>
 	<dimen name="rotate_radius">20dp</dimen>
 	<dimen name="rotate_offset">50dp</dimen>

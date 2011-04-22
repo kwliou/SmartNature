@@ -91,8 +91,8 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		findViewById(R.id.save_btn).setOnClickListener(this);
 		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
 		findViewById(R.id.edit_footer).getBackground().setAlpha(0x50);
-		findViewById(R.id.save_btn).getBackground().setAlpha(0xc0);
-		findViewById(R.id.zoomfit_btn).getBackground().setAlpha(0xc0);
+		findViewById(R.id.save_btn).getBackground().setAlpha(0xd0);
+		findViewById(R.id.zoomfit_btn).getBackground().setAlpha(0xd0);
 		
 		zoomControls = (ZoomControls) findViewById(R.id.edit_zoom_controls);
 		zoomControls.setOnZoomInClickListener(zoomIn);
@@ -179,20 +179,13 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		editView.onAnimationEnd();
 	}
 	
-	public float[] toFloatArray(ArrayList<Float> list) {
-		float[] pts = new float[list.size()];
-		for (int i = 0; i < pts.length; i++)
-			pts[i] = editView.polyPts.get(i);
-		return pts;
-	}
-	
 	@Override
 	public void onBackPressed() {
 		if (createPoly) {
 			float[] pts = toFloatArray(editView.polyPts);
 			Plot newPlot = new Plot(plot.getName(), pts); 
 			plot.set(newPlot);
-			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
+			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 			oldPlot.set(plot);
 			((Button)findViewById(R.id.save_btn)).setText(R.string.btn_save_edit);
 			if (hintsOn) {
@@ -320,6 +313,13 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		getPreferences(MODE_PRIVATE).edit().putInt("color", color).commit();
 		plot.getPaint().setColor(color);
 		editView.invalidate();
+	}
+	
+	public static float[] toFloatArray(ArrayList<Float> list) {
+		float[] pts = new float[list.size()];
+		for (int i = 0; i < pts.length; i++)
+			pts[i] = list.get(i);
+		return pts;
 	}
 	
 }

@@ -66,8 +66,8 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
 		findViewById(R.id.addplot_btn).setOnClickListener(this);
 		findViewById(R.id.garden_footer).getBackground().setAlpha(0x50);
-		findViewById(R.id.addplot_btn).getBackground().setAlpha(0xc0);
-		findViewById(R.id.zoomfit_btn).getBackground().setAlpha(0xc0);
+		findViewById(R.id.addplot_btn).getBackground().setAlpha(0xd0);
+		findViewById(R.id.zoomfit_btn).getBackground().setAlpha(0xd0);
 		zoomControls = (ZoomControls) findViewById(R.id.zoom_controls);
 		zoomAutoHidden = getSharedPreferences("global", MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
