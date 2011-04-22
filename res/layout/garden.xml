@@ -21,13 +21,13 @@
 	<ZoomControls
 		android:id="@+id/zoom_controls"
 		android:padding="15dp"
-		android:layout_above="@id/footer"
+		android:layout_above="@+id/garden_footer"
 		android:layout_alignParentRight="true"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />
 
 	<LinearLayout
-		android:id="@+id/footer"
+		android:id="@+id/garden_footer"
 		style="@android:style/ButtonBar"
 		android:orientation="horizontal"
 		android:layout_alignParentBottom="true"
@@ -35,16 +35,16 @@
 		android:layout_height="wrap_content">
 		<Button
 			android:id="@+id/addplot_btn"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
+			android:text="Add plot"
 			android:layout_weight="1"
-			android:text="Add plot" />
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
 		<Button
 			android:id="@+id/zoomfit_btn"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
+			android:text="Reset zoom"
 			android:layout_weight="1"
-			android:text="Reset zoom" />
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
 	</LinearLayout>
 
 </RelativeLayout>

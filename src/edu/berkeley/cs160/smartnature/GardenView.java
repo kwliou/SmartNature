@@ -54,10 +54,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		garden = this.context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getPaint();
-			p.setStyle(Paint.Style.STROKE);
 			p.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-			p.setStrokeCap(Paint.Cap.ROUND);
-			p.setStrokeJoin(Paint.Join.ROUND);
 		}
 	}
 	
@@ -217,7 +214,9 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 				diffX = event.getX(0) - event.getX(1);
 				diffY = event.getY(0) - event.getY(1);
 				dist = diffX * diffX + diffY * diffY;
-				zoomScale *= dist / prevDist;
+				//zoomScale *= dist/prevDist;
+				zoomScale = (zoomScale * (dist/prevDist + 1))/2; // less "sensitive"
+				
 				onAnimationEnd();
 			}
 			else if (mode != IDLE) {

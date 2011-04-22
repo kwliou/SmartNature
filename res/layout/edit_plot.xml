@@ -18,35 +18,36 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
 
-
 	<ZoomControls
 		android:id="@+id/edit_zoom_controls"
 		android:padding="10dp"
-		android:layout_above="@+id/footer"
+		android:layout_above="@+id/edit_footer"
 		android:layout_alignParentRight="true"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />
 
 	<LinearLayout
-		android:id="@+id/footer"
+		android:id="@+id/edit_footer"
 		style="@android:style/ButtonBar"
-		android:layout_alignParentBottom="true"
 		android:orientation="horizontal"
+		android:layout_alignParentBottom="true"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
+
 		<Button
 			android:id="@+id/save_btn"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
+			android:text="@string/btn_save_edit"
 			android:layout_weight="1"
-			android:text="Save changes" />
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
 		<Button
 			android:id="@+id/zoomfit_btn"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
+			android:text="Reset zoom"
 			android:layout_weight="1"
-			android:text="Reset zoom" />
-	</LinearLayout>
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
 
+	</LinearLayout>
 
 </RelativeLayout>
