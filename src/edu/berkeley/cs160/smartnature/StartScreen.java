@@ -1,11 +1,13 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Rect;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,8 +22,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 class GardenGnome extends Application {
 	static ArrayList<Garden> gardens = new ArrayList<Garden>();
 }
@@ -33,39 +33,49 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 	/** for prototype this has the position of the clicked garden */
 	static int id;
 	AlertDialog dialog;
+	private DatabaseHelper dh;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		this.dh = new DatabaseHelper(this);	
 		initMockData();
 		getListView().setOnItemClickListener(this);
 		((Button) findViewById(R.id.new_garden)).setOnClickListener(this);
 		((Button) findViewById(R.id.search_encyclopedia)).setOnClickListener(this);
+		
 	}
 	
 	public void initMockData() {
 		gardens = GardenGnome.gardens;
 		if (gardens.isEmpty()) {
-			Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");
-			Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
-			//Garden g3 = new Garden(R.drawable.preview3, "Peralta");
+			dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview1, "40,60,90,200");
+			dh.insert_garden("Karl Linn", R.drawable.preview2, "140,120,210,190");
 			
-			Rect bounds1 = new Rect(40, 60, 90, 200);
-			Rect bounds2 = new Rect(140, 120, 210, 190);
-			Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
-			float[] pts = { 0, 0, 50, 10, 90, 100 };
-			g1.addPlot("Jerry's Plot", bounds1, 10, Plot.RECT);
-			g1.addPlot("Amy's Plot", bounds2, 0, Plot.OVAL);
-			g1.addPlot("Shared Plot", bounds3, 0, pts);
+			Garden g1 = dh.select_garden("Berkeley Youth Alternatives");
+			Garden g2 = dh.select_garden("Karl Linn");
 			
-			Rect bounds4 = new Rect(40, 200, 90, 300);
-			Rect bounds5 = new Rect(140, 50, 210, 190);
-			Rect bounds6 = new Rect(270, 120, 270 + 90, 120 + 140);
-			float[] pts2 = { 0, 0, 50, 10, 90, 100, 70, 140, 60, 120 };
-			g2.addPlot("Cyndi's Plot", bounds4, 0, Plot.RECT);
-			g2.addPlot("Alex's Plot", bounds5, 10, Plot.OVAL);
-			g2.addPlot("Flowers", bounds6, 0, pts2);
+			dh.insert_plot("Jerry", "40,60,90,200," + Color.BLACK, Plot.RECT, Color.BLACK, "", 10, 1);
+			dh.insert_plot("Amy", "140,120,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 0, 2);
+			dh.insert_plot("Shared", "270,120,360,220," + Color.BLACK, Plot.POLY, Color.BLACK, "0,0,50,10,90,100", 0, 3);
+			dh.insert_plot("Cyndi", "40,200,90,300," + Color.BLACK, Plot.RECT, Color.BLACK, "", 0, 4);
+			dh.insert_plot("Alex", "140,50,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 10, 5);
+			dh.insert_plot("Flowers", "270,120,360,260," + Color.BLACK, Plot.POLY, Color.BLACK, "0,0,50,10,90,100,70,140,60,120", 0, 6);
+			
+			Plot p1 = dh.select_plot("Jerry");
+			Plot p2 = dh.select_plot("Amy");
+			Plot p3 = dh.select_plot("Shared");
+			Plot p4 = dh.select_plot("Cyndi");
+			Plot p5 = dh.select_plot("Alex");
+			Plot p6 = dh.select_plot("Flowers");
+			
+			g1.addPlot(p1);
+			g1.addPlot(p2);
+			g1.addPlot(p3);
+			g2.addPlot(p4);
+			g2.addPlot(p5);
+			g2.addPlot(p6);
 			
 			gardens.add(g1);
 			gardens.add(g2);
