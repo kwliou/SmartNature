@@ -33,6 +33,7 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 	Button addPlantButton, backButton;
 	AlertDialog dialog;
 	
+	
 	static PlantAdapter adapter;
 	Plant p;
 	int gardenID, plotID; 
@@ -63,12 +64,14 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
   				showDialog(0);
         }
     });
+		/*
 		backButton = (Button) findViewById(R.id.backButton);
 		backButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
         	finish();
         }
     });
+    */
 	}
 	
 	public void initMockData() {
@@ -117,15 +120,7 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		return dialog;
 	}
 	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.m_home:
-				finish();
-				break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+
 	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
@@ -201,5 +196,29 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		intent.putExtras(bundle);
 		startActivity(intent);
 	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.plot_menu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) {
+			case R.id.m_home:
+				Intent intent = new Intent(PlotScreen.this, StartScreen.class);
+				startActivity(intent);
+				break;
+			case R.id.m_showhints:
+				StartScreen.showHints = !StartScreen.showHints;
+				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");			
+				break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
 		
 }

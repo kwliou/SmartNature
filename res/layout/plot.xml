@@ -12,7 +12,7 @@
 		android:textSize="24sp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />
-
+	<!--  
 	<LinearLayout
 		android:orientation="horizontal"
 		android:padding="10dp"
@@ -36,7 +36,7 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 	</LinearLayout>
-
+	-->
 	<TextView
 		android:text="List of Plants"
 		android:background="#ffd4d4d4"
@@ -44,12 +44,23 @@
 		android:textAppearance="?android:listSeparatorTextViewStyle"
 		android:paddingLeft="5sp"
 		android:layout_width="fill_parent"
-		android:layout_height="25dp" />
+		android:layout_height="25dp" 
+		/>
 
 	<ListView
 		android:id="@+id/android:list"
-		android:layout_height="fill_parent"
-		android:layout_width="fill_parent" />
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent" 
+		/>
 
+	<Button
+		android:id="@+id/addPlantButton"
+		android:text="Add Plant"
+		android:textSize="16sp"
+		android:layout_marginRight="10dp"
+
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		/>
 
 </LinearLayout>

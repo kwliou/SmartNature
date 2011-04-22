@@ -39,8 +39,9 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	String name;
 	EditText entryText;
 	ImageView addImage;
-	TextView plantTextView;
+	TextView plantTextView, plantHint;
 	Button addEntryButton, backButton;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -68,8 +69,13 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		plantTextView = (TextView) findViewById(R.id.plantTextView);
 		plantTextView.setText(name);
 
-		((TextView)findViewById(R.id.plant_hint)).setText(R.string.hint_plantscreen);
-		((TextView)findViewById(R.id.plant_hint)).setVisibility(View.VISIBLE);
+		plantHint = (TextView)findViewById(R.id.plant_hint);
+		plantHint.setText(R.string.hint_plantscreen);
+		if (StartScreen.showHints){
+			plantHint.setVisibility(View.VISIBLE);
+		}else{
+			plantHint.setVisibility(View.GONE);
+		}
 		
 		/*
 		 * addImage.setOnClickListener(new OnClickListener() {
@@ -125,16 +131,6 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.m_home:
-			finish();
-			break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		System.out.println("touched");
 		return false;
@@ -170,6 +166,35 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.plot_menu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) {
+			case R.id.m_home:
+				Intent intent = new Intent(PlantScreen.this, StartScreen.class);
+				startActivity(intent);
+				break;
+			case R.id.m_showhints:
+				StartScreen.showHints = !StartScreen.showHints;
+				if (StartScreen.showHints){
+					plantHint.setVisibility(View.VISIBLE);
+				}else{
+					plantHint.setVisibility(View.GONE);
+				}
+				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");		
+				
+				break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 }

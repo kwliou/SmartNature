@@ -34,6 +34,7 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 	static int id;
 	AlertDialog dialog;
 	private DatabaseHelper dh;
+	static Boolean showHints = true;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
