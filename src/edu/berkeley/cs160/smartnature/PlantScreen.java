@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,6 +46,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		super.onCreate(savedInstanceState);
+		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
 			name = extras.getString("name");
@@ -66,6 +68,9 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		plantTextView = (TextView) findViewById(R.id.plantTextView);
 		plantTextView.setText(name);
 
+		((TextView)findViewById(R.id.plant_hint)).setText(R.string.hint_plantscreen);
+		((TextView)findViewById(R.id.plant_hint)).setVisibility(View.VISIBLE);
+		
 		/*
 		 * addImage.setOnClickListener(new OnClickListener() {
 		 * 
@@ -76,12 +81,32 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		// Button addPicButton = (Button) findViewById(R.id.addPicButton);
 		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
 
+		
+		plantTextView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				Intent intent = new Intent(PlantScreen.this, Encyclopedia.class);
+				Bundle bundle = new Bundle(1);
+				bundle.putString("name", plantTextView.getText().toString());
+
+				
+				intent.putExtras(bundle);
+				startActivity(intent);
+				
+			}
+		});
+
+	
+		
+		
 		addEntryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				EditText entry = (EditText) findViewById(R.id.entryText);
 				Date currentDate = new Date();
 				String dateStr = currentDate.toString();
+								
 				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(
 					new Entry(entryText.getText().toString(), dateStr));
 				adapter.notifyDataSetChanged(); // refresh ListView
