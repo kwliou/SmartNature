@@ -8,19 +8,17 @@
 
 	<LinearLayout
 		android:orientation="vertical"
-		android:layout_width="wrap_content"
-		android:padding="10dp"
 		android:gravity="center"
+		android:padding="5dp"
+		android:layout_width="wrap_content"
 		android:layout_height="fill_parent">
 
 		<ImageView
 			android:id="@+id/text_logo"
+			android:src="@drawable/logo"
 			android:layout_gravity="center_horizontal"
-			android:layout_height="wrap_content"
 			android:layout_width="fill_parent"
-			android:maxWidth="295px"
-			android:maxHeight="60px"
-			android:src="@drawable/logo" />
+			android:layout_height="wrap_content" />
 
 		<Button
 			android:id="@+id/new_garden"

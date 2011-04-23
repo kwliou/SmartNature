@@ -2,4 +2,6 @@
 <resources>
 	<color name="MEDGRAY">#666666</color>
 	<color name="focused_plot">#FF9000</color>
+	<integer name="bar_trans">0x50</integer>
+	<integer name="btn_trans">0xd0</integer>
 </resources>

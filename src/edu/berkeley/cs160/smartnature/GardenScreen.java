@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.ScaleAnimation;
@@ -20,7 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class GardenScreen extends Activity implements DialogInterface.OnClickListener, View.OnClickListener {
+public class GardenScreen extends Activity implements DialogInterface.OnClickListener, View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
 	
 	final int NEW_DIALOG = 0, RENAME_DIALOG = 1;
 	Garden mockGarden;
@@ -56,24 +57,28 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		}
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
-		
+		findViewById(R.id.garden_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+		initButton(R.id.addplot_btn);
+		initButton(R.id.zoomfit_btn);
 		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
-		
-		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
-		findViewById(R.id.addplot_btn).setOnClickListener(this);
-		findViewById(R.id.garden_footer).getBackground().setAlpha(0x50);
-		findViewById(R.id.addplot_btn).getBackground().setAlpha(0xd0);
-		findViewById(R.id.zoomfit_btn).getBackground().setAlpha(0xd0);
 		zoomControls = (ZoomControls) findViewById(R.id.zoom_controls);
 		zoomAutoHidden = getSharedPreferences("global", MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
 			zoomControls.setVisibility(View.GONE);
 		zoomControls.setOnZoomInClickListener(zoomIn);
 		zoomControls.setOnZoomOutClickListener(zoomOut);
+	}
+	
+	public void initButton(int id) {
+		View view = findViewById(id);
+		view.setOnClickListener(this);
+		view.setOnFocusChangeListener(this);
+		view.setOnTouchListener(this);
+		view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
 	}
 	
 	@Override
@@ -226,9 +231,10 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			case R.id.m_home:
 				finish();
 				break;
-			case R.id.m_renamegarden:
-				currentDialog = RENAME_DIALOG;
-				showDialog(RENAME_DIALOG);
+			case R.id.m_gardenoptions:
+				startActivity(new Intent(this, GardenAttr.class));
+				//currentDialog = RENAME_DIALOG;
+				//showDialog(RENAME_DIALOG);
 				break;
 			case R.id.m_sharegarden:
 				startActivity(new Intent(this, ShareGarden.class));
@@ -288,5 +294,30 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 			}
 		}
 	};
-
+	
+	@Override
+	public void onFocusChange(View view, boolean hasFocus) {
+		if (hasFocus)
+			view.getBackground().setAlpha(0xff);
+		else
+			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+	}
+	
+	@Override
+	public boolean onTouch(View view, MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
+			view.getBackground().setAlpha(0xff);
+		else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			if (!view.isPressed()) {
+				view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+				view.invalidate();
+			}
+		}
+		else {
+			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+			view.invalidate();
+		}
+		return false;
+	}
+	
 }

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
@@ -19,7 +20,7 @@ import android.widget.ZoomControls;
 
 import java.util.ArrayList;
 
-public class EditScreen extends Activity implements View.OnClickListener, ColorPickerDialog.OnColorChangedListener {
+public class EditScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener, ColorPickerDialog.OnColorChangedListener {
 	
 	Garden mockGarden;
 	EditView editView;
@@ -87,11 +88,9 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			hint.setVisibility(View.VISIBLE);
 		}
 		
-		findViewById(R.id.save_btn).setOnClickListener(this);
-		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
-		findViewById(R.id.edit_footer).getBackground().setAlpha(0x50);
-		findViewById(R.id.save_btn).getBackground().setAlpha(0xd0);
-		findViewById(R.id.zoomfit_btn).getBackground().setAlpha(0xd0);
+		findViewById(R.id.edit_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+		initButton(R.id.save_btn);
+		initButton(R.id.zoomfit_btn);
 		
 		zoomControls = (ZoomControls) findViewById(R.id.edit_zoom_controls);
 		zoomControls.setOnZoomInClickListener(zoomIn);
@@ -101,6 +100,14 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			zoomControls.setVisibility(View.GONE);
 		
 		editView.invalidate();
+	}
+
+	public void initButton(int id) {
+		View view = findViewById(id);
+		view.setOnClickListener(this);
+		view.setOnFocusChangeListener(this);
+		view.setOnTouchListener(this);
+		view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
 	}
 	
 	public void createPlot() {
@@ -320,6 +327,31 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		for (int i = 0; i < pts.length; i++)
 			pts[i] = list.get(i);
 		return pts;
+	}
+	
+	@Override
+	public void onFocusChange(View view, boolean hasFocus) {
+		if (hasFocus)
+			view.getBackground().setAlpha(0xff);
+		else
+			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+	}
+	
+	@Override
+	public boolean onTouch(View view, MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
+			view.getBackground().setAlpha(0xff);
+		else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			if (!view.isPressed()) {
+				view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+				view.invalidate();
+			}
+		}
+		else {
+			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+			view.invalidate();
+		}
+		return false;
 	}
 	
 }

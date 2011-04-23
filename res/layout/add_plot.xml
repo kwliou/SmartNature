@@ -41,7 +41,7 @@
 					android:id="@+id/rb_rectangle"
 					android:checked="true"
 					android:text="Rectangle"
-					android:textSize="17.5sp"
+					android:textSize="17sp"
 					android:paddingLeft="45dp"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content" />
@@ -49,7 +49,7 @@
 				<RadioButton
 					android:id="@+id/rb_ellipse"
 					android:text="Oval"
-					android:textSize="17.5sp"
+					android:textSize="17sp"
 					android:paddingLeft="45dp"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content" />
@@ -57,9 +57,9 @@
 				<RadioButton
 					android:id="@+id/rb_custom"
 					android:text="Polygon"
-					android:textSize="17.5sp"
+					android:textSize="17sp"
 					android:paddingLeft="45dp"
-					android:layout_marginBottom="2dp"
+					android:layout_marginBottom="3dp"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content" />
 
