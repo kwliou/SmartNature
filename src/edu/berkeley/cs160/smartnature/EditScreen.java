@@ -111,16 +111,23 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 	
 	public void createPlot() {
 		RectF gBounds = mockGarden.getRawBounds();
+		if (mockGarden.isEmpty()) {
+			int width = getWindowManager().getDefaultDisplay().getWidth();
+			int height = getWindowManager().getDefaultDisplay().getHeight();
+			gBounds = new RectF(0, 0, width, height);
+		}
 		int type = extras.getInt("type");
 		String name = extras.getString("name");
 		Rect bounds = new Rect((int)gBounds.left, (int)gBounds.top, (int)gBounds.right, (int)gBounds.bottom);
 		bounds.inset((int)gBounds.width()/3, (int)gBounds.height()/3);
+		System.out.println(bounds);
 		if (type == Plot.POLY)
 			plot = new Plot(name, bounds, new float[] { 0, 0 });
 		else
 			plot = new Plot(name, bounds, type);
 			
 		mockGarden.addPlot(plot);
+		mockGarden.refreshBounds();
 	}
 	
 	public void loadPlot() {

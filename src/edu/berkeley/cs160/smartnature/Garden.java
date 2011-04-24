@@ -15,7 +15,7 @@ public class Garden {
 	@Expose private String state;
 	private int previewId;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
-	private RectF bounds = new RectF(0, 0, 200, 200);
+	private RectF bounds = new RectF(0, 0, 800, 480);
 	
 	private static Rect padding = new Rect(30, 30, 30, 30);
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
@@ -26,6 +26,7 @@ public class Garden {
 	Garden(String gardenName) { this(R.drawable.preview, gardenName); }
 	
 	Garden(int resId, String gardenName) {
+		bounds = new RectF(0, 0, 800, 480);
 		name = gardenName;
 		previewId = resId;
 	}
@@ -44,6 +45,7 @@ public class Garden {
 			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
 		}
 		*/
+		//if (plots.isEmpty()) bounds = new RectF(plot.getRotateBounds());
 		
 		plot.setID(plots.size());
 		plots.add(plot);
