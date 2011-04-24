@@ -2,28 +2,22 @@ package edu.berkeley.cs160.smartnature;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.ScaleAnimation;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class GardenScreen extends Activity implements DialogInterface.OnClickListener, View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
+public class GardenScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
 	
-	final int NEW_DIALOG = 0, RENAME_DIALOG = 1;
 	Garden mockGarden;
 	GardenView gardenView;
 	View textEntryView;
@@ -36,7 +30,6 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	int currentDialog;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
-	int gardenID;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,17 +37,11 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
-		Bundle extras = getIntent().getExtras();
-		if (extras != null && extras.containsKey("id")) {
-			mockGarden = StartScreen.gardens.get(extras.getInt("id"));
-			gardenID = extras.getInt("id");
-			setTitle(mockGarden.getName());
-			if (savedInstanceState == null) // first init
-				mockGarden.refreshBounds();
-		} else {
-			mockGarden = new Garden();
-			showDialog(NEW_DIALOG);
-		}
+		mockGarden = StartScreen.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		setTitle(mockGarden.getName());
+		if (savedInstanceState == null) // first init
+			mockGarden.refreshBounds();
+		
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
 		findViewById(R.id.garden_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
@@ -142,75 +129,24 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 	}
 	
 	@Override
-	public Dialog onCreateDialog(int id) {
-		DialogInterface.OnClickListener cancelled = new DialogInterface.OnClickListener() {
-			@Override public void onClick(DialogInterface dialog, int whichButton) { finish(); }
-		};
-		
-		DialogInterface.OnCancelListener exited = new DialogInterface.OnCancelListener() {
-			@Override public void onCancel(DialogInterface dialog) { finish(); }
-		};
-		
-		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(textEntryView);
-		
-		if (id == NEW_DIALOG)
-			builder.setTitle(R.string.new_garden_prompt)
-				.setPositiveButton(R.string.alert_dialog_ok, this)
-				.setNegativeButton(R.string.alert_dialog_cancel, cancelled) // this means cancel was pressed
-				.setOnCancelListener(exited); // this means the back button was pressed
-		else {
-			((EditText) textEntryView.findViewById(R.id.dialog_text_entry)).setText(mockGarden.getName());
-			builder.setTitle(R.string.rename_garden_prompt)
-				.setPositiveButton(R.string.alert_dialog_rename, this)
-				.setNegativeButton(R.string.alert_dialog_cancel, null);	
-		}
-		dialog = builder.create();
-		
-		// automatically show soft keyboard
-		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if (hasFocus)
-					dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			}
-		});
-		
-		return dialog;
-	}
-	
-	@Override
-	public void onClick(DialogInterface dialog, int whichButton) {
-		EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-		setTitle(gardenName.getText().toString());
-		mockGarden.setName(gardenName.getText().toString());
-		if (currentDialog == NEW_DIALOG)
-			StartScreen.gardens.add(mockGarden);
-		StartScreen.adapter.notifyDataSetChanged();	
-	}
-	
-	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (data != null) { // AddPlot activity was cancelled
-			Bundle extras = data.getExtras();
-			if (extras.containsKey("name")) { // returning from AddPlot activity
-				extras.putInt("garden_id", StartScreen.gardens.indexOf(mockGarden));
-				extras.putFloat("zoom_scale", gardenView.zoomScale);
+			if (data.hasExtra("name")) { // returning from AddPlot activity
+				data.putExtra("garden_id", StartScreen.gardens.indexOf(mockGarden));
+				data.putExtra("zoom_scale", gardenView.zoomScale);
 				float[] values = new float[9], bgvalues = new float[9];
 				gardenView.dragMatrix.getValues(values);
 				gardenView.bgDragMatrix.getValues(bgvalues);
-				extras.putFloatArray("drag_matrix", values);
-				extras.putFloatArray("bgdrag_matrix", bgvalues);
-				data.putExtras(extras);
+				data.putExtra("drag_matrix", values);
+				data.putExtra("bgdrag_matrix", bgvalues);
 				startActivityForResult(data, 0);
 				overridePendingTransition(0, 0);
 			}
-			else if (extras.containsKey("zoom_scale")) { // returning from EditScreen activity
-				gardenView.zoomScale = extras.getFloat("zoom_scale");
-				gardenView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
-				gardenView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
+			else if (data.hasExtra("zoom_scale")) { // returning from EditScreen activity
+				gardenView.zoomScale = data.getFloatExtra("zoom_scale", 0); //extras.getFloat("zoom_scale");
+				gardenView.dragMatrix.setValues(data.getFloatArrayExtra("drag_matrix"));
+				gardenView.bgDragMatrix.setValues(data.getFloatArrayExtra("bgdrag_matrix"));
 				gardenView.onAnimationEnd();
 				if (zoomAutoHidden)
 					zoomControls.setVisibility(View.GONE); // Android bug?
@@ -315,7 +251,7 @@ public class GardenScreen extends Activity implements DialogInterface.OnClickLis
 		}
 		else {
 			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
-			view.invalidate();
+			//view.invalidate();
 		}
 		return false;
 	}

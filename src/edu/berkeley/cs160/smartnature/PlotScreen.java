@@ -172,9 +172,9 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
       		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
       		Bundle bundle = new Bundle(4);
       		bundle.putString("name", StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(position).getName());
-      		bundle.putInt("gardenID", gardenID);
-      		bundle.putInt("plotID", plotID);
-      		bundle.putInt("plantID", position);
+      		bundle.putInt("garden_id", gardenID);
+      		bundle.putInt("plot_id", plotID);
+      		bundle.putInt("plant_id", position);
       		
       		intent.putExtras(bundle);
       		startActivity(intent);
@@ -196,9 +196,9 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
 		Bundle bundle = new Bundle(4);
 		bundle.putString("name", StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(position).getName());
-		bundle.putInt("gardenID", gardenID);
-		bundle.putInt("plotID", plotID);
-		bundle.putInt("plantID", position);
+		bundle.putInt("garden_id", gardenID);
+		bundle.putInt("plot_id", plotID);
+		bundle.putInt("plant_id", position);
 		
 		intent.putExtras(bundle);
 		startActivity(intent);

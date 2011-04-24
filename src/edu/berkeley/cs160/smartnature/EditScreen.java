@@ -49,9 +49,8 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		mockGarden = StartScreen.gardens.get(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		
-		if (extras.containsKey("type") && extras.getInt("type") == Plot.POLY) {
+		if (extras.containsKey("type") && extras.getInt("type") == Plot.POLY)
 			createPoly = true;
-		}
 		
 		if (firstInit && extras.containsKey("type"))
 			createPlot();
@@ -204,14 +203,12 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			mockGarden.remove(oldPlot);
 			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 			Intent intent = new Intent();
-			Bundle bundle = new Bundle();
-			bundle.putFloat("zoom_scale", editView.zoomScale);
+			intent.putExtra("zoom_scale", editView.zoomScale);
 			float[] values = new float[9], bgvalues = new float[9];
 			editView.dragMatrix.getValues(values);
 			editView.bgDragMatrix.getValues(bgvalues);
-			bundle.putFloatArray("drag_matrix", values);
-			bundle.putFloatArray("bgdrag_matrix", bgvalues);
-			intent.putExtras(bundle);
+			intent.putExtra("drag_matrix", values);
+			intent.putExtra("bgdrag_matrix", bgvalues);
 			setResult(RESULT_OK, intent);
 			finish();
 			overridePendingTransition(0, 0);

@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.Application;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -16,9 +18,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,7 +30,7 @@ class GardenGnome extends Application {
 	static ArrayList<Garden> gardens = new ArrayList<Garden>();
 }
 
-public class StartScreen extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
 	static GardenAdapter adapter;
 	static ArrayList<Garden> gardens;
@@ -53,7 +57,6 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 		if (gardens.isEmpty()) {
 			Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");	
 			Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
-			//Garden g3 = new Garden(R.drawable.preview3, "Peralta");
 			
 			Rect bounds1 = new Rect(40, 60, 90, 200);
 			Rect bounds2 = new Rect(140, 120, 210, 190);
@@ -78,15 +81,49 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
 		setListAdapter(adapter);
 	}
-
+	
 	@Override
 	public void onClick(View view) {
 		if (view.getId() == R.id.new_garden)
-			startActivity(new Intent(this, GardenScreen.class));
+			showDialog(0);
 		else
 			startActivity(new Intent(this, Encyclopedia.class));
 	}
-
+	
+	View textEntryView;
+	@Override
+	public Dialog onCreateDialog(int id) {
+		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(textEntryView);
+		
+		dialog = builder.setTitle(R.string.new_garden_prompt)
+				.setPositiveButton(R.string.alert_dialog_ok, this)
+				.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
+				.create();
+		
+		// automatically show soft keyboard
+		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus)
+					dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			}
+		});
+		
+		return dialog;
+	}
+	
+	public void onClick(DialogInterface dialog, int whichButton) {
+		Intent intent = new Intent(this, GardenScreen.class);
+		intent.putExtra("garden_id", gardens.size());
+		EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		gardens.add(new Garden(gardenName.getText().toString()));
+		adapter.notifyDataSetChanged();
+		startActivity(intent);
+		removeDialog(0);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -97,13 +134,11 @@ public class StartScreen extends ListActivity implements View.OnClickListener, A
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
-		Bundle bundle = new Bundle();
 		StartScreen.id = position;
-		bundle.putInt("id", position);
-		intent.putExtras(bundle);
+		intent.putExtra("garden_id", position);
 		startActivity(intent);
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {

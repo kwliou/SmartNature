@@ -51,9 +51,9 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
 			name = extras.getString("name");
-			gardenID = extras.getInt("gardenID");
-			plotID = extras.getInt("plotID");
-			plantID = extras.getInt("plantID");
+			gardenID = extras.getInt("garden_id");
+			plotID = extras.getInt("plot_id");
+			plantID = extras.getInt("plant_id");
 			setTitle("Plant Screen");
 		} else {
 			showDialog(0);

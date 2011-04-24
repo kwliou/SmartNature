@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -141,11 +140,9 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	public void onClick(View view) {
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, PlotScreen.class);
-			Bundle bundle = new Bundle();
-			bundle.putString("name", focusedPlot.getName());
-			bundle.putInt("garden_id", context.gardenID);
-			bundle.putInt("plot_id", garden.getPlots().indexOf(focusedPlot));
-			intent.putExtras(bundle);      	
+			intent.putExtra("name", focusedPlot.getName());
+			intent.putExtra("garden_id", GardenGnome.gardens.indexOf(garden));
+			intent.putExtra("plot_id", garden.getPlots().indexOf(focusedPlot));
 			context.startActivity(intent);
 		}
 	}
@@ -154,17 +151,15 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	public boolean onLongClick(View view) {
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, EditScreen.class);
-			Bundle bundle = new Bundle();
-			bundle.putString("name", focusedPlot.getName());
-			bundle.putInt("garden_id", StartScreen.gardens.indexOf(garden));
-			bundle.putInt("plot_id", garden.indexOf(focusedPlot));
-			bundle.putFloat("zoom_scale", zoomScale);
+			intent.putExtra("name", focusedPlot.getName());
+			intent.putExtra("garden_id", GardenGnome.gardens.indexOf(garden));
+			intent.putExtra("plot_id", garden.indexOf(focusedPlot));
+			intent.putExtra("zoom_scale", zoomScale);
 			float[] values = new float[9], bgvalues = new float[9];
 			dragMatrix.getValues(values);
 			bgDragMatrix.getValues(bgvalues);
-			bundle.putFloatArray("drag_matrix", values);
-			bundle.putFloatArray("bgdrag_matrix", bgvalues);
-			intent.putExtras(bundle);
+			intent.putExtra("drag_matrix", values);
+			intent.putExtra("bgdrag_matrix", bgvalues);
 			focusedPlot.getPaint().setColor(tempColor);
 			context.startActivityForResult(intent, 0);
 			context.overridePendingTransition(0, 0);

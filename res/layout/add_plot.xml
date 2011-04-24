@@ -20,6 +20,7 @@
 			android:layout_marginTop="4dp"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
+
 		<TextView
 			android:text="Choose plot shape"
 			android:paddingLeft="4dp"
@@ -27,9 +28,9 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 
-		<ScrollView
+		<!--ScrollView
 			android:layout_height="wrap_content"
-			android:layout_width="fill_parent">
+			android:layout_width="fill_parent"-->
 			<RadioGroup
 				android:id="@+id/rg_shape"
 				android:orientation="vertical"
@@ -41,7 +42,7 @@
 					android:id="@+id/rb_rectangle"
 					android:checked="true"
 					android:text="Rectangle"
-					android:textSize="17sp"
+					android:textSize="18sp"
 					android:paddingLeft="45dp"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content" />
@@ -49,7 +50,7 @@
 				<RadioButton
 					android:id="@+id/rb_ellipse"
 					android:text="Oval"
-					android:textSize="17sp"
+					android:textSize="18sp"
 					android:paddingLeft="45dp"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content" />
@@ -57,15 +58,14 @@
 				<RadioButton
 					android:id="@+id/rb_custom"
 					android:text="Polygon"
-					android:textSize="17sp"
+					android:textSize="18sp"
 					android:paddingLeft="45dp"
-					android:layout_marginBottom="3dp"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content" />
 
-			</RadioGroup>	
-		</ScrollView>
-		
+			</RadioGroup>
+		<!--  /ScrollView-->
+
 	</LinearLayout>
 
 	<LinearLayout
@@ -74,6 +74,7 @@
 		android:paddingTop="5dp"
 		android:paddingLeft="1dp"
 		android:paddingRight="1dp"
+		android:layout_marginTop="2dp"
 		android:layout_weight="1"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
@@ -87,8 +88,8 @@
 
 		<Button
 			android:id="@+id/b_add_cancel"
-			android:text="@string/alert_dialog_cancel"
 			android:layout_weight="1"
+			android:text="@string/alert_dialog_cancel"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 
