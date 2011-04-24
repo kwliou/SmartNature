@@ -154,6 +154,8 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			if (zoomAutoHidden)
 				zoomControls.setVisibility(View.GONE); // need to manually hide
 		}
+		
+		setTitle(mockGarden.getName());
 	}
 	
 	@Override
@@ -165,17 +167,19 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent;
+		
 		switch (item.getItemId()) {
 			case R.id.m_home:
 				finish();
 				break;
 			case R.id.m_gardenoptions:
-				startActivity(new Intent(this, GardenAttr.class));
-				//currentDialog = RENAME_DIALOG;
-				//showDialog(RENAME_DIALOG);
+				intent = new Intent(this, GardenAttr.class);
+				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
+				startActivityForResult(intent, 0);
 				break;
 			case R.id.m_sharegarden:
-				Intent intent = new Intent(this, ShareGarden.class);
+				intent = new Intent(this, ShareGarden.class);
 				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
 				startActivity(intent);
 				break;

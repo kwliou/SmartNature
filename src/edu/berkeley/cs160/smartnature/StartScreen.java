@@ -1,6 +1,9 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.app.Application;
@@ -10,6 +13,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,7 +28,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,15 +38,17 @@ class GardenGnome extends Application {
 
 public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
-	static GardenAdapter adapter;
+	GardenAdapter adapter;
 	ArrayList<Garden> gardens;
 	AlertDialog dialog;
 	View textEntryView;
 	private DatabaseHelper dh;
+	LocationManager lm; 
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		setContentView(R.layout.main);
 		this.dh = new DatabaseHelper(this);	
 		initMockData();
@@ -55,8 +63,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		if (gardens.isEmpty()) {
 			Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");	
 			Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
-			g1.setCity("Berkeley"); g1.setState("CA");
-			g2.setCity("Berkeley"); g2.setState("CA");
+			g1.setCity("Berkeley"); g1.setState("California");
+			g2.setCity("Berkeley"); g2.setState("California");
 			
 			Rect bounds1 = new Rect(40, 60, 90, 200);
 			Rect bounds2 = new Rect(140, 120, 210, 190);
@@ -89,10 +97,10 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 				showDialog(0);
 				break;
 			case R.id.search_encyclopedia:
-				startActivity(new Intent(this, Encyclopedia.class));
+				startActivityForResult(new Intent(this, Encyclopedia.class), 0);
 				break;
 			case R.id.find_garden:
-				startActivity(new Intent(this, FindGarden.class));
+				startActivityForResult(new Intent(this, FindGarden.class), 0);
 				break;
 		}
 	}
@@ -124,10 +132,38 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		Intent intent = new Intent(this, GardenScreen.class);
 		intent.putExtra("garden_id", gardens.size());
 		EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-		gardens.add(new Garden(gardenName.getText().toString()));
+		Garden garden = new Garden(gardenName.getText().toString());
+		
+		Geocoder gcd = new Geocoder(this, Locale.getDefault());
+		List<String> providers = lm.getProviders(false);
+		if (!providers.isEmpty()) {
+			Location loc = lm.getLastKnownLocation(providers.get(0));
+			List<Address> addresses = new ArrayList<Address>();
+			try {
+				addresses = gcd.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+			} catch (IOException e) { e.printStackTrace(); }
+			if (addresses.size() > 0) {
+				Address addr = addresses.get(0);
+				System.out.println(addr.getLocality());
+				System.out.println(addr.getAdminArea());
+				System.out.println(addr.getCountryCode());
+				garden.setCity(addr.getLocality());
+				if (addr.getCountryCode() == null)
+					garden.setState(addr.getCountryCode());
+				else
+					garden.setState(addr.getAdminArea());
+			}
+		}
+		gardens.add(garden);
 		adapter.notifyDataSetChanged();
-		startActivity(intent);
+		startActivityForResult(intent, 0);
 		removeDialog(0);
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		adapter.notifyDataSetChanged();
 	}
 	
 	@Override
@@ -141,7 +177,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
 		intent.putExtra("garden_id", position);
-		startActivity(intent);
+		startActivityForResult(intent, 0);
 	}
 	
 	@Override

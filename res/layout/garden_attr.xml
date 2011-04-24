@@ -16,28 +16,19 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
 
-	<LinearLayout
-		android:orientation="horizontal"
+	<EditText
+		android:id="@+id/garden_city"
+		android:hint="City"
+		android:layout_marginRight="5dp"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content" />
 
-		<EditText
-			android:id="@+id/garden_city"
-			android:hint="City"
-			android:layout_marginRight="5dp"
-			android:layout_weight="1"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+	<AutoCompleteTextView
+		android:id="@+id/garden_state"
+		android:hint="State"
+		android:textColor="@android:color/primary_text_light"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
 
-		<AutoCompleteTextView
-			android:id="@+id/garden_state"
-			android:hint="State"
-			android:completionHint="Abbr"
-			android:completionThreshold="1"
-			android:textColor="@android:color/primary_text_light"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
-
-	</LinearLayout>
 
 </LinearLayout>
