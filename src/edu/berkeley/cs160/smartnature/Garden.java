@@ -121,7 +121,7 @@ public class Garden {
 	
 	/** Helpful ArrayList-related methods */
 	
-	public Plot getPlot(int id) { return plots.get(id); }
+	public Plot getPlot(int index) { return plots.get(index); }
 	
 	public int indexOf(Plot plot) { return plots.indexOf(plot); }
 	

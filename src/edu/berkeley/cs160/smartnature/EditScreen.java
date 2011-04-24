@@ -46,10 +46,10 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		super.onCreate(savedInstanceState);
 		
 		extras = getIntent().getExtras();
-		mockGarden = StartScreen.gardens.get(extras.getInt("garden_id"));
+		mockGarden = GardenGnome.gardens.get(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		
-		if (extras.containsKey("type") && extras.getInt("type") == Plot.POLY)
+		if (extras.getInt("type") == Plot.POLY)
 			createPoly = true;
 		
 		if (firstInit && extras.containsKey("type"))

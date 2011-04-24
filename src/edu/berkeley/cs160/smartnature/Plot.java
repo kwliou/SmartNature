@@ -233,6 +233,8 @@ public class Plot {
 	
 	public Paint getPaint() { return shape.getPaint(); }
 	
+	public Plant getPlant(int index) { return plants.get(index); }
+	
 	public ArrayList<Plant> getPlants() { return plants; }
 	
 	public float[] getPoints() { return polyPoints; }

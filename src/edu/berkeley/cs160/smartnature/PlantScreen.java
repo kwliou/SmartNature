@@ -71,11 +71,14 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 		plantHint = (TextView)findViewById(R.id.plant_hint);
 		plantHint.setText(R.string.hint_plantscreen);
+		
+		/*
 		if (StartScreen.showHints){
 			plantHint.setVisibility(View.VISIBLE);
 		}else{
 			plantHint.setVisibility(View.GONE);
 		}
+		*/
 		
 		/*
 		 * addImage.setOnClickListener(new OnClickListener() {
@@ -113,7 +116,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				Date currentDate = new Date();
 				String dateStr = currentDate.toString();
 								
-				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(
+				GardenGnome.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(
 					new Entry(entryText.getText().toString(), dateStr));
 				adapter.notifyDataSetChanged(); // refresh ListView
 				entry.setText("");
@@ -126,7 +129,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	public void initMockData() {
 
 		adapter = new EntryAdapter(this, R.layout.journal_list_item,
-				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries());
+				GardenGnome.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries());
 		setListAdapter(adapter);
 	}
 
@@ -192,14 +195,14 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				startActivity(intent);
 				break;
 			case R.id.m_showhints:
-				StartScreen.showHints = !StartScreen.showHints;
+				/*StartScreen.showHints = !StartScreen.showHints;
 				if (StartScreen.showHints){
 					plantHint.setVisibility(View.VISIBLE);
 				}else{
 					plantHint.setVisibility(View.GONE);
 				}
 				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");		
-				
+				*/
 				break;
 		}
 		return super.onOptionsItemSelected(item);

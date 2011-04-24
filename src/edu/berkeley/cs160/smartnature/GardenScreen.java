@@ -37,7 +37,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
-		mockGarden = StartScreen.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		mockGarden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
 		setTitle(mockGarden.getName());
 		if (savedInstanceState == null) // first init
 			mockGarden.refreshBounds();
@@ -133,7 +133,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		super.onActivityResult(requestCode, resultCode, data);
 		if (data != null) { // AddPlot activity was cancelled
 			if (data.hasExtra("name")) { // returning from AddPlot activity
-				data.putExtra("garden_id", StartScreen.gardens.indexOf(mockGarden));
+				data.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
 				data.putExtra("zoom_scale", gardenView.zoomScale);
 				float[] values = new float[9], bgvalues = new float[9];
 				gardenView.dragMatrix.getValues(values);

@@ -33,12 +33,10 @@ class GardenGnome extends Application {
 public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
 	static GardenAdapter adapter;
-	static ArrayList<Garden> gardens;
-	/** for prototype this has the position of the clicked garden */
-	static int id;
+	ArrayList<Garden> gardens;
 	AlertDialog dialog;
+	View textEntryView;
 	private DatabaseHelper dh;
-	static Boolean showHints = true;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -90,7 +88,6 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			startActivity(new Intent(this, Encyclopedia.class));
 	}
 	
-	View textEntryView;
 	@Override
 	public Dialog onCreateDialog(int id) {
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
@@ -134,7 +131,6 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
-		StartScreen.id = position;
 		intent.putExtra("garden_id", position);
 		startActivity(intent);
 	}
@@ -158,25 +154,25 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	}
 	
 	class GardenAdapter extends ArrayAdapter<Garden> {
-		private ArrayList<Garden> items;
+		private ArrayList<Garden> gardens;
 		private LayoutInflater li;
 		
 		public GardenAdapter(Context context, int textViewResourceId, ArrayList<Garden> items) {
 			super(context, textViewResourceId, items);
 			li = ((ListActivity) context).getLayoutInflater();
-			this.items = items;
+			gardens = items;
 		}
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			View v = convertView;
-			if (v == null)
-				v = li.inflate(R.layout.garden_list_item, null);
-			Garden g = items.get(position);
-			((TextView) v.findViewById(R.id.garden_name)).setText(g.getName());
-			((ImageView) v.findViewById(R.id.preview_img)).setImageResource(g.getPreviewId());
+			View view = convertView;
+			if (view == null)
+				view = li.inflate(R.layout.garden_list_item, null);
+			Garden garden = gardens.get(position);
+			((TextView) view.findViewById(R.id.garden_name)).setText(garden.getName());
+			((ImageView) view.findViewById(R.id.preview_img)).setImageResource(garden.getPreviewId());
 			
-			return v;
+			return view;
 		}
 	}
 }
