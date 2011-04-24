@@ -32,7 +32,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	
 	Garden garden;
 	Plot plot;
-	PlantAdapter adapter;
+	static PlantAdapter adapter;
 	Plant plant;
 	int gardenID, plotID; 
 	
@@ -51,7 +51,6 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		getListView().setOnItemClickListener(this);
 		
 		plantName = (EditText) findViewById(R.id.new_plant_name);
-		((TextView) findViewById(R.id.plotTextView)).setText(extras.getString("name"));
 		((Button) findViewById(R.id.addPlantButton)).setOnClickListener(this);
 		
 		/*
@@ -134,7 +133,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 				v = li.inflate(R.layout.plant_list_item, null);
 			plant = plants.get(position);
 			((TextView) v.findViewById(R.id.plant_name)).setText(plant.getName());
-			
+			/*
 			v.findViewById(R.id.lookup_plant).setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
 	  				Intent intent = new Intent(PlotScreen.this, Encyclopedia.class);
@@ -164,6 +163,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		        	remove(plant);
 		        }
 			});
+			*/
 			
 			return v;
 		}

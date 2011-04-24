@@ -5,38 +5,30 @@
 	android:layout_height="fill_parent"
 	android:orientation="vertical">
 
-	<TextView
-		android:id="@+id/plotTextView"
-		android:layout_gravity="center"
-		android:textStyle="bold"
-		android:textSize="24sp"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
-	<!--  
 	<LinearLayout
-		android:orientation="horizontal"
-		android:padding="10dp"
+		android:id="@+id/linearLayout2"
+		android:gravity="center"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
-
+		android:layout_height="wrap_content"
+		android:orientation="horizontal">
+		<EditText
+			android:maxLength="140"
+			android:id="@+id/new_plant_name"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_weight="1"
+			android:hint="Enter new plant name" 
+			/>
 		<Button
 			android:id="@+id/addPlantButton"
 			android:text="Add Plant"
 			android:textSize="16sp"
-			android:layout_marginRight="10dp"
-			android:layout_weight="1"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content" />
 
-		<Button
-			android:id="@+id/backButton"
-			android:text="Back"
-			android:textSize="16sp"
-			android:layout_weight="1"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content" />
+	
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			/>
 	</LinearLayout>
-	-->
 	<TextView
 		android:text="List of Plants"
 		android:background="#ffd4d4d4"
@@ -53,32 +45,7 @@
 		android:layout_width="fill_parent" 
 		/>
 
-	<LinearLayout
-		android:id="@+id/linearLayout2"
-		android:gravity="center"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal">
 
-		<EditText
-			android:maxLength="140"
-			android:id="@+id/new_plant_name"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:layout_weight="1"
-			android:hint="Enter new plant name" 
-			/>
-		<Button
-			android:id="@+id/addPlantButton"
-			android:text="Add Plant"
-			android:textSize="16sp"
-			android:layout_marginRight="10dp"
-	
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			/>
-
-	</LinearLayout>
 	
 
 
