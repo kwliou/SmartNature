@@ -40,7 +40,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	EditText entryText;
 	ImageView addImage;
 	TextView plantTextView, plantHint;
-	Button addEntryButton, deleteEntryButton;
+	Button addEntryButton, deleteEntryButton, searchPlantButton, deletePlantButton;
 
 
 	@Override
@@ -54,7 +54,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			gardenID = extras.getInt("garden_id");
 			plotID = extras.getInt("plot_id");
 			plantID = extras.getInt("plant_id");
-			setTitle("Plant Screen");
+			setTitle(name);
 		} else {
 			showDialog(0);
 		}
@@ -66,11 +66,35 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		entryText = (EditText) findViewById(R.id.entryText);
 		// addImage = (ImageView) findViewById(R.id.addImage);
 		addEntryButton = (Button) findViewById(R.id.addEntryButton);
-		plantTextView = (TextView) findViewById(R.id.plantTextView);
-		plantTextView.setText(name);
 
+		
 		plantHint = (TextView)findViewById(R.id.plant_hint);
 		plantHint.setText(R.string.hint_plantscreen);
+		
+		searchPlantButton = (Button) findViewById(R.id.lookup_plant);
+		//searchPlantButton.setText("Search for " + name);
+		searchPlantButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+  				Intent intent = new Intent(PlantScreen.this, Encyclopedia.class);
+  				Bundle bundle = new Bundle(1);
+  				bundle.putString("name", name);
+
+  				
+  				intent.putExtras(bundle);
+  				startActivity(intent);
+			}
+		});
+		deletePlantButton = (Button) findViewById(R.id.delete_plant);
+		//deletePlantButton.setText("Delete " + name + " from plot");
+		deletePlantButton.setOnClickListener(new OnClickListener() {
+	        public void onClick(View v) {
+	        	//remove(plant);
+	        	GardenGnome.gardens.get(gardenID).getPlot(plotID).getPlants().remove(plantID);
+	        	PlotScreen.adapter.notifyDataSetChanged(); 
+	        	finish();
+	        }
+		});
+		
 		
 		/*
 		if (StartScreen.showHints){
@@ -89,26 +113,6 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 		// Button addPicButton = (Button) findViewById(R.id.addPicButton);
 		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
-
-		
-		plantTextView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-
-				Intent intent = new Intent(PlantScreen.this, Encyclopedia.class);
-				Bundle bundle = new Bundle(1);
-				bundle.putString("name", plantTextView.getText().toString());
-
-				
-				intent.putExtras(bundle);
-				startActivity(intent);
-				
-			}
-		});
-
-	
-		
-		
 		addEntryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -123,6 +127,13 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 			}
 		});
+		
+
+
+	
+		
+		
+
 
 	}
 
