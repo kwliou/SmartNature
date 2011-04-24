@@ -45,9 +45,9 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		this.dh = new DatabaseHelper(this);	
 		initMockData();
 		getListView().setOnItemClickListener(this);
-		((Button) findViewById(R.id.new_garden)).setOnClickListener(this);
-		((Button) findViewById(R.id.search_encyclopedia)).setOnClickListener(this);
-		
+		findViewById(R.id.new_garden).setOnClickListener(this);
+		findViewById(R.id.search_encyclopedia).setOnClickListener(this);
+		findViewById(R.id.find_garden).setOnClickListener(this);		
 	}
 	
 	public void initMockData() {
@@ -55,6 +55,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		if (gardens.isEmpty()) {
 			Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");	
 			Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
+			g1.setCity("Berkeley"); g1.setState("CA");
+			g2.setCity("Berkeley"); g2.setState("CA");
 			
 			Rect bounds1 = new Rect(40, 60, 90, 200);
 			Rect bounds2 = new Rect(140, 120, 210, 190);
@@ -82,10 +84,17 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	
 	@Override
 	public void onClick(View view) {
-		if (view.getId() == R.id.new_garden)
-			showDialog(0);
-		else
-			startActivity(new Intent(this, Encyclopedia.class));
+		switch (view.getId()) {
+			case R.id.new_garden:
+				showDialog(0);
+				break;
+			case R.id.search_encyclopedia:
+				startActivity(new Intent(this, Encyclopedia.class));
+				break;
+			case R.id.find_garden:
+				startActivity(new Intent(this, FindGarden.class));
+				break;
+		}
 	}
 	
 	@Override

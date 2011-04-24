@@ -18,12 +18,12 @@ import android.widget.ZoomControls;
 
 public class GardenScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
 	
+	final static int VIEW_PLOT = 1;
 	Garden mockGarden;
 	GardenView gardenView;
 	View textEntryView;
 	AlertDialog dialog;
 	ZoomControls zoomControls;
-	
 	
 	/** User-related options */
 	boolean showLabels = true, showFullScreen, zoomAutoHidden;
@@ -128,11 +128,14 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		}
 	}
 	
+	
+	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (data != null) { // AddPlot activity was cancelled
-			if (data.hasExtra("name")) { // returning from AddPlot activity
+		if (requestCode == VIEW_PLOT && zoomAutoHidden) // returning from PlotScreen activity
+			zoomControls.hide(); // need to manually hide
+		else if (data != null && data.hasExtra("name")) { // returning from AddPlot activity
 				data.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
 				data.putExtra("zoom_scale", gardenView.zoomScale);
 				float[] values = new float[9], bgvalues = new float[9];
@@ -143,14 +146,13 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				startActivityForResult(data, 0);
 				overridePendingTransition(0, 0);
 			}
-			else if (data.hasExtra("zoom_scale")) { // returning from EditScreen activity
-				gardenView.zoomScale = data.getFloatExtra("zoom_scale", 0); //extras.getFloat("zoom_scale");
-				gardenView.dragMatrix.setValues(data.getFloatArrayExtra("drag_matrix"));
-				gardenView.bgDragMatrix.setValues(data.getFloatArrayExtra("bgdrag_matrix"));
-				gardenView.onAnimationEnd();
-				if (zoomAutoHidden)
-					zoomControls.setVisibility(View.GONE); // Android bug?
-			}
+		else if (data != null && data.hasExtra("zoom_scale")) { // returning from EditScreen activity
+			gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1); //extras.getFloat("zoom_scale");
+			gardenView.dragMatrix.setValues(data.getFloatArrayExtra("drag_matrix"));
+			gardenView.bgDragMatrix.setValues(data.getFloatArrayExtra("bgdrag_matrix"));
+			gardenView.onAnimationEnd();
+			if (zoomAutoHidden)
+				zoomControls.setVisibility(View.GONE); // need to manually hide
 		}
 	}
 	

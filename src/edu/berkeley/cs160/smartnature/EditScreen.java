@@ -89,7 +89,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		
 		findViewById(R.id.edit_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
 		initButton(R.id.save_btn);
-		initButton(R.id.zoomfit_btn);
+		initButton(R.id.edit_zoomfit_btn);
 		
 		zoomControls = (ZoomControls) findViewById(R.id.edit_zoom_controls);
 		zoomControls.setOnZoomInClickListener(zoomIn);
@@ -259,7 +259,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			case R.id.save_btn:
 				onBackPressed();
 				break;
-			case R.id.zoomfit_btn:
+			case R.id.edit_zoomfit_btn:
 				editView.zoomScale = 1;
 				mockGarden.refreshBounds();
 				editView.reset();

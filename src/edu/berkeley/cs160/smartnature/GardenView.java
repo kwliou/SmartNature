@@ -50,7 +50,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	}
 	
 	public void initMockData() {
-		garden = this.context.mockGarden;
+		garden = context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getPaint();
 			p.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
@@ -143,7 +143,8 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 			intent.putExtra("name", focusedPlot.getName());
 			intent.putExtra("garden_id", GardenGnome.gardens.indexOf(garden));
 			intent.putExtra("plot_id", garden.getPlots().indexOf(focusedPlot));
-			context.startActivity(intent);
+			context.startActivityForResult(intent, GardenScreen.VIEW_PLOT);
+			//context.handleZoom();
 		}
 	}
 	
@@ -174,7 +175,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		context.handleZoom();
 		x = event.getX(); y = event.getY();
 		
-		System.out.println(event.getPointerCount() + " pointers, " + event.getAction());
+		//System.out.println(event.getPointerCount() + " pointers, " + event.getAction());
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 		case MotionEvent.ACTION_DOWN:
 			mode = TOUCH_SCREEN;

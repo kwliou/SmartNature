@@ -33,9 +33,12 @@
 		<activity android:name=".PlantScreen">
 		</activity>
 		
+		<activity android:name=".FindGarden">
+		</activity>
+		
 		<activity android:name=".PlotScreen">
 		</activity>
-
+		
 		<activity android:name=".ShareGarden"
 			android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>

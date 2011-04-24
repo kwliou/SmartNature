@@ -61,13 +61,11 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		setOnClickListener(this);
 		setOnLongClickListener(this);
 		setOnTouchListener(this);
-		//GestureOverlayView gestures = (GestureOverlayView) findViewById(R.id.addEntryButton);
 		gestureScanner = new GestureDetector(context, this);
-		//gestureScanner.setOnDoubleTapListener(this);
 	}
 	
 	public void initMockData() {
-		garden = this.context.mockGarden;
+		garden = context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getShape().getPaint();
 			p.setStyle(Paint.Style.STROKE);

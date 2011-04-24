@@ -9,9 +9,12 @@ import java.util.ArrayList;
 public class Garden {
 
 	private String name;
+	private String city;
+	private String state;
 	private int previewId;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
 	private RectF bounds = new RectF(0, 0, 200, 200);
+	
 	private static Rect padding = new Rect(30, 30, 30, 30);
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
 	private static Rect paddingPort = new Rect(30, 20, 10, 20);
@@ -108,6 +111,14 @@ public class Garden {
 	public String getName() { return name; }
 	
 	public void setName(String name) { this.name = name; }
+	
+	public String getCity() { return city; }
+	
+	public void setCity(String city) { this.city = city; }
+	
+	public String getState() { return state; }
+	
+	public void setState(String state) { this.state = state; }
 	
 	public int getPreviewId() { return previewId; }
 	

@@ -9,7 +9,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class ShareGarden extends Activity implements View.OnClickListener, TextWatcher {
+public class ShareGarden extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -26,20 +26,5 @@ public class ShareGarden extends Activity implements View.OnClickListener, TextW
 		finish();
 	}
 	
-	@Override
-	public void afterTextChanged(Editable s) {
-		if (((EditText)findViewById(R.id.garden_password)).getText().length() > 0)
-			findViewById(R.id.garden_permissions2).setEnabled(true);
-		else {
-			((CheckBox)findViewById(R.id.garden_permissions2)).setChecked(false);
-			findViewById(R.id.garden_permissions2).setEnabled(false);
-		}
-	}
-	
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-	
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
 }
