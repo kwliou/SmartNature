@@ -175,7 +175,9 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				//showDialog(RENAME_DIALOG);
 				break;
 			case R.id.m_sharegarden:
-				startActivity(new Intent(this, ShareGarden.class));
+				Intent intent = new Intent(this, ShareGarden.class);
+				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
+				startActivity(intent);
 				break;
 			case R.id.m_showlabels:
 				showLabels = !showLabels;

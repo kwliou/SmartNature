@@ -6,11 +6,13 @@ import android.graphics.RectF;
 
 import java.util.ArrayList;
 
+import com.google.gson.annotations.Expose;
+
 public class Garden {
 
-	private String name;
-	private String city;
-	private String state;
+	@Expose private String name;
+	@Expose private String city;
+	@Expose private String state;
 	private int previewId;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
 	private RectF bounds = new RectF(0, 0, 200, 200);
@@ -79,11 +81,16 @@ public class Garden {
 	}
 	
 	public void refreshBounds() {
+		refreshBounds(plots.size());
+	}
+	
+	public void refreshBounds(int count) {
 		if (plots.isEmpty())
 			bounds = new RectF();
 		else {
 			bounds = plots.get(0).getRotateBounds();
-			for (Plot p : plots) {
+			for (int i = 0; i < count; i++) {
+				Plot p = plots.get(i);
 				RectF pBounds = p.getRotateBounds();
 				bounds.left = Math.min(bounds.left, pBounds.left);
 				bounds.top = Math.min(bounds.top, pBounds.top);

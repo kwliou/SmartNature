@@ -261,7 +261,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 				break;
 			case R.id.edit_zoomfit_btn:
 				editView.zoomScale = 1;
-				mockGarden.refreshBounds();
+				mockGarden.refreshBounds(mockGarden.size() - (createPoly ? 2 : 1));
 				editView.reset();
 				break;
 		}
