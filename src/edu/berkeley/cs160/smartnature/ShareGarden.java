@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
@@ -14,14 +15,30 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.auth.BasicAWSCredentials;
 
 public class ShareGarden extends Activity implements Runnable, View.OnClickListener {
 	
+	static {
+		System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
+		try { XMLReaderFactory.createXMLReader(); }
+		catch ( Exception e ) { e.printStackTrace(); }
+	}
+	
 	Garden garden;
+	boolean success;
 	Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 	
 	@Override public void onCreate(Bundle savedInstanceState) {
@@ -32,7 +49,8 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		findViewById(R.id.share_cancel).setOnClickListener(this);
 	}
 	
-	@Override public void onClick(View view) {
+	@Override
+	public void onClick(View view) {
 		if (view.getId() == R.id.share_confirm)
 			new Thread(this).start();
 		finish();
@@ -42,25 +60,48 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	public void run() {
 		boolean permit = ((CheckBox)findViewById(R.id.garden_permissions)).isChecked();
 		HttpClient httpclient = new DefaultHttpClient();
-		
 		HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens");
 		String json = gson.toJson(garden);
 		String revised = "{\"garden\":{" + "\"public\":" + permit + "," + json.substring(1) + "}";
+		boolean postSuccess = false;
 		try {
 			StringEntity entity = new StringEntity(revised);
 			entity.setContentType("application/json");
 			httppost.setEntity(entity);
 			httpclient.execute(httppost);
+			postSuccess = true;
 		} catch (Exception e) { e.printStackTrace(); }
 		
-		runOnUiThread(new Runnable() {
+		if (postSuccess) {
+			String query = "http://gardengnome.heroku.com/search?";
+			query += "name=" + Uri.encode(garden.getName());
+			query += "&city=" + Uri.encode(garden.getCity());
+			query += "&state=" + Uri.encode(garden.getState());
+			HttpGet httpget = new HttpGet(query);
+			try {
+				HttpResponse response = httpclient.execute(httpget);
+				HttpEntity entity = response.getEntity();
+				String result = EntityUtils.toString(entity);
+				garden.setServerId(gson.fromJson(result, int.class));
+				success = true;
+			} catch (Exception e) { e.printStackTrace(); }
+		}
+		if (success) {
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					Toast.makeText(ShareGarden.this, "Garden has been uploaded online", Toast.LENGTH_SHORT).show();				
+				}
+			});
 			
-			@Override public void run() {
-				// TODO Auto-generated method stub
-				Toast.makeText(ShareGarden.this, "Garden has been uploaded online", Toast.LENGTH_SHORT).show();				
-			}
-		});
-		
+			uploadImages();
+		}
+		else
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					Toast.makeText(ShareGarden.this, "Garden was not successfully uploaded.", Toast.LENGTH_SHORT).show();				
+				}
+			});
+			
 		/*
 		File f = new File(Environment.getExternalStorageDirectory(), "photo.jpg");
 		try {
@@ -80,6 +121,43 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			e.printStackTrace();
 		}
 		*/
+		
+	}
+	
+	public void uploadImages() {
+		String accessKey = "AKIAIPOGJD62WOASLQYA";
+		String secretKey = "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";
+		BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+		AmazonS3Client s3 = new AmazonS3Client(credentials);
+		String bucketName = "gardengnome";
+		//ObjectListing objlist = s3.listObjects(bucketName);
+		HttpClient httpclient = new DefaultHttpClient();
+		for (int i = 0; i < garden.numImages(); i++) {
+			Uri uri = garden.getImage(i);
+			String imageUrl = garden.getName() + i + ".jpg";
+			try {
+				InputStream stream = getContentResolver().openInputStream(uri);
+				long size = getContentResolver().openFileDescriptor(uri, "r").getStatSize();
+				ObjectMetadata metadata = new ObjectMetadata();
+				metadata.setContentLength(size);
+				s3.putObject(bucketName, imageUrl, stream, metadata);
+				stream.close();
+			} catch (Exception e) { e.printStackTrace(); }
+			
+			HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens/" + garden.getServerId() + "/photos");
+			try {
+				StringEntity entity = new StringEntity("{\"photo\":{\"title\":\"Untitled\"}}");
+				entity.setContentType("application/json");
+				httppost.setEntity(entity);
+				httpclient.execute(httppost);
+			} catch (Exception e) { e.printStackTrace(); }
+		}
+		
+		runOnUiThread(new Runnable() {
+			@Override public void run() {
+				Toast.makeText(ShareGarden.this, "Photos has been uploaded online", Toast.LENGTH_SHORT).show();				
+			}
+		});
 		
 	}
 	

@@ -14,7 +14,8 @@ public class Garden {
 	@Expose private String name;
 	@Expose private String city;
 	@Expose private String state;
-	private int previewId;
+	/** database id on server */
+	private int serverId;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
 	private RectF bounds = new RectF(0, 0, 800, 480);
 	private ArrayList<String> images = new ArrayList<String>();
@@ -30,7 +31,6 @@ public class Garden {
 	Garden(int resId, String gardenName) {
 		bounds = new RectF(0, 0, 800, 480);
 		name = gardenName;
-		previewId = resId;
 	}
 	
 	public void addPlot(Plot plot) {
@@ -133,10 +133,6 @@ public class Garden {
 	
 	public Uri getPreview() {return getImage(images.size() - 1); }
 	
-	public int getPreviewId() { return previewId; }
-	
-	public void setPreviewId(int previewId) { this.previewId = previewId; }
-	
 	public ArrayList<String> getImages() {return images; }
 	
 	public ArrayList<Plot> getPlots() { return plots; }
@@ -144,6 +140,10 @@ public class Garden {
 	public RectF getRawBounds() { return bounds; }
 	
 	public void setRawBounds(RectF bounds) { this.bounds = bounds; }
+	
+	public int getServerId() { return serverId; }
+	
+	public void setServerId(int serverId) { this.serverId = serverId; }
 	
 	/** Helpful ArrayList-related methods */
 	

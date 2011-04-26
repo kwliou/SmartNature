@@ -1,15 +1,14 @@
 User name:string password:string
 Garden name:string date_modified:date width:double height:double
-Plot garden_id:int name:string
-	shape:int color:int left:int right:int top:int bottom:int angle:double
-Point plot_id:int x:int y:int
-Plant name:string plot_id:int online_id:int
+Plot garden_id:int name:string shape:int color:int points:string
+Plant name:string plot_id:int online_entry:string
 GardensUsers user_id:int garden_id:int
 
 New ideas:
 show the actual angle number somewhere when rotating plot
 show the actual dimensions somewhere when resizing plot
 show a shadow of old copy of plot when editing current copy
+maybe have different hint when garden is empty
 
 TODO:
 resizing polygons, going back into edit point mode?
@@ -22,8 +21,11 @@ pinch and zoom for editview
 add alternate plot list view for gardens
 
 Current issues:
+afraid share garden activity might end before it's finished
+zoomfit when polygon point mode?
 what do when a plot completely overlaps another? introduce z-index?
 dotted circle might be obscured in edit mode
+UI thread blocked when getting geolocation
 
 "Main"/home screen
 - start a new garden (Button)

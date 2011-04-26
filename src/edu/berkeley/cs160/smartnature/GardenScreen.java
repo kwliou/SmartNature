@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -159,7 +160,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				zoomControls.setVisibility(View.GONE); // need to manually hide
 		}
 		
-		if (requestCode == USE_CAMERA) {
+		if (requestCode == USE_CAMERA && resultCode == RESULT_OK) {
 			if (data.getData() != null)
 				imageUri = data.getData();
 			System.out.println(imageUri.toString());
@@ -207,9 +208,9 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				
 				// MY STUPID HTC CAMERA APP IGNORES EXTRA_OUTPUT!!! 
 				ContentValues values = new ContentValues();
-				values.put(MediaStore.Images.Media.TITLE, fileName);
+				values.put(Images.Media.TITLE, fileName);
 				//values.put(MediaStore.Images.Media.DESCRIPTION, "Image capture by camera");
-				imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+				imageUri = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 				intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 				startActivityForResult(intent, USE_CAMERA);
 				break;
