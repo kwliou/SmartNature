@@ -2,11 +2,14 @@ package edu.berkeley.cs160.smartnature;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,7 +21,7 @@ import android.widget.ZoomControls;
 
 public class GardenScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
 	
-	final static int VIEW_PLOT = 1;
+	final static int VIEW_PLOT = 1, USE_CAMERA = 2;
 	Garden mockGarden;
 	GardenView gardenView;
 	View textEntryView;
@@ -76,6 +79,8 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		gardenView.dragMatrix.getValues(values);
 		gardenView.bgDragMatrix.getValues(bgvalues);
 		savedInstanceState.putFloatArray("drag_matrix", values);
+		savedInstanceState.putParcelable("key", imageUri);
+		//("drag_matrix", values);
 		savedInstanceState.putFloatArray("bgdrag_matrix", bgvalues);
 		super.onSaveInstanceState(savedInstanceState);
 	}
@@ -86,6 +91,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		gardenView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
 		int orien = getResources().getConfiguration().orientation;
+		imageUri = (Uri) savedInstanceState.getParcelable("key");
 		
 		float[] values = savedInstanceState.getFloatArray("drag_matrix");
 		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");
@@ -143,7 +149,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				data.putExtra("bgdrag_matrix", bgvalues);
 				startActivityForResult(data, 0);
 				overridePendingTransition(0, 0);
-			}
+		}
 		else if (data != null && data.hasExtra("zoom_scale")) { // returning from EditScreen activity
 			gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1); //extras.getFloat("zoom_scale");
 			gardenView.dragMatrix.setValues(data.getFloatArrayExtra("drag_matrix"));
@@ -151,6 +157,13 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			gardenView.onAnimationEnd();
 			if (zoomAutoHidden)
 				zoomControls.setVisibility(View.GONE); // need to manually hide
+		}
+		
+		if (requestCode == USE_CAMERA) {
+			if (data.getData() != null)
+				imageUri = data.getData();
+			System.out.println(imageUri.toString());
+			mockGarden.addImage(imageUri);
 		}
 		
 		setTitle(mockGarden.getName());
@@ -162,6 +175,8 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		inflater.inflate(R.menu.garden_menu, menu);
 		return true;
 	}
+	
+	Uri imageUri;
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -184,7 +199,19 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			case R.id.m_showlabels:
 				showLabels = !showLabels;
 				item.setTitle(showLabels ? "Hide labels" : "Show labels");
-				gardenView.invalidate();				
+				gardenView.invalidate();
+				break;
+			case R.id.m_takephoto:
+				intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+				String fileName = "GardenGnome_" + mockGarden.getName() + mockGarden.numImages() + ".jpg";
+				
+				// MY STUPID HTC CAMERA APP IGNORES EXTRA_OUTPUT!!! 
+				ContentValues values = new ContentValues();
+				values.put(MediaStore.Images.Media.TITLE, fileName);
+				//values.put(MediaStore.Images.Media.DESCRIPTION, "Image capture by camera");
+				imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+				intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+				startActivityForResult(intent, USE_CAMERA);
 				break;
 		}
 		return super.onOptionsItemSelected(item);

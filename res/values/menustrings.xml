@@ -16,4 +16,5 @@
 	<string name="m_sharegarden">Share garden</string>
 	<string name="m_showlabels">Hide labels</string>
 	<string name="m_syncgarden">Manual sync</string>
+	<string name="m_takephoto">Take a photo</string>
 </resources>

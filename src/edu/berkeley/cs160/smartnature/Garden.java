@@ -3,6 +3,7 @@ package edu.berkeley.cs160.smartnature;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.Uri;
 
 import java.util.ArrayList;
 
@@ -16,6 +17,7 @@ public class Garden {
 	private int previewId;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
 	private RectF bounds = new RectF(0, 0, 800, 480);
+	private ArrayList<String> images = new ArrayList<String>();
 	
 	private static Rect padding = new Rect(30, 30, 30, 30);
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
@@ -129,9 +131,13 @@ public class Garden {
 	
 	public void setState(String state) { this.state = state; }
 	
+	public Uri getPreview() {return getImage(images.size() - 1); }
+	
 	public int getPreviewId() { return previewId; }
 	
 	public void setPreviewId(int previewId) { this.previewId = previewId; }
+	
+	public ArrayList<String> getImages() {return images; }
 	
 	public ArrayList<Plot> getPlots() { return plots; }
 	
@@ -150,5 +156,11 @@ public class Garden {
 	public void remove(Plot plot) { plots.remove(plot); }
 	
 	public int size() { return plots.size(); }
+	
+	public Uri getImage(int index) {return Uri.parse(images.get(index)); }
+	
+	public void addImage(Uri uri) { images.add(uri.toString()); }
+	
+	public int numImages() { return images.size(); }
 	
 }

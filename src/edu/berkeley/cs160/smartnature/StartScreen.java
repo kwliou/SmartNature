@@ -43,13 +43,16 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	AlertDialog dialog;
 	View textEntryView;
 	private DatabaseHelper dh;
-	LocationManager lm; 
+	
+	LocationManager lm;
+	Geocoder geocoder;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		setContentView(R.layout.main);
+		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		geocoder = new Geocoder(this, Locale.getDefault());
 		this.dh = new DatabaseHelper(this);	
 		initMockData();
 		getListView().setOnItemClickListener(this);
@@ -133,32 +136,36 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		intent.putExtra("garden_id", gardens.size());
 		EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 		Garden garden = new Garden(gardenName.getText().toString());
-		
-		Geocoder gcd = new Geocoder(this, Locale.getDefault());
-		List<String> providers = lm.getProviders(false);
-		if (!providers.isEmpty()) {
-			Location loc = lm.getLastKnownLocation(providers.get(0));
-			List<Address> addresses = new ArrayList<Address>();
-			try {
-				addresses = gcd.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-			} catch (IOException e) { e.printStackTrace(); }
-			if (addresses.size() > 0) {
-				Address addr = addresses.get(0);
-				System.out.println(addr.getLocality());
-				System.out.println(addr.getAdminArea());
-				System.out.println(addr.getCountryCode());
-				garden.setCity(addr.getLocality());
-				if (addr.getCountryCode() == null)
-					garden.setState(addr.getCountryCode());
-				else
-					garden.setState(addr.getAdminArea());
-			}
-		}
 		gardens.add(garden);
 		adapter.notifyDataSetChanged();
 		startActivityForResult(intent, 0);
+		new Thread(setLocation).start();
 		removeDialog(0);
 	}
+	
+	Runnable setLocation = new Runnable() {
+		@Override
+		public void run() {
+			Garden garden = gardens.get(gardens.size() - 1);
+			List<String> providers = lm.getProviders(false);
+			if (!providers.isEmpty()) {
+				Location loc = lm.getLastKnownLocation(providers.get(0));
+				List<Address> addresses = new ArrayList<Address>();
+				try {
+					addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+				} catch (IOException e) { e.printStackTrace(); }
+				if (!addresses.isEmpty()) {
+					Address addr = addresses.get(0);
+					System.out.println(addr.getLocality() + "," + addr.getAdminArea() + "," + addr.getCountryCode());
+					garden.setCity(addr.getLocality());
+					if (addr.getAdminArea() != null)
+						garden.setState(addr.getAdminArea());
+					else
+						garden.setState(addr.getCountryCode());
+				}
+			}
+		}
+	};
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -215,8 +222,11 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 				view = li.inflate(R.layout.garden_list_item, null);
 			Garden garden = gardens.get(position);
 			((TextView) view.findViewById(R.id.garden_name)).setText(garden.getName());
-			((ImageView) view.findViewById(R.id.preview_img)).setImageResource(garden.getPreviewId());
-			
+			ImageView image = (ImageView) view.findViewById(R.id.preview_img); 
+			if (garden.getImages().isEmpty())
+				image.setImageResource(R.drawable.preview);
+			else
+				image.setImageURI(garden.getPreview());
 			return view;
 		}
 	}

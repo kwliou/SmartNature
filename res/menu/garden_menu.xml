@@ -5,6 +5,9 @@
 	<item android:id="@+id/m_gardenoptions"
 		android:icon="@android:drawable/ic_menu_manage"
 		android:title="@string/m_gardenoptions" />
+	<item android:id="@+id/m_takephoto"
+		android:icon="@android:drawable/ic_menu_camera"
+		android:title="@string/m_takephoto" />
 	<item android:id="@+id/m_sharegarden"
 		android:icon="@android:drawable/ic_menu_share"
 		android:title="@string/m_sharegarden" />

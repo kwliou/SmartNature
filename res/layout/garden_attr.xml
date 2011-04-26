@@ -19,7 +19,6 @@
 	<EditText
 		android:id="@+id/garden_city"
 		android:hint="City"
-		android:layout_marginRight="5dp"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
 
