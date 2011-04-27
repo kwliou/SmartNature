@@ -19,6 +19,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -38,6 +39,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 
 	boolean searchScreen = true;
 
+	String pName = "";
 	String name = "";
 	EditText search;
 
@@ -139,15 +141,12 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		}
 		String plantURL = ((TextView)arg1.findViewById(R.id.linkURL)).getText().toString();
 		LinearLayout details = (LinearLayout) findViewById(R.id.plantDescription);
-		String name = ((TextView)arg1.findViewById(R.id.name)).getText().toString();
+		pName = ((TextView)arg1.findViewById(R.id.name)).getText().toString();
 		
 		details.removeAllViews();
 		
-		TextView plantName = new TextView(Encyclopedia.this);
-		plantName.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-		plantName.setTextSize(20);
-		plantName.setText(name);
-		details.addView(plantName);
+		TextView plantName = (TextView)findViewById(R.id.searchName);
+		plantName.setText(pName);
 		
 		
 		Document doc;
@@ -170,9 +169,30 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		details.setVisibility(View.VISIBLE);
+		
+		Button addToPlot = (Button)findViewById(R.id.addToPlot);
+		addToPlot.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				startActivityForResult(new Intent(Encyclopedia.this, AddPlant.class), 0);
+				
+			}
+		});
 		//Intent browserIntent = new Intent("android.intent.action.VIEW", Uri.parse(plantURL));
 		//startActivity(browserIntent);
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (data != null){
+			int plotId, gardenId;
+			plotId = (Integer) data.getExtras().get("plotId");
+			gardenId = (Integer) data.getExtras().get("gardenId");
+			GardenGnome.gardens.get(gardenId).getPlot(plotId).addPlant(new Plant(pName));
+		}
 	}
 
 	@Override
