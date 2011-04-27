@@ -6,28 +6,53 @@
 	android:orientation="vertical">
 
 	<TextView
-		android:text="My plant"
-		android:id="@+id/plantTextView"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center"
-		android:textStyle="bold"
-		android:textSize="24sp" />
+		android:id="@+id/plant_hint"
+		style="@style/GardenHint"
+		android:visibility="gone"
+		android:layout_alignParentTop="true"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+		
+				
 
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<Button
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:id="@+id/lookup_plant"
+			android:text="Encyclopedia entry" 
+			/>
+		<Button
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:id="@+id/delete_plant"
+			android:text="Delete this Plant" 
+			/>
+	</LinearLayout>
+
+	<!-- 
 	<LinearLayout
 		android:layout_height="wrap_content"
 		android:layout_width="fill_parent"
 		android:id="@+id/linearLayout1"
-		android:orientation="vertical"
-		android:gravity="center">
-		<!-- <ImageView android:src="@drawable/carrots" android:layout_width="wrap_content" 
+		android:orientation="vertical" 
+		android:gravity="center"
+		>
+		<ImageView android:src="@drawable/carrots" android:layout_width="wrap_content" 
 			android:layout_height="wrap_content" android:id="@+id/addImage" /> <TextView 
 			android:text="Click on picture to add an image" android:id="@+id/textView1" 
 			android:layout_width="wrap_content" android:layout_height="wrap_content" 
-			/> -->
-
+			/> 
 	</LinearLayout>
-
+	-->
+	
 	<LinearLayout
 		android:id="@+id/linearLayout2"
 		android:gravity="center"
@@ -47,8 +72,17 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:id="@+id/addEntryButton"
-			android:text="Post" />
+			android:text="Post Entry" />
 	</LinearLayout>
+	<TextView
+		android:text="List of Entries"
+		android:background="#ffd4d4d4"
+		android:gravity="center_vertical"
+		android:textAppearance="?android:listSeparatorTextViewStyle"
+		android:paddingLeft="5sp"
+		android:layout_width="fill_parent"
+		android:layout_height="25dp" 
+		/>
 
 	<ListView
 		android:id="@+id/android:list"

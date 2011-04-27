@@ -11,13 +11,16 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ZoomControls;
 
-public class EditScreen extends Activity implements View.OnClickListener, ColorPickerDialog.OnColorChangedListener {
+import java.util.ArrayList;
+
+public class EditScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener, ColorPickerDialog.OnColorChangedListener {
 	
 	Garden mockGarden;
 	EditView editView;
@@ -29,7 +32,8 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	/** false if activity has been previously started */
 	boolean firstInit = true;
 	/** User-related options */
-	boolean showLabels = true, showFullScreen, zoomAutoHidden;
+	boolean createPoly;
+	boolean hintsOn, showLabels = true, showFullScreen, zoomAutoHidden;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
 	
@@ -42,8 +46,11 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		super.onCreate(savedInstanceState);
 		
 		extras = getIntent().getExtras();
-		mockGarden = StartScreen.gardens.get(extras.getInt("garden_id"));
+		mockGarden = GardenGnome.gardens.get(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
+		
+		if (extras.getInt("type") == Plot.POLY)
+			createPoly = true;
 		
 		if (firstInit && extras.containsKey("type"))
 			createPlot();
@@ -60,6 +67,9 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		setContentView(R.layout.edit_plot);
 		editView = (EditView) findViewById(R.id.edit_view);
 		
+		if (createPoly)
+			((Button)findViewById(R.id.save_btn)).setText("Save shape");
+		
 		if (firstInit) {
 			editView.zoomScale = extras.getFloat("zoom_scale");
 			editView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
@@ -67,15 +77,19 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			editView.onAnimationEnd();
 		}
 		
-		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
+		hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			TextView hint = (TextView) findViewById(R.id.edit_hint);
 			hint.setText(R.string.hint_editscreen);
+			if (createPoly)
+				hint.setText(R.string.hint_editpoly); 
+			
 			hint.setVisibility(View.VISIBLE);
 		}
 		
-		findViewById(R.id.save_btn).setOnClickListener(this);
-		findViewById(R.id.zoomfit_btn).setOnClickListener(this);
+		findViewById(R.id.edit_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+		initButton(R.id.save_btn);
+		initButton(R.id.edit_zoomfit_btn);
 		
 		zoomControls = (ZoomControls) findViewById(R.id.edit_zoom_controls);
 		zoomControls.setOnZoomInClickListener(zoomIn);
@@ -86,22 +100,34 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		
 		editView.invalidate();
 	}
+
+	public void initButton(int id) {
+		View view = findViewById(id);
+		view.setOnClickListener(this);
+		view.setOnFocusChangeListener(this);
+		view.setOnTouchListener(this);
+		view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+	}
 	
 	public void createPlot() {
 		RectF gBounds = mockGarden.getRawBounds();
+		if (mockGarden.isEmpty()) {
+			int width = getWindowManager().getDefaultDisplay().getWidth();
+			int height = getWindowManager().getDefaultDisplay().getHeight();
+			gBounds = new RectF(0, 0, width, height);
+		}
 		int type = extras.getInt("type");
 		String name = extras.getString("name");
-		if (type == Plot.POLY) {
-			Rect bounds = new Rect(270, 120, 270 + 90, 120 + 100);
-			float[] pts = { 0, 0, 50, 10, 90, 100 };
-			plot = new Plot(name, bounds, 0, pts);
-		}
-		else {
-			Rect bounds = new Rect((int)gBounds.left, (int)gBounds.top, (int)gBounds.right, (int)gBounds.bottom);
-			bounds.inset((int)gBounds.width()/3, (int)gBounds.height()/3);
-			plot = new Plot(name, bounds, 0, type);
-		}
+		Rect bounds = new Rect((int)gBounds.left, (int)gBounds.top, (int)gBounds.right, (int)gBounds.bottom);
+		bounds.inset((int)gBounds.width()/3, (int)gBounds.height()/3);
+		System.out.println(bounds);
+		if (type == Plot.POLY)
+			plot = new Plot(name, bounds, new float[] { 0, 0 });
+		else
+			plot = new Plot(name, bounds, type);
+			
 		mockGarden.addPlot(plot);
+		mockGarden.refreshBounds();
 	}
 	
 	public void loadPlot() {
@@ -115,6 +141,9 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	public void onSaveInstanceState(Bundle savedInstanceState) {
 		savedInstanceState.putFloat("zoom_scale", editView.zoomScale);
 		savedInstanceState.putBoolean("portrait_mode", editView.portraitMode);
+		savedInstanceState.putBoolean("create_poly", createPoly);
+		if (createPoly)
+			savedInstanceState.putFloatArray("poly_points", toFloatArray(editView.polyPts));
 		float[] values = new float[9], bgvalues = new float[9];
 		editView.dragMatrix.getValues(values);
 		editView.bgDragMatrix.getValues(bgvalues);
@@ -129,10 +158,15 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		editView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
 		boolean portraitMode = getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight();
+		createPoly = savedInstanceState.getBoolean("create_poly");
+		if (createPoly) {
+			float[] pts = savedInstanceState.getFloatArray("poly_points");
+			for (float pt : pts)
+				editView.polyPts.add(pt);
+		}
 		float[] values = savedInstanceState.getFloatArray("drag_matrix");
 		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");
 		
-		System.out.println("editView=" + editView.getWidth() + "," + editView.getHeight());
 		if (portraitMode && !prevPortraitMode) {
 			// changed from landscape to portrait
 			float tmp = values[Matrix.MTRANS_X];
@@ -159,32 +193,47 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 	
 	@Override
 	public void onBackPressed() {
-		mockGarden.remove(oldPlot);
-		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-		Intent intent = new Intent();
-		Bundle bundle = new Bundle();
-		bundle.putFloat("zoom_scale", editView.zoomScale);
-		float[] values = new float[9], bgvalues = new float[9];
-		editView.dragMatrix.getValues(values);
-		editView.bgDragMatrix.getValues(bgvalues);
-		bundle.putFloatArray("drag_matrix", values);
-		bundle.putFloatArray("bgdrag_matrix", bgvalues);
-		intent.putExtras(bundle);
-		setResult(RESULT_OK, intent);
-		finish();
-		overridePendingTransition(0, 0);
+		if (createPoly) {
+			float[] pts = toFloatArray(editView.polyPts);
+			plot.set(new Plot(plot.getName(), pts));
+			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+			oldPlot.set(plot);
+			((Button)findViewById(R.id.save_btn)).setText(R.string.btn_save_edit);
+			if (hintsOn) {
+				TextView hint = (TextView) findViewById(R.id.edit_hint);
+				hint.setText(R.string.hint_editscreen);
+			}
+			createPoly = false;
+			editView.invalidate();
+		}
+		else {
+			mockGarden.remove(oldPlot);
+			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
+			Intent intent = new Intent();
+			intent.putExtra("zoom_scale", editView.zoomScale);
+			float[] values = new float[9], bgvalues = new float[9];
+			editView.dragMatrix.getValues(values);
+			editView.bgDragMatrix.getValues(bgvalues);
+			intent.putExtra("drag_matrix", values);
+			intent.putExtra("bgdrag_matrix", bgvalues);
+			setResult(RESULT_OK, intent);
+			finish();
+			overridePendingTransition(0, 0);
+		}
 	}
 	
 	/** in this method views actually have valid dimensions */
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
+		/*
 		if (firstInit && !footerShown) {
 			footerShown = true;
-			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.footer).getHeight(), 0);
+			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.edit_footer).getHeight(), 0);
 			anim.setDuration(getResources().getInteger(R.integer.footer_duration));
-			findViewById(R.id.footer).startAnimation(anim);
+			findViewById(R.id.edit_footer).startAnimation(anim);
 		}
+		*/
 	}
 	
 	@Override
@@ -217,9 +266,9 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 			case R.id.save_btn:
 				onBackPressed();
 				break;
-			case R.id.zoomfit_btn:
+			case R.id.edit_zoomfit_btn:
 				editView.zoomScale = 1;
-				mockGarden.refreshBounds();
+				mockGarden.refreshBounds(mockGarden.size() - (createPoly ? 2 : 1));
 				editView.reset();
 				break;
 		}
@@ -275,6 +324,38 @@ public class EditScreen extends Activity implements View.OnClickListener, ColorP
 		getPreferences(MODE_PRIVATE).edit().putInt("color", color).commit();
 		plot.getPaint().setColor(color);
 		editView.invalidate();
+	}
+	
+	public static float[] toFloatArray(ArrayList<Float> list) {
+		float[] pts = new float[list.size()];
+		for (int i = 0; i < pts.length; i++)
+			pts[i] = list.get(i);
+		return pts;
+	}
+	
+	@Override
+	public void onFocusChange(View view, boolean hasFocus) {
+		if (hasFocus)
+			view.getBackground().setAlpha(0xff);
+		else
+			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+	}
+	
+	@Override
+	public boolean onTouch(View view, MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
+			view.getBackground().setAlpha(0xff);
+		else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			if (!view.isPressed()) {
+				view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+				view.invalidate();
+			}
+		}
+		else {
+			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
+			view.invalidate();
+		}
+		return false;
 	}
 	
 }

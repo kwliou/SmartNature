@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -51,13 +50,10 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	}
 	
 	public void initMockData() {
-		garden = this.context.mockGarden;
+		garden = context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getPaint();
-			p.setStyle(Paint.Style.STROKE);
 			p.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-			p.setStrokeCap(Paint.Cap.ROUND);
-			p.setStrokeJoin(Paint.Join.ROUND);
 		}
 	}
 	
@@ -144,12 +140,11 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	public void onClick(View view) {
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, PlotScreen.class);
-			Bundle bundle = new Bundle();
-			bundle.putString("name", focusedPlot.getName());
-			bundle.putInt("garden_id", context.gardenID);
-			bundle.putInt("plot_id", garden.getPlots().indexOf(focusedPlot));
-			intent.putExtras(bundle);      	
-			context.startActivity(intent);
+			intent.putExtra("name", focusedPlot.getName());
+			intent.putExtra("garden_id", GardenGnome.gardens.indexOf(garden));
+			intent.putExtra("plot_id", garden.getPlots().indexOf(focusedPlot));
+			context.startActivityForResult(intent, GardenScreen.VIEW_PLOT);
+			//context.handleZoom();
 		}
 	}
 	
@@ -157,17 +152,15 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	public boolean onLongClick(View view) {
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, EditScreen.class);
-			Bundle bundle = new Bundle();
-			bundle.putString("name", focusedPlot.getName());
-			bundle.putInt("garden_id", StartScreen.gardens.indexOf(garden));
-			bundle.putInt("plot_id", garden.indexOf(focusedPlot));
-			bundle.putFloat("zoom_scale", zoomScale);
+			intent.putExtra("name", focusedPlot.getName());
+			intent.putExtra("garden_id", GardenGnome.gardens.indexOf(garden));
+			intent.putExtra("plot_id", garden.indexOf(focusedPlot));
+			intent.putExtra("zoom_scale", zoomScale);
 			float[] values = new float[9], bgvalues = new float[9];
 			dragMatrix.getValues(values);
 			bgDragMatrix.getValues(bgvalues);
-			bundle.putFloatArray("drag_matrix", values);
-			bundle.putFloatArray("bgdrag_matrix", bgvalues);
-			intent.putExtras(bundle);
+			intent.putExtra("drag_matrix", values);
+			intent.putExtra("bgdrag_matrix", bgvalues);
 			focusedPlot.getPaint().setColor(tempColor);
 			context.startActivityForResult(intent, 0);
 			context.overridePendingTransition(0, 0);
@@ -182,7 +175,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		context.handleZoom();
 		x = event.getX(); y = event.getY();
 		
-		System.out.println(event.getPointerCount() + " pointers, " + event.getAction());
+		//System.out.println(event.getPointerCount() + " pointers, " + event.getAction());
 		switch (event.getAction() & MotionEvent.ACTION_MASK) {
 		case MotionEvent.ACTION_DOWN:
 			mode = TOUCH_SCREEN;
@@ -217,7 +210,9 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 				diffX = event.getX(0) - event.getX(1);
 				diffY = event.getY(0) - event.getY(1);
 				dist = diffX * diffX + diffY * diffY;
-				zoomScale *= dist / prevDist;
+				//zoomScale *= dist/prevDist;
+				zoomScale = (zoomScale * (dist/prevDist + 1))/2; // less "sensitive"
+				
 				onAnimationEnd();
 			}
 			else if (mode != IDLE) {

@@ -3,15 +3,23 @@ package edu.berkeley.cs160.smartnature;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.Uri;
 
 import java.util.ArrayList;
 
+import com.google.gson.annotations.Expose;
+
 public class Garden {
 
-	private String name;
-	private int previewId;
+	@Expose private String name;
+	@Expose private String city;
+	@Expose private String state;
+	/** database id on server */
+	private int serverId;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
-	private RectF bounds = new RectF(0, 0, 200, 200);
+	private RectF bounds = new RectF(0, 0, 800, 480);
+	private ArrayList<String> images = new ArrayList<String>();
+	
 	private static Rect padding = new Rect(30, 30, 30, 30);
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
 	private static Rect paddingPort = new Rect(30, 20, 10, 20);
@@ -21,11 +29,13 @@ public class Garden {
 	Garden(String gardenName) { this(R.drawable.preview, gardenName); }
 	
 	Garden(int resId, String gardenName) {
+		bounds = new RectF(0, 0, 800, 480);
 		name = gardenName;
-		previewId = resId;
 	}
 	
 	public void addPlot(Plot plot) {
+		// do not immediately refresh bounds to preserve viewport
+		/*
 		RectF pBounds = plot.getRotateBounds();
 		if (plots.isEmpty()) {
 			bounds = new RectF(pBounds);
@@ -36,6 +46,8 @@ public class Garden {
 			bounds.right = Math.max(bounds.right, pBounds.right);
 			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
 		}
+		*/
+		//if (plots.isEmpty()) bounds = new RectF(plot.getRotateBounds());
 		
 		plot.setID(plots.size());
 		plots.add(plot);
@@ -73,11 +85,16 @@ public class Garden {
 	}
 	
 	public void refreshBounds() {
+		refreshBounds(plots.size());
+	}
+	
+	public void refreshBounds(int count) {
 		if (plots.isEmpty())
 			bounds = new RectF();
 		else {
 			bounds = plots.get(0).getRotateBounds();
-			for (Plot p : plots) {
+			for (int i = 0; i < count; i++) {
+				Plot p = plots.get(i);
 				RectF pBounds = p.getRotateBounds();
 				bounds.left = Math.min(bounds.left, pBounds.left);
 				bounds.top = Math.min(bounds.top, pBounds.top);
@@ -106,9 +123,17 @@ public class Garden {
 	
 	public void setName(String name) { this.name = name; }
 	
-	public int getPreviewId() { return previewId; }
+	public String getCity() { return city; }
 	
-	public void setPreviewId(int previewId) { this.previewId = previewId; }
+	public void setCity(String city) { this.city = city; }
+	
+	public String getState() { return state; }
+	
+	public void setState(String state) { this.state = state; }
+	
+	public Uri getPreview() {return getImage(images.size() - 1); }
+	
+	public ArrayList<String> getImages() {return images; }
 	
 	public ArrayList<Plot> getPlots() { return plots; }
 	
@@ -116,9 +141,13 @@ public class Garden {
 	
 	public void setRawBounds(RectF bounds) { this.bounds = bounds; }
 	
+	public int getServerId() { return serverId; }
+	
+	public void setServerId(int serverId) { this.serverId = serverId; }
+	
 	/** Helpful ArrayList-related methods */
 	
-	public Plot getPlot(int id) { return plots.get(id); }
+	public Plot getPlot(int index) { return plots.get(index); }
 	
 	public int indexOf(Plot plot) { return plots.indexOf(plot); }
 	
@@ -127,5 +156,11 @@ public class Garden {
 	public void remove(Plot plot) { plots.remove(plot); }
 	
 	public int size() { return plots.size(); }
+	
+	public Uri getImage(int index) {return Uri.parse(images.get(index)); }
+	
+	public void addImage(Uri uri) { images.add(uri.toString()); }
+	
+	public int numImages() { return images.size(); }
 	
 }

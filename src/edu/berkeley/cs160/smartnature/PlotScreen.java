@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,59 +24,51 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PlotScreen extends ListActivity implements View.OnTouchListener, View.OnClickListener, AdapterView.OnItemClickListener {
+public class PlotScreen extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 	
-	static ArrayList<Plant> plants = new ArrayList<Plant>();
-	TextView text, plotTitle;
 	ListView plantListView;
-	Button addPlantButton, backButton;
+	EditText plantName;
 	AlertDialog dialog;
 	
+	Garden garden;
+	Plot plot;
 	static PlantAdapter adapter;
+	Plant plant;
 	int gardenID, plotID; 
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
-		if (extras != null && extras.containsKey("name")) {
-			setTitle(extras.getString("name"));
-			gardenID = extras.getInt("garden_id");
-			plotID = extras.getInt("plot_id");
-		} else {
-			showDialog(0);
-		}
+		gardenID = extras.getInt("garden_id");
+		garden = GardenGnome.gardens.get(gardenID);
+		plotID = extras.getInt("plot_id");
+		plot = garden.getPlot(plotID);
+		setTitle(plot.getName());
 		
 		setContentView(R.layout.plot);
 		initMockData();
-		getListView().setOnItemClickListener(PlotScreen.this);
+		getListView().setOnItemClickListener(this);
 		
-		plotTitle = (TextView) findViewById(R.id.plotTextView);
-		plotTitle.setText(extras.getString("name"));
-		addPlantButton = (Button) findViewById(R.id.addPlantButton);
-		addPlantButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-  				showDialog(0);
-        }
-    });
+		plantName = (EditText) findViewById(R.id.new_plant_name);
+		((Button) findViewById(R.id.addPlantButton)).setOnClickListener(this);
+		
+		/*
 		backButton = (Button) findViewById(R.id.backButton);
 		backButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
         	finish();
         }
     });
+    */
 	}
 	
 	public void initMockData() {
-		plants.add(new Plant("Carrot"));
-		plants.add(new Plant("Tomato"));
-		adapter = new PlantAdapter(this, R.layout.plant_list_item, StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants());
+		adapter = new PlantAdapter(this, R.layout.plant_list_item, plot.getPlants());
 		setListAdapter(adapter);
-
 	}
 	
+	// currently unused
 	@Override
 	public Dialog onCreateDialog(int id) {
 		LayoutInflater factory = LayoutInflater.from(this);
@@ -86,7 +77,7 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 			@Override
 			public void onClick(DialogInterface dialog, int whichButton) {
 				EditText plantName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-				StartScreen.gardens.get(gardenID).getPlots().get(plotID).addPlant( new Plant(plantName.getText().toString()) );
+				plot.addPlant( new Plant(plantName.getText().toString()) );
 				adapter.notifyDataSetChanged(); //refresh ListView
 			}
 		};
@@ -117,60 +108,102 @@ public class PlotScreen extends ListActivity implements View.OnTouchListener, Vi
 	}
 	
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.m_home:
-				finish();
-				break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-	
-	@Override
-	public boolean onTouch(View view, MotionEvent event) {
-		System.out.println("touched");
-		return false;
-	}
-	
-	@Override
 	public void onClick(View view) {
-		System.out.println("clicked");
+		//showDialog(0);
+		plot.addPlant(new Plant(plantName.getText().toString()));
+		plantName.setText("");
+		adapter.notifyDataSetChanged(); //refresh ListView
 	}
-
 	
 	class PlantAdapter extends ArrayAdapter<Plant> {
 
-		private ArrayList<Plant> items;
+		private ArrayList<Plant> plants;
 		private LayoutInflater li;
 		
 		public PlantAdapter(Context context, int textViewResourceId, ArrayList<Plant> items) {
 			super(context, textViewResourceId, items);
 			li = ((ListActivity) context).getLayoutInflater();
-			this.items = items;
+			this.plants = items;
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			View v = convertView;
 			if (v == null)
 				v = li.inflate(R.layout.plant_list_item, null);
-			Plant p = items.get(position);
-			((TextView) v.findViewById(R.id.plant_name)).setText(p.getName());
+			plant = plants.get(position);
+			((TextView) v.findViewById(R.id.plant_name)).setText(plant.getName());
+			/*
+			v.findViewById(R.id.lookup_plant).setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+	  				Intent intent = new Intent(PlotScreen.this, Encyclopedia.class);
+	  				Bundle bundle = new Bundle(1);
+	  				bundle.putString("name", plant.getName());
+	
+	  				
+	  				intent.putExtras(bundle);
+	  				startActivity(intent);
+				}
+			});
+			v.findViewById(R.id.add_journal).setOnClickListener(new OnClickListener() {
+		        public void onClick(View v) {
+		      		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
+		      		Bundle bundle = new Bundle(4);
+		      		bundle.putString("name", garden.getPlot(plotID).getPlants().get(position).getName());
+		      		bundle.putInt("garden_id", gardenID);
+		      		bundle.putInt("plot_id", plotID);
+		      		bundle.putInt("plant_id", position);
+		      		
+		      		intent.putExtras(bundle);
+		      		startActivity(intent);
+		        }
+			});
+			v.findViewById(R.id.delete_plant).setOnClickListener(new OnClickListener() {
+		        public void onClick(View v) {
+		        	remove(plant);
+		        }
+			});
+			*/
+			
 			return v;
 		}
+		
 	}
-
+	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
-		Bundle bundle = new Bundle(4);
-		bundle.putString("name", StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(position).getName());
-		bundle.putInt("gardenID", gardenID);
-		bundle.putInt("plotID", plotID);
-		bundle.putInt("plantID", position);
-		
-		intent.putExtras(bundle);
+		intent.putExtra("name", plot.getPlant(position).getName());
+		intent.putExtra("garden_id", gardenID);
+		intent.putExtra("plot_id", plotID);
+		intent.putExtra("plant_id", position);
 		startActivity(intent);
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.plot_menu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) {
+			case R.id.m_home:
+				Intent intent = new Intent(this, StartScreen.class);
+				startActivity(intent);
+				break;
+			case R.id.m_showhints:
+				/*
+				StartScreen.showHints = !StartScreen.showHints;
+				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");			
+				break;
+				*/
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+		
 }

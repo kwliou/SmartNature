@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,19 +39,21 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	String name;
 	EditText entryText;
 	ImageView addImage;
-	TextView plantTextView;
-	Button addEntryButton, backButton;
+	TextView plantTextView, plantHint;
+	Button addEntryButton, deleteEntryButton, searchPlantButton, deletePlantButton;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		super.onCreate(savedInstanceState);
+		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null && extras.containsKey("name")) {
 			name = extras.getString("name");
-			gardenID = extras.getInt("gardenID");
-			plotID = extras.getInt("plotID");
-			plantID = extras.getInt("plantID");
+			gardenID = extras.getInt("garden_id");
+			plotID = extras.getInt("plot_id");
+			plantID = extras.getInt("plant_id");
 			setTitle(name);
 		} else {
 			showDialog(0);
@@ -63,9 +66,44 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		entryText = (EditText) findViewById(R.id.entryText);
 		// addImage = (ImageView) findViewById(R.id.addImage);
 		addEntryButton = (Button) findViewById(R.id.addEntryButton);
-		plantTextView = (TextView) findViewById(R.id.plantTextView);
-		plantTextView.setText(name);
 
+		
+		plantHint = (TextView)findViewById(R.id.plant_hint);
+		plantHint.setText(R.string.hint_plantscreen);
+		
+		searchPlantButton = (Button) findViewById(R.id.lookup_plant);
+		//searchPlantButton.setText("Search for " + name);
+		searchPlantButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+  				Intent intent = new Intent(PlantScreen.this, Encyclopedia.class);
+  				Bundle bundle = new Bundle(1);
+  				bundle.putString("name", name);
+
+  				
+  				intent.putExtras(bundle);
+  				startActivity(intent);
+			}
+		});
+		deletePlantButton = (Button) findViewById(R.id.delete_plant);
+		//deletePlantButton.setText("Delete " + name + " from plot");
+		deletePlantButton.setOnClickListener(new OnClickListener() {
+	        public void onClick(View v) {
+	        	//remove(plant);
+	        	GardenGnome.gardens.get(gardenID).getPlot(plotID).getPlants().remove(plantID);
+	        	PlotScreen.adapter.notifyDataSetChanged(); 
+	        	finish();
+	        }
+		});
+		
+		
+		/*
+		if (StartScreen.showHints){
+			plantHint.setVisibility(View.VISIBLE);
+		}else{
+			plantHint.setVisibility(View.GONE);
+		}
+		*/
+		
 		/*
 		 * addImage.setOnClickListener(new OnClickListener() {
 		 * 
@@ -75,38 +113,35 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 		// Button addPicButton = (Button) findViewById(R.id.addPicButton);
 		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
-
 		addEntryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				EditText entry = (EditText) findViewById(R.id.entryText);
 				Date currentDate = new Date();
 				String dateStr = currentDate.toString();
-				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(
+								
+				GardenGnome.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(
 					new Entry(entryText.getText().toString(), dateStr));
 				adapter.notifyDataSetChanged(); // refresh ListView
 				entry.setText("");
 
 			}
 		});
+		
+
+
+	
+		
+		
+
 
 	}
 
 	public void initMockData() {
 
 		adapter = new EntryAdapter(this, R.layout.journal_list_item,
-				StartScreen.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries());
+				GardenGnome.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).getEntries());
 		setListAdapter(adapter);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.m_home:
-			finish();
-			break;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -136,15 +171,52 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			View v = convertView;
 			if (v == null)
 				v = li.inflate(R.layout.journal_list_item, null);
-			Entry e = items.get(position);
+			final Entry e = items.get(position);
 			((TextView) v.findViewById(R.id.entry_name)).setText(e.getName());
 			((TextView) v.findViewById(R.id.entry_date)).setText(e.getDate());
+			
+			((Button) v.findViewById(R.id.delete_journal)).setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+        	remove(e);
+        }
+			});
+			
+			
 			return v;
 		}
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.plot_menu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) {
+			case R.id.m_home:
+				Intent intent = new Intent(PlantScreen.this, StartScreen.class);
+				startActivity(intent);
+				break;
+			case R.id.m_showhints:
+				/*StartScreen.showHints = !StartScreen.showHints;
+				if (StartScreen.showHints){
+					plantHint.setVisibility(View.VISIBLE);
+				}else{
+					plantHint.setVisibility(View.GONE);
+				}
+				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");		
+				*/
+				break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 }

@@ -35,15 +35,32 @@ import android.widget.ViewFlipper;
 public class Encyclopedia extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener{
 	
 	static ResultAdapter adapter;
+
 	boolean searchScreen = true;
+
+	String name = "";
+	EditText search;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+    		Bundle extras = getIntent().getExtras();
+    		if (extras != null && extras.containsKey("name")) {
+    			name = extras.getString("name");
+    			setTitle(name);
+    		}
+    		
+    		
         setContentView(R.layout.encycl);
+        
+        
         getListView().setOnItemClickListener(this);
 		
 		Button searchButton = (Button) findViewById(R.id.searchButton);
+		search = (EditText)findViewById(R.id.searchText);
+		search.setText(name);
 		
 		searchButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick (View v) {
@@ -53,6 +70,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
         			searchScreen = true;
         		}
         		EditText search = (EditText)findViewById(R.id.searchText);
+
         		if(!search.getText().toString().equals("")){
 	        		String searchURL = "http://www.plantcare.com/encyclopedia/search.aspx?q=" + search.getText().toString();
 	        		//LinearLayout content = (LinearLayout) findViewById(R.id.content);

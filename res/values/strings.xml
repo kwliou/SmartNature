@@ -2,12 +2,13 @@
 <resources>
 	<string name="app_name">GardenGnome</string>
 	<string name="dev_email">ben8043@gmail.com, deeptiraj7@gmail.com, dicz.hack@gmail.com, kwliou@gmail.com</string>
-	<string name="new_garden">Map a garden</string>
+	<string name="new_garden">Map out a garden</string>
 	<string name="search_encyclopedia">Plant encyclopedia</string>
 	<string name="alert_dialog_ok">Create</string>
 	<string name="alert_dialog_cancel">Cancel</string>
 	<string name="alert_dialog_rename">Rename</string>
 	<string name="alert_dialog_share">Share</string>
+	<string name="btn_save_edit">Save changes</string>
 	<string name="new_garden_prompt">Enter garden name</string>
 	<string name="rename_garden_prompt">Edit garden name</string>
 	<string name="new_region_prompt">Enter region name</string>
@@ -16,5 +17,8 @@
 	<string name="garden_list_title">My Gardens</string>
 	<string name="global_prefs_name">GardenGnome Settings</string>
 	<string name="hint_gardenscreen">Press on a plot to view its plants/info\nLong press on a plot to edit its shape\nDrag the screen to pan the garden</string>
+	<string name="hint_editpoly">Double tap screen to add points to shape\nDrag a point to move it around\nLong press on a point to delete it\nThe last dotted line will be added for you</string>
 	<string name="hint_editscreen">Drag the edited plot to move it around\nDrag the dotted circle to rotate the plot\nDrag the square in bottom right corner of plot to resize it</string>
+	<string name="hint_plantscreen">Press the name to go to the encyclopedia.\nEnter your entry in the text box.\nPress "Post Entry" to save your entry.</string>
+
 </resources>

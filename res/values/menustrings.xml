@@ -5,7 +5,7 @@
 	<string name="m_contact">Feedback</string>
 	<string name="m_deletegarden">Delete garden</string>
 	<string name="m_editgardendim">Edit dimensions</string>
-	<string name="m_gardenoptions">Garden options</string>
+	<string name="m_gardenoptions">Edit attributes</string>
 	<string name="m_globaloptions">Settings</string>
 	<string name="m_help">Help</string>
 	<string name="m_hidelabels">Hide labels</string>
@@ -16,4 +16,5 @@
 	<string name="m_sharegarden">Share garden</string>
 	<string name="m_showlabels">Hide labels</string>
 	<string name="m_syncgarden">Manual sync</string>
+	<string name="m_takephoto">Take a photo</string>
 </resources>

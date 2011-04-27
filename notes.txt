@@ -1,19 +1,17 @@
 User name:string password:string
 Garden name:string date_modified:date width:double height:double
-Plot garden_id:int name:string
-	shape:int color:int left:int right:int top:int bottom:int angle:double
-Point plot_id:int x:int y:int
-Plant name:string plot_id:int online_id:int
+Plot garden_id:int name:string shape:int color:int points:string
+Plant name:string plot_id:int online_entry:string
 GardensUsers user_id:int garden_id:int
 
 New ideas:
 show the actual angle number somewhere when rotating plot
 show the actual dimensions somewhere when resizing plot
-maybe have bottom bar on garden screen with add plot, etc.
 show a shadow of old copy of plot when editing current copy
+maybe have different hint when garden is empty
 
 TODO:
-adding new polygon
+resizing polygons, going back into edit point mode?
 parsing encyclopedia(s)
 not using more than one encyclopedia source (maybe add options?)
 sharing gardens
@@ -23,28 +21,26 @@ pinch and zoom for editview
 add alternate plot list view for gardens
 
 Current issues:
+afraid share garden activity might end before it's finished
+zoomfit when polygon point mode?
 what do when a plot completely overlaps another? introduce z-index?
 dotted circle might be obscured in edit mode
-button bar might obscure plot after "reset zoom"
-
-Kevin - start screen, garden screen
-Joe - edit region/plot screen, new region/plot dialog
-Ben - region/plot screen, new plant dialog
-Deepti - plant entry screen, search screen, search result screen
+UI thread blocked when getting geolocation
 
 "Main"/home screen
 - start a new garden (Button)
 - view encyclopedia (Button)
-- user's gardens w/ pic previews and "View" button (ListView w/ custom adapter)
+- user's gardens w/ pic previews (ListView)
 * feedback
 * settings
 * help
 
 "Garden" screen
 - zoom in/out auto-hidden buttons (ZoomControls)
-- long press region -> context menu (reposition/move to front/move to back/rename/delete)
-* Add plot -> dialog -> Choose name (EditText), ellipse/rect/custom (RadioButton) -> Edit mode
+- long press region -> edit plot
+- Add plot button -> dialog -> Choose name (EditText), ellipse/rect/custom (RadioButton) -> Edit mode
   (custom = press points on screen that are automatically connected)
+- Zoom to fit button
 * Garden options -> rename/edit dimensions/manual sync/delete/export data?
 * View list of all regions
 * "Share" screen/dialog?
@@ -52,11 +48,11 @@ Deepti - plant entry screen, search screen, search result screen
 * Settings
 
 "Edit mode" screen
-- Rotate mode
-- Drag mode 
 - Save
+- Zoom to fit
 * Change color
-* Change shape (might be disabled for custom shapes)
+* Change shape (maybe only for custom shapes)
+* Revert changes
 
 "Share" screen/dialog
 NOTE: if not enough time, just make this an "e-mail screenshot" feature

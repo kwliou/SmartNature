@@ -8,60 +8,63 @@
 
 	<LinearLayout
 		android:orientation="vertical"
-		android:paddingLeft="6dp"
-		android:paddingTop="6dp"
-		android:paddingRight="6dp"
-		android:paddingBottom="3dp"
+		android:paddingLeft="4dp"
+		android:paddingRight="4dp"
+		android:layout_weight="1"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
+		android:layout_height="wrap_content">
 
 		<EditText
 			android:id="@+id/et_plot_name"
 			android:hint="Enter in plot name"
+			android:layout_marginTop="4dp"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 
 		<TextView
 			android:text="Choose plot shape"
-			android:padding="4dp"
-			android:textSize="16sp"
+			android:paddingLeft="4dp"
+			android:textSize="15sp"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 
-		<RadioGroup
-			android:id="@+id/rg_shape"
-			android:orientation="vertical"
-			android:layout_marginRight="10dp"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content">
-
-			<RadioButton
-				android:id="@+id/rb_rectangle"
-				android:checked="true"
-				android:text="Rectangle"
-				android:textSize="18sp"
-				android:paddingLeft="45dp"
+		<!--ScrollView
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"-->
+			<RadioGroup
+				android:id="@+id/rg_shape"
+				android:orientation="vertical"
+				android:layout_marginRight="10dp"
 				android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
+				android:layout_height="wrap_content">
 
-			<RadioButton
-				android:id="@+id/rb_ellipse"
-				android:text="Ellipse"
-				android:textSize="18sp"
-				android:paddingLeft="45dp"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
+				<RadioButton
+					android:id="@+id/rb_rectangle"
+					android:checked="true"
+					android:text="Rectangle"
+					android:textSize="18sp"
+					android:paddingLeft="45dp"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content" />
 
-			<RadioButton
-				android:id="@+id/rb_custom"
-				android:text="Custom (polygon)"
-				android:textSize="18sp"
-				android:layout_marginBottom="5dp"
-				android:paddingLeft="45dp"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content" />
+				<RadioButton
+					android:id="@+id/rb_ellipse"
+					android:text="Oval"
+					android:textSize="18sp"
+					android:paddingLeft="45dp"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content" />
 
-		</RadioGroup>
+				<RadioButton
+					android:id="@+id/rb_custom"
+					android:text="Polygon"
+					android:textSize="18sp"
+					android:paddingLeft="45dp"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content" />
+
+			</RadioGroup>
+		<!--  /ScrollView-->
 
 	</LinearLayout>
 
@@ -71,6 +74,8 @@
 		android:paddingTop="5dp"
 		android:paddingLeft="1dp"
 		android:paddingRight="1dp"
+		android:layout_marginTop="2dp"
+		android:layout_weight="1"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 
@@ -83,8 +88,8 @@
 
 		<Button
 			android:id="@+id/b_add_cancel"
-			android:text="@string/alert_dialog_cancel"
 			android:layout_weight="1"
+			android:text="@string/alert_dialog_cancel"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 
