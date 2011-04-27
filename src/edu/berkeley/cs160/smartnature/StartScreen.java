@@ -132,10 +132,13 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	}
 	
 	public void onClick(DialogInterface dialog, int whichButton) {
+		EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
+		String gardenName = textEntry.getText().toString();
+		if (gardenName.length() == 0)
+			gardenName = "Untitled garden";
 		Intent intent = new Intent(this, GardenScreen.class);
 		intent.putExtra("garden_id", gardens.size());
-		EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-		Garden garden = new Garden(gardenName.getText().toString());
+		Garden garden = new Garden(gardenName);
 		gardens.add(garden);
 		adapter.notifyDataSetChanged();
 		startActivityForResult(intent, 0);

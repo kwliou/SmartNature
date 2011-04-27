@@ -161,9 +161,9 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		}
 		
 		if (requestCode == USE_CAMERA && resultCode == RESULT_OK) {
-			if (data.getData() != null)
+			if (data != null && data.getData() != null)
 				imageUri = data.getData();
-			System.out.println(imageUri.toString());
+			System.out.println("imageUri=" + imageUri.toString());
 			mockGarden.addImage(imageUri);
 		}
 		
