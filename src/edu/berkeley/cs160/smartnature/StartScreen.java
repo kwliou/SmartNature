@@ -64,8 +64,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	public void initMockData() {
 		gardens = GardenGnome.gardens;
 		if (gardens.isEmpty()) {
-			Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");	
-			Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
+			Garden g1 = new Garden("Berkeley Youth Alternatives");	
+			Garden g2 = new Garden("Karl Linn");
 			g1.setCity("Berkeley"); g1.setState("California");
 			g2.setCity("Berkeley"); g2.setState("California");
 			
@@ -132,10 +132,13 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	}
 	
 	public void onClick(DialogInterface dialog, int whichButton) {
+		EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
+		String gardenName = textEntry.getText().toString();
+		if (gardenName.length() == 0)
+			gardenName = "Untitled garden";
 		Intent intent = new Intent(this, GardenScreen.class);
 		intent.putExtra("garden_id", gardens.size());
-		EditText gardenName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-		Garden garden = new Garden(gardenName.getText().toString());
+		Garden garden = new Garden(gardenName);
 		gardens.add(garden);
 		adapter.notifyDataSetChanged();
 		startActivityForResult(intent, 0);
@@ -143,6 +146,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		removeDialog(0);
 	}
 	
+	/** sets garden location using user's physical location */
 	Runnable setLocation = new Runnable() {
 		@Override
 		public void run() {

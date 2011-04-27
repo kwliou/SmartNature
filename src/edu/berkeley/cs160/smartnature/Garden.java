@@ -16,6 +16,7 @@ public class Garden {
 	@Expose private String state;
 	/** database id on server */
 	private int serverId;
+	private boolean is_public;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
 	private RectF bounds = new RectF(0, 0, 800, 480);
 	private ArrayList<String> images = new ArrayList<String>();
@@ -34,23 +35,9 @@ public class Garden {
 	}
 	
 	public void addPlot(Plot plot) {
-		// do not immediately refresh bounds to preserve viewport
-		/*
-		RectF pBounds = plot.getRotateBounds();
-		if (plots.isEmpty()) {
-			bounds = new RectF(pBounds);
-		}
-		else {
-			bounds.left = Math.min(bounds.left, pBounds.left);
-			bounds.top = Math.min(bounds.top, pBounds.top);
-			bounds.right = Math.max(bounds.right, pBounds.right);
-			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
-		}
-		*/
-		//if (plots.isEmpty()) bounds = new RectF(plot.getRotateBounds());
-		
 		plot.setID(plots.size());
 		plots.add(plot);
+		// NOTE: do not immediately refresh bounds to preserve viewport
 	}
 	
 	/** add a polygonal plot */
@@ -119,33 +106,37 @@ public class Garden {
 		return null;
 	}
 	
+	public String getCity() { return city; }
+		
 	public String getName() { return name; }
 	
-	public void setName(String name) { this.name = name; }
+	public Uri getPreview() {return getImage(images.size() - 1); }
 	
-	public String getCity() { return city; }
+	public RectF getRawBounds() { return bounds; }
 	
-	public void setCity(String city) { this.city = city; }
+	public int getServerId() { return serverId; }
 	
 	public String getState() { return state; }
 	
+	public boolean isPublic() { return is_public; }
+	
+	public void setCity(String city) { this.city = city; }
+	
+	public void setName(String name) { this.name = name; }
+	
+	public void setPublic(boolean is_public) { this.is_public = is_public; }
+	
+	public void setRawBounds(RectF bounds) { this.bounds = bounds; }
+	
+	public void setServerId(int serverId) { this.serverId = serverId; }
+	
 	public void setState(String state) { this.state = state; }
 	
-	public Uri getPreview() {return getImage(images.size() - 1); }
+	/** Helpful ArrayList-related methods */
 	
 	public ArrayList<String> getImages() {return images; }
 	
 	public ArrayList<Plot> getPlots() { return plots; }
-	
-	public RectF getRawBounds() { return bounds; }
-	
-	public void setRawBounds(RectF bounds) { this.bounds = bounds; }
-	
-	public int getServerId() { return serverId; }
-	
-	public void setServerId(int serverId) { this.serverId = serverId; }
-	
-	/** Helpful ArrayList-related methods */
 	
 	public Plot getPlot(int index) { return plots.get(index); }
 	

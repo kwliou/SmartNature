@@ -17,11 +17,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.GestureDetector;
 
-public class EditView extends View implements View.OnClickListener, View.OnLongClickListener, View.OnTouchListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+public class EditView extends View implements View.OnLongClickListener, View.OnTouchListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
 	EditScreen context;
 	Garden garden;
-	/** plot that is currently pressed */
+	/** plot that is being edited */
 	Plot editPlot;
 	/** the entire transformation matrix applied to the canvas */
 	Matrix m = new Matrix();
@@ -31,6 +31,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	Matrix bgDragMatrix = new Matrix();
 	/** coordinates of shape after transformation */ 
 	float[] shapeMid = new float[2], shapeTop = new float[2];
+	/** list of points used in create polygon mode */ 
 	ArrayList<Float> polyPts = new ArrayList<Float>();
 	GestureDetector gestureScanner;
 	Drawable bg;
@@ -38,12 +39,12 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	Path resizeArrow = new Path();
 	Paint textPaint, whitePaint, boundPaint, arrowPaint, resizePaint, rotatePaint;
 	Paint polyPaint, pointPaint, focPolyPaint, lastPointPaint;
-	float prevX, prevY, x, y;
+	float downX, downY, prevX, prevY, x, y;
 	float textSize;
 	float zoomClamp = 1, zoomScale = 1;
 	boolean portraitMode;
 	int tempColor, focPlotColor;
-	/** index of focused point */
+	/** index of focused point in create polygon mode */
 	int focPoint = -1;
 	
 	private final static int IDLE = 0, DRAG_SCREEN = 1, DRAG_SHAPE = 2, ROTATE_SHAPE = 3, RESIZE_SHAPE = 4;
@@ -58,7 +59,6 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		textSize = getResources().getDimension(R.dimen.labelsize_default);
 		initPaint();
 		initMockData();	
-		setOnClickListener(this);
 		setOnLongClickListener(this);
 		setOnTouchListener(this);
 		gestureScanner = new GestureDetector(context, this);
@@ -67,7 +67,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	public void initMockData() {
 		garden = context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
-			Paint p = plot.getShape().getPaint();
+			Paint p = plot.getPaint();
 			p.setStyle(Paint.Style.STROKE);
 			p.setStrokeCap(Paint.Cap.ROUND);
 			p.setStrokeJoin(Paint.Join.ROUND);
@@ -184,19 +184,19 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 			canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
 			// check special case
 			if (p == editPlot) {
-				Paint paint = editPlot.getShape().getPaint();
+				Paint paint = editPlot.getPaint();
 				Paint oldPaint = new Paint(paint);
 				canvas.drawRect(shapeBounds, boundPaint); //draw rectangular bounds
 				paint.set(whitePaint);
-				editPlot.getShape().draw(canvas);
+				editPlot.draw(canvas);
 				paint.set(oldPaint);
 			}				
-			p.getShape().draw(canvas);
+			p.draw(canvas);
 			canvas.restore();
 		}
 	}
 	
-	/** draws polygon points when creating a polygon */
+	/** draws polygon points in create polygon mode */
 	public void drawPoly(Canvas canvas) {
 		float[] pts = EditScreen.toFloatArray(polyPts);
 		m.mapPoints(pts);
@@ -286,6 +286,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 			return new RectF(getLeft(), getTop(), getRight(), getBottom());
 	}
 	
+	/** when view is done zooming in/out */
 	@Override
 	public void onAnimationEnd() {
 		zoomScale *= (float) Math.pow(getResources().getDimension(R.dimen.zoom_scalar), context.zoomPressed);
@@ -296,19 +297,10 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		context.zoomPressed = 0; 
 	}
 	
-	@Override
-	public void onClick(View view) {
-	}
-	
-
+	/** handles long clicking point in create polygon mode */
 	@Override
 	public boolean onLongClick(View view) {
-		System.out.println("LONG CLICK");
 		if (context.createPoly && mode != DRAG_POINT && focPoint != -1) {
-			/*polyPts.remove(focPoint + 1);
-			polyPts.remove(focPoint);
-			mode = IDLE;
-			focPoint = -1;*/
 			mode = HOLD_POINT;
 			return true;
 		}
@@ -342,8 +334,7 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		return true;
 	}
 	
-	float downX, downY;
-	
+	/** handles touch events in create polygon mode */
 	public void handlePoly(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN && mode != DRAG_POINT) { // so that created point won't respond to long click
 			System.out.println("ACTION DOWN");
@@ -463,16 +454,12 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 			editPlot.getBounds().offset((int) (dxy[2] - dxy[0]), (int) (dxy[3] - dxy[1]));
 		}
 		else if (mode == RESIZE_SHAPE) {
-			Rect newBounds = new Rect(editPlot.getBounds());
-			inverse.postRotate(-editPlot.getAngle(), newBounds.centerX(), newBounds.centerY());
+			Rect bounds = editPlot.getBounds();
+			inverse.postRotate(-editPlot.getAngle(), bounds.centerX(), bounds.centerY());
 			inverse.mapPoints(dxy);
 			int dx = (int) (dxy[2] - dxy[0]);
-			int dy = (int) (dxy[3] - dxy[1]);
-			newBounds.inset(-dx, portraitMode ? dy : -dy);
-			
-			float minSize = getResources().getDimension(R.dimen.resizebox_min) + 2; 
-			if (newBounds.width() > minSize && newBounds.height() > minSize)
-				editPlot.getShape().setBounds(newBounds);
+			int dy = (int) (portraitMode ? dxy[1] - dxy[3] : dxy[3] - dxy[1]);
+			editPlot.resize(dx, dy);
 		}
 		else if (mode == ROTATE_SHAPE) {
 			float dx = dxy[2] - shapeMid[0];
@@ -489,8 +476,8 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 	
 	public void handleUp() {
 		mode = IDLE;
-		editPlot.getShape().getPaint().setColor(tempColor);
-		editPlot.getShape().getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+		editPlot.getPaint().setColor(tempColor);
+		editPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 		int medGray = getResources().getColor(R.color.MEDGRAY);
 		arrowPaint.setColor(medGray);
 		boundPaint.setColor(Color.GRAY);
@@ -499,7 +486,9 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 		//rotatePaint.clearShadowLayer();
 	}
 
-	@Override public boolean onDoubleTap(MotionEvent e) {
+	/** handles double tap in create polygon mode */
+	@Override
+	public boolean onDoubleTap(MotionEvent e) {
 		System.out.println("DOUBLE TAP");
 		if (context.createPoly && mode == IDLE) {
 			float[] xy = { e.getX(), e.getY() };
@@ -508,34 +497,27 @@ public class EditView extends View implements View.OnClickListener, View.OnLongC
 			inverse.mapPoints(xy);
 			polyPts.add(xy[0]);
 			polyPts.add(xy[1]);
-		
-		
-		focPoint = polyPts.size() - 2;
-		mode = DRAG_POINT;
+			
+			focPoint = polyPts.size() - 2;
+			mode = DRAG_POINT;
 		}
 		return false;
 	}
-
+	
 	@Override public boolean onDoubleTapEvent(MotionEvent e) { return false; }
-
-	@Override public boolean onSingleTapConfirmed(MotionEvent e) {
-		System.out.println("SINGLE CONFIRMED");
-		return false;
-	}
-
+	
+	@Override public boolean onSingleTapConfirmed(MotionEvent e) { return false; }
+	
 	@Override public boolean onDown(MotionEvent e) { return false; }
-
+	
 	@Override public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) { return false; }
-
+	
 	@Override public void onLongPress(MotionEvent e) { }
-
+	
 	@Override public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
-
+	
 	@Override public void onShowPress(MotionEvent e) { }
-
-	@Override public boolean onSingleTapUp(MotionEvent e) {
-		System.out.println("SINGLE TAP UP");
-		return false;
-	}
+	
+	@Override public boolean onSingleTapUp(MotionEvent e) { return false; }
 	
 }
