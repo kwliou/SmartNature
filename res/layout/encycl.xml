@@ -3,7 +3,8 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent"
+	android:background="#ffffff">
 
 	<LinearLayout
 		android:orientation="horizontal"
@@ -14,7 +15,7 @@
 		android:layout_height="wrap_content">
 
 		<ImageView
-			android:src="@drawable/icon"
+			android:src="@drawable/search"
 			android:paddingBottom="3dp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" />
@@ -36,10 +37,26 @@
 			android:layout_height="wrap_content" />
 
 	</LinearLayout>
-
-	<ListView
-		android:id="@+id/android:list"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
-
+	<ViewFlipper 
+		android:id="@+id/ViewFlipper01" 
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent" >
+		<ListView
+			android:id="@+id/android:list"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent" />
+		<ScrollView 
+			android:id="@+id/descriptionContent"
+			android:orientation="vertical"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent" >	
+			<LinearLayout
+				android:id="@+id/plantDescription"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" 
+				android:orientation="vertical"/>
+		</ScrollView>
+		
+		
+	</ViewFlipper>
 </LinearLayout>

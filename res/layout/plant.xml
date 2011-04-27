@@ -58,7 +58,8 @@
 		android:gravity="center"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal">
+		android:orientation="horizontal"
+		>
 
 		<EditText
 			android:maxLength="140"
@@ -85,7 +86,12 @@
 
 	<ListView
 		android:id="@+id/android:list"
-		android:layout_height="fill_parent"
+		android:layout_height="wrap_content"
 		android:layout_width="fill_parent" />
+	<ImageView
+		android:src="@drawable/plant_temp_pic"
+		android:paddingLeft="3dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
 
 </LinearLayout>
