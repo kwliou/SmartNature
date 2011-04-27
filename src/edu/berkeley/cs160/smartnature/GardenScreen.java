@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,7 +21,9 @@ import android.widget.ZoomControls;
 
 public class GardenScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
 	
-	final static int VIEW_PLOT = 1, USE_CAMERA = 2;
+	/** request codes used in intents */
+	final static int EDIT_GARDEN = 1, USE_CAMERA = 2, ADD_PLOT = 3, EDIT_PLOT = 4, VIEW_PLOT = 5;
+	
 	Garden mockGarden;
 	GardenView gardenView;
 	View textEntryView;
@@ -31,9 +32,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	
 	/** User-related options */
 	boolean showLabels = true, showFullScreen, zoomAutoHidden;
-	int currentDialog;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
+	/** URI of photo from camera app */
+	Uri imageUri;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -91,14 +93,13 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		super.onRestoreInstanceState(savedInstanceState);
 		gardenView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
-		int orien = getResources().getConfiguration().orientation;
+		boolean portraitMode = getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight();
 		imageUri = (Uri) savedInstanceState.getParcelable("key");
 		
 		float[] values = savedInstanceState.getFloatArray("drag_matrix");
 		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");
 		
-		if (orien == Configuration.ORIENTATION_PORTRAIT && !prevPortraitMode) {
-			// changed from landscape to portrait
+		if (portraitMode && !prevPortraitMode) { // changed from landscape to portrait
 			float tmp = values[Matrix.MTRANS_X];
 			values[Matrix.MTRANS_X] = -values[Matrix.MTRANS_Y];
 			values[Matrix.MTRANS_Y] = tmp;
@@ -106,8 +107,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			bgvalues[Matrix.MTRANS_X] = -bgvalues[Matrix.MTRANS_Y];
 			bgvalues[Matrix.MTRANS_Y] = tmp;
 		}
-		else if (orien == Configuration.ORIENTATION_LANDSCAPE && prevPortraitMode) {
-			// changed from portrait to landscape
+		else if (portraitMode && prevPortraitMode) { // changed from portrait to landscape
 			float tmp = values[Matrix.MTRANS_X];
 			values[Matrix.MTRANS_X] = values[Matrix.MTRANS_Y];
 			values[Matrix.MTRANS_Y] = -tmp;
@@ -125,7 +125,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	public void onClick(View view) {
 		switch (view.getId()) {
 			case R.id.addplot_btn:
-				startActivityForResult(new Intent(this, AddPlot.class), 0);
+				startActivityForResult(new Intent(this, AddPlot.class), ADD_PLOT);
 				break;
 			case R.id.zoomfit_btn:
 				gardenView.zoomScale = 1;
@@ -138,9 +138,19 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == VIEW_PLOT && zoomAutoHidden) // returning from PlotScreen activity
-			zoomControls.hide(); // need to manually hide
-		else if (data != null && data.hasExtra("name")) { // returning from AddPlot activity
+		switch (requestCode) {
+			case EDIT_GARDEN: // returning from GardenAttr activity
+				setTitle(mockGarden.getName());
+				break;
+			case USE_CAMERA: // returning from Camera activity
+				if (resultCode == RESULT_OK) {
+					if (data != null && data.getData() != null)
+						imageUri = data.getData();
+					System.out.println("imageUri=" + imageUri.toString());
+					mockGarden.addImage(imageUri);
+				}
+				break;
+			case ADD_PLOT: // returning from AddPlot activity
 				data.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
 				data.putExtra("zoom_scale", gardenView.zoomScale);
 				float[] values = new float[9], bgvalues = new float[9];
@@ -150,24 +160,20 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				data.putExtra("bgdrag_matrix", bgvalues);
 				startActivityForResult(data, 0);
 				overridePendingTransition(0, 0);
+				break;
+			case EDIT_PLOT: // returning from EditScreen activity
+				gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1); //extras.getFloat("zoom_scale");
+				gardenView.dragMatrix.setValues(data.getFloatArrayExtra("drag_matrix"));
+				gardenView.bgDragMatrix.setValues(data.getFloatArrayExtra("bgdrag_matrix"));
+				gardenView.onAnimationEnd();
+				if (zoomAutoHidden)
+					zoomControls.setVisibility(View.GONE); // need to manually hide
+				break;
+			case VIEW_PLOT: // returning from PlotScreen activity
+				if (zoomAutoHidden)
+					zoomControls.hide(); // need to manually hide
+				break;
 		}
-		else if (data != null && data.hasExtra("zoom_scale")) { // returning from EditScreen activity
-			gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1); //extras.getFloat("zoom_scale");
-			gardenView.dragMatrix.setValues(data.getFloatArrayExtra("drag_matrix"));
-			gardenView.bgDragMatrix.setValues(data.getFloatArrayExtra("bgdrag_matrix"));
-			gardenView.onAnimationEnd();
-			if (zoomAutoHidden)
-				zoomControls.setVisibility(View.GONE); // need to manually hide
-		}
-		
-		if (requestCode == USE_CAMERA && resultCode == RESULT_OK) {
-			if (data != null && data.getData() != null)
-				imageUri = data.getData();
-			System.out.println("imageUri=" + imageUri.toString());
-			mockGarden.addImage(imageUri);
-		}
-		
-		setTitle(mockGarden.getName());
 	}
 	
 	@Override
@@ -176,8 +182,6 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		inflater.inflate(R.menu.garden_menu, menu);
 		return true;
 	}
-	
-	Uri imageUri;
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -190,7 +194,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			case R.id.m_gardenoptions:
 				intent = new Intent(this, GardenAttr.class);
 				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
-				startActivityForResult(intent, 0);
+				startActivityForResult(intent, EDIT_GARDEN);
 				break;
 			case R.id.m_sharegarden:
 				intent = new Intent(this, ShareGarden.class);
@@ -206,7 +210,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 				String fileName = "GardenGnome_" + mockGarden.getName() + mockGarden.numImages() + ".jpg";
 				
-				// MY STUPID HTC CAMERA APP IGNORES EXTRA_OUTPUT!!! 
+				// HTC camera app ignores EXTRA_OUTPUT
 				ContentValues values = new ContentValues();
 				values.put(Images.Media.TITLE, fileName);
 				//values.put(MediaStore.Images.Media.DESCRIPTION, "Image capture by camera");
@@ -246,6 +250,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		}
 	};
 	
+	/** handles auto-hidden zoom controls */
 	public void handleZoom() {
 		if (zoomAutoHidden) {
 			zoomControls.removeCallbacks(autoHide);
@@ -265,6 +270,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		}
 	};
 	
+	/** handles button transparency */
 	@Override
 	public void onFocusChange(View view, boolean hasFocus) {
 		if (hasFocus)
@@ -273,6 +279,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
 	}
 	
+	/** handles button transparency */
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN)
@@ -283,10 +290,8 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				view.invalidate();
 			}
 		}
-		else {
+		else
 			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
-			//view.invalidate();
-		}
 		return false;
 	}
 	

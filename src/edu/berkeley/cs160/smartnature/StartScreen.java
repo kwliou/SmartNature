@@ -64,8 +64,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	public void initMockData() {
 		gardens = GardenGnome.gardens;
 		if (gardens.isEmpty()) {
-			Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");	
-			Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
+			Garden g1 = new Garden("Berkeley Youth Alternatives");	
+			Garden g2 = new Garden("Karl Linn");
 			g1.setCity("Berkeley"); g1.setState("California");
 			g2.setCity("Berkeley"); g2.setState("California");
 			
@@ -146,6 +146,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		removeDialog(0);
 	}
 	
+	/** sets garden location using user's physical location */
 	Runnable setLocation = new Runnable() {
 		@Override
 		public void run() {

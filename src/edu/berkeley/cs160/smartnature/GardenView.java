@@ -128,6 +128,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 			return new RectF(getLeft(), getTop(), getRight(), getBottom());
 	}
 	
+	/** when view is done zooming in/out */
 	@Override
 	public void onAnimationEnd() {
 		zoomScale *= Math.pow(getResources().getDimension(R.dimen.zoom_scalar), context.zoomPressed);
@@ -136,6 +137,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		context.zoomPressed = 0;
 	}
 	
+	/** handles clicking a plot */
 	@Override
 	public void onClick(View view) {
 		if (focusedPlot != null) {
@@ -148,6 +150,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		}
 	}
 	
+	/** handles long clicking a plot */
 	@Override
 	public boolean onLongClick(View view) {
 		if (focusedPlot != null) {
@@ -162,7 +165,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 			intent.putExtra("drag_matrix", values);
 			intent.putExtra("bgdrag_matrix", bgvalues);
 			focusedPlot.getPaint().setColor(tempColor);
-			context.startActivityForResult(intent, 0);
+			context.startActivityForResult(intent, GardenScreen.EDIT_PLOT);
 			context.overridePendingTransition(0, 0);
 			return true;
 		}

@@ -28,7 +28,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	ArrayList<Garden> gardens = new ArrayList<Garden>();
 	Gson gson = new Gson();
 	
-	@Override public void onCreate(Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
 		setContentView(R.layout.find_garden);
@@ -68,9 +69,9 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		}
 	};
 	
-	public Garden getGarden(int id) {
+	public Garden getGarden(int serverId) {
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet("http://gardengnome.heroku.com/gardens/" + id + ".json");
+		HttpGet httpget = new HttpGet("http://gardengnome.heroku.com/gardens/" + serverId + ".json");
 		String result = "";
 		try {
 			HttpResponse response = httpclient.execute(httpget);
@@ -82,7 +83,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		return gson.fromJson(result, Garden.class);
 	}
 	
-	@Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -98,7 +100,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			gardens = items;
 		}
 		
-		@Override public View getView(int position, View convertView, ViewGroup parent) {
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			if (view == null)
 				view = li.inflate(R.layout.findgarden_list_item, null);
