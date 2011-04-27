@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -31,6 +33,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 
 public class ShareGarden extends Activity implements Runnable, View.OnClickListener {
 	
+	private static final char[] HEX = "0123456789abcdef".toCharArray();
 	static {
 		System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
 		try { XMLReaderFactory.createXMLReader(); }
@@ -40,11 +43,15 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	Garden garden;
 	boolean success;
 	Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+	MessageDigest digester;
 	
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.share_garden);
 		garden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		try {
+			digester = java.security.MessageDigest.getInstance("SHA-256");
+		} catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
 		findViewById(R.id.share_confirm).setOnClickListener(this);
 		findViewById(R.id.share_cancel).setOnClickListener(this);
 	}
@@ -134,6 +141,15 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		HttpClient httpclient = new DefaultHttpClient();
 		for (int i = 0; i < garden.numImages(); i++) {
 			Uri uri = garden.getImage(i);
+			
+			String hash = "";
+			String code = garden.getCity() + "|" + garden.getState() + "|" + garden.getName() + "|" + i;
+			byte[] bytes = code.getBytes();
+			digester.update(bytes);
+			byte[] digest = digester.digest();
+			for (byte b : digest)
+				hash += HEX[(b & 0xf0) >>> 4] + HEX[b & 0xf];
+			
 			String imageUrl = garden.getName() + i + ".jpg";
 			try {
 				InputStream stream = getContentResolver().openInputStream(uri);
