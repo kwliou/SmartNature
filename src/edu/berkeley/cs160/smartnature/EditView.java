@@ -67,7 +67,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	public void initMockData() {
 		garden = context.mockGarden;
 		for (Plot plot : garden.getPlots()) {
-			Paint p = plot.getShape().getPaint();
+			Paint p = plot.getPaint();
 			p.setStyle(Paint.Style.STROKE);
 			p.setStrokeCap(Paint.Cap.ROUND);
 			p.setStrokeJoin(Paint.Join.ROUND);
@@ -184,14 +184,14 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 			canvas.rotate(p.getAngle(), shapeBounds.centerX(), shapeBounds.centerY());
 			// check special case
 			if (p == editPlot) {
-				Paint paint = editPlot.getShape().getPaint();
+				Paint paint = editPlot.getPaint();
 				Paint oldPaint = new Paint(paint);
 				canvas.drawRect(shapeBounds, boundPaint); //draw rectangular bounds
 				paint.set(whitePaint);
-				editPlot.getShape().draw(canvas);
+				editPlot.draw(canvas);
 				paint.set(oldPaint);
 			}				
-			p.getShape().draw(canvas);
+			p.draw(canvas);
 			canvas.restore();
 		}
 	}
@@ -454,16 +454,12 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 			editPlot.getBounds().offset((int) (dxy[2] - dxy[0]), (int) (dxy[3] - dxy[1]));
 		}
 		else if (mode == RESIZE_SHAPE) {
-			Rect newBounds = new Rect(editPlot.getBounds());
-			inverse.postRotate(-editPlot.getAngle(), newBounds.centerX(), newBounds.centerY());
+			Rect bounds = editPlot.getBounds();
+			inverse.postRotate(-editPlot.getAngle(), bounds.centerX(), bounds.centerY());
 			inverse.mapPoints(dxy);
 			int dx = (int) (dxy[2] - dxy[0]);
-			int dy = (int) (dxy[3] - dxy[1]);
-			newBounds.inset(-dx, portraitMode ? dy : -dy);
-			
-			float minSize = getResources().getDimension(R.dimen.resizebox_min) + 2; 
-			if (newBounds.width() > minSize && newBounds.height() > minSize)
-				editPlot.getShape().setBounds(newBounds);
+			int dy = (int) (portraitMode ? dxy[1] - dxy[3] : dxy[3] - dxy[1]);
+			editPlot.resize(dx, dy);
 		}
 		else if (mode == ROTATE_SHAPE) {
 			float dx = dxy[2] - shapeMid[0];
@@ -480,8 +476,8 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	
 	public void handleUp() {
 		mode = IDLE;
-		editPlot.getShape().getPaint().setColor(tempColor);
-		editPlot.getShape().getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+		editPlot.getPaint().setColor(tempColor);
+		editPlot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 		int medGray = getResources().getColor(R.color.MEDGRAY);
 		arrowPaint.setColor(medGray);
 		boundPaint.setColor(Color.GRAY);

@@ -102,7 +102,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 			canvas.save();
 			Rect bounds = p.getBounds();
 			canvas.rotate(p.getAngle(), bounds.centerX(), bounds.centerY());
-			p.getShape().draw(canvas);
+			p.draw(canvas);
 			canvas.restore();
 		}
 		canvas.restore();
