@@ -49,12 +49,35 @@
 			android:id="@+id/descriptionContent"
 			android:orientation="vertical"
 			android:layout_width="fill_parent"
-			android:layout_height="fill_parent" >	
+			android:layout_height="fill_parent" >
 			<LinearLayout
-				android:id="@+id/plantDescription"
+				android:id="@+id/searchEntry"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content" 
-				android:orientation="vertical"/>
+				android:orientation="vertical">
+				<LinearLayout
+					android:id="@+id/titleAndButton"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content" >
+					<TextView
+						android:id="@+id/searchName"
+						android:textSize="20dp"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="temp plant" 
+						android:textColor="#000000"/>
+					<Button 
+						android:id="@+id/addToPlot"
+						android:text="Add To Plot" 
+						android:layout_height="wrap_content" 
+						android:layout_width="wrap_content" />
+				</LinearLayout>
+				<LinearLayout
+					android:id="@+id/plantDescription"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content" 
+					android:orientation="vertical"/>
+			</LinearLayout>
 		</ScrollView>
 		
 		

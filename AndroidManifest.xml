@@ -51,7 +51,9 @@
 		<activity android:name=".AddPlot"
 			android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
-		
+		<activity android:name=".AddPlant"
+			android:theme="@style/Theme.Dialog.NoTitleBar">
+		</activity>
 		<activity android:name=".EditScreen"
 			android:label="@string/app_name">
 		</activity>
