@@ -14,7 +14,7 @@ public class Garden {
 	@Expose private String name;
 	@Expose private String city;
 	@Expose private String state;
-	/** database id on server */
+	/** database id on server, equal to -1 during uploading */
 	private int serverId;
 	private boolean is_public;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();

@@ -28,16 +28,26 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	ArrayList<Garden> gardens = new ArrayList<Garden>();
 	Gson gson = new Gson();
 	
-	@Override
+	@Override @SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
+		Object previousData = getLastNonConfigurationInstance(); 
+		if (previousData != null)
+			gardens = (ArrayList<Garden>) previousData;
 		setContentView(R.layout.find_garden);
-		setProgressBarIndeterminateVisibility(true);
 		adapter = new GardenAdapter(this, R.layout.findgarden_list_item, gardens);
 		setListAdapter(adapter);
 		getListView().setOnItemClickListener(this);
-		new Thread(getGardens).start();
+		if (previousData == null) {
+			setProgressBarIndeterminateVisibility(true);
+			new Thread(getGardens).start();
+		}
+	}
+	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return gardens.isEmpty() ? null : gardens;
 	}
 	
 	Runnable getGardens = new Runnable() {
@@ -46,20 +56,29 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet("http://gardengnome.heroku.com/gardens.json");
 			int[] gardenIDs = {};
-			
+			boolean success = false;
 			try {
 				HttpResponse response = httpclient.execute(httpget);
+				
+				System.out.println("status code=" + response.getStatusLine().getStatusCode());
 				HttpEntity entity = response.getEntity();
-				if (entity != null) {
-					String result = EntityUtils.toString(entity);
-					gardenIDs = gson.fromJson(result, int[].class);
-				}
+				String result = EntityUtils.toString(entity);
+				gardenIDs = gson.fromJson(result, int[].class);
+				success = true;
 			} catch (Exception e) { e.printStackTrace(); }
 			
-			for (int i = 0; i < gardenIDs.length; i++) {
-				gardens.add(getGarden(gardenIDs[i]));
+			if (success) {
+				for (int i = 0; i < gardenIDs.length; i++) {
+					gardens.add(getGarden(gardenIDs[i]));
+					runOnUiThread(new Runnable() {
+						@Override public void run() { adapter.notifyDataSetChanged(); }
+					});
+				}
+			} else {
 				runOnUiThread(new Runnable() {
-					@Override public void run() { adapter.notifyDataSetChanged(); }
+					@Override public void run() {
+						findViewById(R.id.find_garden_msg).setVisibility(View.VISIBLE);
+					}
 				});
 			}
 			
@@ -108,7 +127,6 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			Garden garden = gardens.get(position);
 			((TextView) view.findViewById(R.id.garden_name)).setText(garden.getName());
 			((TextView) view.findViewById(R.id.garden_info)).setText(garden.getCity() + ", " + garden.getState());
-			
 			return view;
 		}
 	}

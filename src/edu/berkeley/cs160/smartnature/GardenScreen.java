@@ -22,7 +22,7 @@ import android.widget.ZoomControls;
 public class GardenScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
 	
 	/** request codes used in intents */
-	final static int EDIT_GARDEN = 1, USE_CAMERA = 2, ADD_PLOT = 3, EDIT_PLOT = 4, VIEW_PLOT = 5;
+	final static int EDIT_GARDEN = 1, SHARE_GARDEN = 2, USE_CAMERA = 3, ADD_PLOT = 4, EDIT_PLOT = 5, VIEW_PLOT = 6;
 	
 	Garden mockGarden;
 	GardenView gardenView;
@@ -142,6 +142,9 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			case EDIT_GARDEN: // returning from GardenAttr activity
 				setTitle(mockGarden.getName());
 				break;
+			case SHARE_GARDEN: // returning from ShareGarden activity
+				findViewById(R.id.garden_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+				break;
 			case USE_CAMERA: // returning from Camera activity
 				if (resultCode == RESULT_OK) {
 					if (data != null && data.getData() != null)
@@ -151,15 +154,17 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				}
 				break;
 			case ADD_PLOT: // returning from AddPlot activity
-				data.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
-				data.putExtra("zoom_scale", gardenView.zoomScale);
-				float[] values = new float[9], bgvalues = new float[9];
-				gardenView.dragMatrix.getValues(values);
-				gardenView.bgDragMatrix.getValues(bgvalues);
-				data.putExtra("drag_matrix", values);
-				data.putExtra("bgdrag_matrix", bgvalues);
-				startActivityForResult(data, 0);
-				overridePendingTransition(0, 0);
+				if (data != null) {
+					data.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
+					data.putExtra("zoom_scale", gardenView.zoomScale);
+					float[] values = new float[9], bgvalues = new float[9];
+					gardenView.dragMatrix.getValues(values);
+					gardenView.bgDragMatrix.getValues(bgvalues);
+					data.putExtra("drag_matrix", values);
+					data.putExtra("bgdrag_matrix", bgvalues);
+					startActivityForResult(data, 0);
+					overridePendingTransition(0, 0);
+				}
 				break;
 			case EDIT_PLOT: // returning from EditScreen activity
 				gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1); //extras.getFloat("zoom_scale");
@@ -199,7 +204,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			case R.id.m_sharegarden:
 				intent = new Intent(this, ShareGarden.class);
 				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
-				startActivity(intent);
+				startActivityForResult(intent, SHARE_GARDEN);
 				break;
 			case R.id.m_showlabels:
 				showLabels = !showLabels;

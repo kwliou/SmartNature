@@ -58,7 +58,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		getListView().setOnItemClickListener(this);
 		findViewById(R.id.new_garden).setOnClickListener(this);
 		findViewById(R.id.search_encyclopedia).setOnClickListener(this);
-		findViewById(R.id.find_garden).setOnClickListener(this);		
+		findViewById(R.id.find_garden).setOnClickListener(this);
 	}
 	
 	public void initMockData() {
