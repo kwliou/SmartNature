@@ -20,7 +20,7 @@
 	<string name="hint_editpoly">Double tap screen to add points to shape\nDrag a point to move it around\nLong press on a point to delete it\nThe last dotted line will be added for you</string>
 	<string name="hint_editscreen">Drag the edited plot to move it around\nDrag the dotted circle to rotate the plot\nDrag the square in bottom right corner of plot to resize it</string>
 	<string name="hint_plantscreen">Press the name to go to the encyclopedia.\nEnter your entry in the text box.\nPress "Post Entry" to save your entry.</string>
-	<string name="hint_sharegarden">Set a password and give it to fellow gardeners so they can search for and edit this garden using the <b>Find existing garden</b> button on the start screen</string>
+	<string name="hint_sharegarden">Set a password and give it to fellow gardeners so they can search for and edit this garden using the <u>Find existing garden</u> button on the start screen</string>
 	<string name="hint_sharegarden2">Leave the password blank if you don\'t want others to edit the garden</string>
 
 </resources>

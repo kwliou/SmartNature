@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,7 +34,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 public class ShareGarden extends Activity implements Runnable, View.OnClickListener {
 	
 	private static final char[] HEX = "0123456789abcdef".toCharArray();
-	NotificationManager mNotificationManager;
 	
 	/** for AWS since certain Android versions do not have org.xml.sax.driver */
 	static {
@@ -51,7 +49,6 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		setContentView(R.layout.share_garden);
 		garden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
 		try {
@@ -65,10 +62,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	@Override
 	public void onClick(View view) {
 		if (view.getId() == R.id.share_confirm && garden.getServerId() == 0) {
-			//Intent notifyIntent = new Intent(this, GardenScreen.class);
-			//notifyIntent.putExtra("garden_id", GardenGnome.gardens.indexOf(garden));
-			makeNote(null, android.R.drawable.stat_sys_upload, "Now uploading", Notification.FLAG_AUTO_CANCEL);
-			
+			makeNote(android.R.drawable.stat_sys_upload, "Now uploading your", Notification.FLAG_ONGOING_EVENT, false);
 			new Thread(this).start();
 		}
 		else
@@ -81,16 +75,16 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		
 		if (!uploadGarden()) {
 			garden.setServerId(0);
-			makeNote(null, android.R.drawable.stat_notify_error, "Failed to upload", Notification.FLAG_AUTO_CANCEL);
+			makeNote(android.R.drawable.stat_notify_error, "Failed to upload", Notification.FLAG_AUTO_CANCEL, true);
 			return;
 		}
 		
 		if (!uploadImages()) {
-			makeNote(null, android.R.drawable.stat_notify_error, "Failed to upload photos from", Notification.FLAG_AUTO_CANCEL);
+			makeNote(android.R.drawable.stat_notify_error, "Failed to upload photos from", Notification.FLAG_AUTO_CANCEL, true);
 			return;
 		}
 		
-		makeNote(null, android.R.drawable.stat_sys_upload_done, "Successfully uploaded", Notification.FLAG_AUTO_CANCEL);
+		makeNote(android.R.drawable.stat_sys_upload_done, "Successfully uploaded", Notification.FLAG_AUTO_CANCEL, true);
 	}
 	
 	public boolean uploadGarden() {
@@ -172,27 +166,21 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		return success;
 	}
 	
-	int noteIndex;
-	public void makeNote(Intent intent, int icon, String text, int flags) {
-		mNotificationManager.cancelAll();
+	int noteIndex = 1;
+	public void makeNote(int icon, String text, int flags, boolean vibrate) {
+		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		
+		manager.cancelAll();
 		Notification notification = new Notification(icon, text + " garden", System.currentTimeMillis());
 		CharSequence contentTitle = "GardenGnome";
 		String contentText = text + " " + garden.getName(); 
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-		//notification.flags = Notification.DEFAULT_ALL;
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, null, 0);
 		notification.flags |= flags;
-		//notification.flags |= Notification.DEFAULT_VIBRATE | Notification.FLAG_SHOW_LIGHTS;
-		notification.setLatestEventInfo(getApplicationContext(), contentTitle, contentText, contentIntent);
+		if (vibrate)
+			notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
+		notification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
 		
-		mNotificationManager.notify(0, notification);
-	}
-	
-	public void makeToast(final String message) {
-		runOnUiThread(new Runnable() {
-			@Override public void run() {
-				Toast.makeText(ShareGarden.this, message, Toast.LENGTH_SHORT).show();				
-			}
-		});
+		manager.notify(noteIndex++, notification);
 	}
 	
 }

@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	
-	<LinearLayout android:focusable="true" android:focusableInTouchMode="true" android:layout_width="0px" android:layout_height="0px" />
-		
+
+	<LinearLayout
+		android:focusable="true"
+		android:focusableInTouchMode="true"
+		android:layout_width="0px"
+		android:layout_height="0px" />
+
 	<ScrollView
+		android:layout_weight="1"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
-		
+
 		<LinearLayout
 			android:orientation="vertical"
 			android:paddingLeft="6dp"
 			android:paddingRight="6dp"
+			android:paddingBottom="6dp"
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent">
 
@@ -23,8 +29,8 @@
 				android:id="@+id/garden_password"
 				android:hint="Set optional password"
 				android:layout_marginTop="10dp"
-				android:nextFocusUp="@+id/msg_text"
-				android:nextFocusLeft="@+id/msg_text"
+				android:nextFocusUp="@id/garden_password"
+				android:nextFocusLeft="@id/garden_password"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content" />
 
@@ -34,6 +40,7 @@
 				android:layout_marginBottom="5dp"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content" />
+
 			<TextView
 				android:text="@string/hint_sharegarden2"
 				android:textSize="17sp"
@@ -61,7 +68,7 @@
 		android:id="@+id/share_footer"
 		style="@android:style/ButtonBar"
 		android:orientation="horizontal"
-		android:layout_alignParentBottom="true"
+		android:layout_gravity="bottom"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 
@@ -80,4 +87,4 @@
 			android:layout_height="wrap_content" />
 
 	</LinearLayout>
-</RelativeLayout>
+</LinearLayout>
