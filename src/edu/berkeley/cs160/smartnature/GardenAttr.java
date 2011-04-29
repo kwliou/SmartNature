@@ -25,11 +25,14 @@ public class GardenAttr extends Activity {
 	Garden garden;
 	EditText name, city;
 	AutoCompleteTextView state;
+	int g_pk = -1;
+	
 	/** Called when the activity is first created. */
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.garden_attr);
 		garden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		g_pk = getIntent().getIntExtra("garden_id", 0) + 1;
 		name = (EditText)findViewById(R.id.garden_name_edit); 
 		city = (EditText)findViewById(R.id.garden_city); 
 		state = (AutoCompleteTextView) findViewById(R.id.garden_state); 
@@ -45,6 +48,7 @@ public class GardenAttr extends Activity {
 		garden.setName(name.getText().toString());
 		garden.setCity(city.getText().toString());
 		garden.setState(state.getText().toString());
+		StartScreen.dh.update_garden(g_pk, garden.getName(), garden.getCity(), garden.getState());
 		super.onBackPressed();
 	}
 	
