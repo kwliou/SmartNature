@@ -13,12 +13,14 @@ only people with password can edit it
 password.empty? + public
 shows up in search results
 anyone can view it
-no one can edit it
+only author can edit it
 
 !password.empty? + public
 shows up in search results
 anyone can view it
 only people with password can edit it
+
+content URI's look like content://media/external/images/media/734
 
 New ideas:
 show the actual angle number somewhere when rotating plot
@@ -28,16 +30,18 @@ maybe have different hint when garden is empty
 
 TODO:
 making sure app works without internet/camera/etc.
+sharing gardens
 parsing encyclopedia(s)
 make plant screen look better
-sharing gardens
 voice commands
+add long click context menus
 add dimensions to gardens/plots
 pinch and zoom for editview
 add alternate plot list view for gardens
 going back into edit polygon mode?
 
 Current issues:
+what happens when user uploads garden with same name+city+state
 afraid share garden activity might end before it's finished
 zoomfit when polygon point mode?
 what do when a plot completely overlaps another? introduce z-index?

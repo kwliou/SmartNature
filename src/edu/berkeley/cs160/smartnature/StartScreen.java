@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,6 +21,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -56,8 +59,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		geocoder = new Geocoder(this, Locale.getDefault());
 		gardens = GardenGnome.gardens;
 
-		dh = new DatabaseHelper(this);
-		initAll();
+		//dh = new DatabaseHelper(this);
+		//initAll();
 		if(gardens.isEmpty())
 			initMockData();
 		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
@@ -78,11 +81,11 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 				gardens.get(i).addPlot(dh.select_plot(temp.get(j)));
 		}
 	}
-
+	
 	public void initMockData() {
-		/*
-		Garden g1 = new Garden(R.drawable.preview1, "Berkeley Youth Alternatives");	
-		Garden g2 = new Garden(R.drawable.preview2, "Karl Linn");
+		
+		Garden g1 = new Garden("Berkeley Youth Alternatives");	
+		Garden g2 = new Garden("Karl Linn");
 		g1.setCity("Berkeley"); g1.setState("California");
 		g2.setCity("Berkeley"); g2.setState("California");
 
@@ -105,8 +108,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 
 		gardens.add(g1);
 		gardens.add(g2);
-		*/
-		Log.w("debug", "initMockData called");
+		
+		/*Log.w("debug", "initMockData called");
 		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview, "0,0,800,480", "Berkeley", "California", -1, -1, "");
 		dh.insert_garden("Karl Linn", R.drawable.preview, "0,0,800,480", "Berkeley", "California", -1, -1, "");
 
@@ -131,7 +134,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		}
 
 		gardens.add(g1);
-		gardens.add(g2);
+		gardens.add(g2);*/
 	}
 
 	@Override
@@ -168,6 +171,18 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 					dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 			}
 		});
+		
+		input.setOnKeyListener(new View.OnKeyListener() {
+			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+					mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
+					return true;
+				}
+				return false;
+			}
+		});
+		
 
 		return dialog;
 	}

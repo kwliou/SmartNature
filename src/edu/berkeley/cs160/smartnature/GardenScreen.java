@@ -147,9 +147,19 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case USE_CAMERA: // returning from Camera activity
 				if (resultCode == RESULT_OK) {
+					System.out.print("imageUri=" + imageUri.toString() + " => " );
+					android.database.Cursor cursor = managedQuery(imageUri, new String[] {MediaStore.Images.Media.DATA}, null, null, null);
+					int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+					cursor.moveToFirst();
+					System.out.println(cursor.getString(column_index));
+					
 					if (data != null && data.getData() != null)
 						imageUri = data.getData();
-					System.out.println("imageUri=" + imageUri.toString());
+					System.out.print("imageUri=" + imageUri.toString() + " => " );
+					cursor = managedQuery(imageUri, new String[] {MediaStore.Images.Media.DATA}, null, null, null);
+					column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+					cursor.moveToFirst();
+					System.out.println(cursor.getString(column_index));
 					mockGarden.addImage(imageUri);
 				}
 				break;
@@ -218,9 +228,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				// HTC camera app ignores EXTRA_OUTPUT
 				ContentValues values = new ContentValues();
 				values.put(Images.Media.TITLE, fileName);
-				//values.put(MediaStore.Images.Media.DESCRIPTION, "Image capture by camera");
+				//values.put(Images.Media.DESCRIPTION, "Image capture by camera");
 				imageUri = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 				intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+				intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1); // some devices take low-quality pics without this
 				startActivityForResult(intent, USE_CAMERA);
 				break;
 		}

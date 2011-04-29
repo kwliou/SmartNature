@@ -2,6 +2,8 @@ package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
 
+import com.google.gson.annotations.Expose;
+
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -14,13 +16,13 @@ import android.graphics.drawable.shapes.*;
 public class Plot {
 	
 	static final int RECT = 1, OVAL = 2, POLY = 3;
-	private String name;
 	private ShapeDrawable shape;
-	private int type;
-	private int color;
-	private float[] polyPoints = {};
+	@Expose private String name;
+	@Expose private int type;
+	@Expose private int color;
+	@Expose private float[] polyPoints = {};
 	/** angle of clockwise rotation in degrees */
-	private float rotation;
+	@Expose private float rotation;
 	
 	private int id;
 	private ArrayList<Plant> plants = new ArrayList<Plant>();

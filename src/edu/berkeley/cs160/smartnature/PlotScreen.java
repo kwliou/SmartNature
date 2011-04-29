@@ -210,12 +210,12 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
-		case R.id.m_home:
-			Intent intent = new Intent(this, StartScreen.class);
-			startActivity(intent);
-			break;
-		case R.id.m_showhints:
-			/*
+			case R.id.m_home:
+				Intent intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
+			case R.id.m_showhints:
+				/*
 				StartScreen.showHints = !StartScreen.showHints;
 				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");			
 				break;
