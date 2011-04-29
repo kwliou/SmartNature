@@ -6,14 +6,14 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-	<TextView
+	<!--TextView
 		android:text="Public gardens"
 		android:background="#ffd4d4d4"
 		android:gravity="center_vertical"
 		android:textAppearance="?android:listSeparatorTextViewStyle"
 		android:paddingLeft="5sp"
 		android:layout_width="fill_parent"
-		android:layout_height="25dp" />
+		android:layout_height="25dp" /-->
 
 	<RelativeLayout
 		android:id="@+id/find_garden_msg"

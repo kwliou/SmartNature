@@ -47,7 +47,8 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	MessageDigest digester;
 	NotificationManager manager;
 	
-	@Override public void onCreate(Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		setContentView(R.layout.share_garden);
@@ -94,7 +95,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		garden.setPublic(permiss.isChecked());
 		garden.setPassword(password.getText().toString());
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens.json");
+		HttpPost httppost = new HttpPost(getString(R.string.server_url) + "gardens.json");
 		// rails server expects "garden" to be key value
 		String json = "{\"garden\":" + gson.toJson(garden) + "}";
 		boolean success = true;
@@ -134,10 +135,9 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		String bucketName = "gardengnome";
 		//ObjectListing objlist = s3.listObjects(bucketName);
 		HttpClient httpclient = new DefaultHttpClient();
-		for (int i = 0; i < garden.numImages(); i++) {
-			Photo photo = garden.getImage(i);
-			// set image id from rails server
-			HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens/" + garden.getServerId() + "/photos.json");
+		for (Photo photo : garden.getImages()) {
+			// get image id from rails server
+			HttpPost httppost = new HttpPost(getString(R.string.server_url) + "gardens/" + garden.getServerId() + "/photos.json");
 			String json = "{\"photo\":" + gson.toJson(photo) + "}";
 			try {
 				StringEntity entity = new StringEntity(json);
@@ -163,7 +163,6 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				s3.putObject(bucketName, fileName, stream, metadata);
 				stream.close();
 			} catch (Exception e) { success = false; e.printStackTrace(); }
-			
 		}
 		
 		return success;

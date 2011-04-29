@@ -1,9 +1,11 @@
 package edu.berkeley.cs160.smartnature;
 import java.util.ArrayList;
 
+import com.google.gson.annotations.Expose;
+
 public class Plant {
 	
-	private String name;
+	@Expose private String name;
 	private int id;
 	private ArrayList<Entry> entries;
 

@@ -30,11 +30,11 @@ maybe have different hint when garden is empty
 
 TODO:
 making sure app works without internet/camera/etc.
-add sha-256 hash to files
+sharing gardens
 parsing encyclopedia(s)
 make plant screen look better
-sharing gardens
 voice commands
+add long click context menus
 add dimensions to gardens/plots
 pinch and zoom for editview
 add alternate plot list view for gardens
