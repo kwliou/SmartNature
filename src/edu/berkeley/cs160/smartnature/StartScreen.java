@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -59,8 +58,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		geocoder = new Geocoder(this, Locale.getDefault());
 		gardens = GardenGnome.gardens;
 
-		//dh = new DatabaseHelper(this);
-		//initAll();
+		dh = new DatabaseHelper(this);
+		initAll();
 		if(gardens.isEmpty())
 			initMockData();
 		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
@@ -83,7 +82,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	}
 	
 	public void initMockData() {
-		
+		/*
 		Garden g1 = new Garden("Berkeley Youth Alternatives");	
 		Garden g2 = new Garden("Karl Linn");
 		g1.setCity("Berkeley"); g1.setState("California");
@@ -108,10 +107,10 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 
 		gardens.add(g1);
 		gardens.add(g2);
-		
-		/*Log.w("debug", "initMockData called");
-		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview, "0,0,800,480", "Berkeley", "California", -1, -1, "");
-		dh.insert_garden("Karl Linn", R.drawable.preview, "0,0,800,480", "Berkeley", "California", -1, -1, "");
+		*/
+		Log.w("debug", "initMockData called");
+		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview, "0,0,800,480", "Berkeley", "California", 0, -1, "");
+		dh.insert_garden("Karl Linn", R.drawable.preview, "0,0,800,480", "Berkeley", "California", 0, -1, "");
 
 		dh.insert_plot("Jerry Plot", "40,60,90,200," + Color.BLACK, Plot.RECT, Color.BLACK, "", 10, 0);
 		dh.insert_plot("Amy Plot", "140,120,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 0, 0);
@@ -134,7 +133,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		}
 
 		gardens.add(g1);
-		gardens.add(g2);*/
+		gardens.add(g2);
 	}
 
 	@Override
@@ -196,7 +195,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		intent.putExtra("garden_id", gardens.size());
 		Garden garden = new Garden(gardenName);
 		gardens.add(garden);
-		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", -1, -1, "");
+		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
 		adapter.notifyDataSetChanged();
 		startActivityForResult(intent, 0);
 		new Thread(setLocation).start();

@@ -77,6 +77,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	public void initMockData() {
 		//plot.getPlants().clear();
 		List<Integer> temp = StartScreen.dh.select_map_pp_pa(po_pk);
+		System.err.println("size = " + temp.size());
 		if(plot.getPlants().size() != temp.size()) {
 			for(int i = 0; i < temp.size(); i++)
 				plot.addPlant(StartScreen.dh.select_plant(temp.get(i)));

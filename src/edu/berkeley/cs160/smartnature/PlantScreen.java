@@ -125,6 +125,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				}
 				*/
 				StartScreen.dh.delete_plant(pa_pk);
+				StartScreen.dh.delete_map_pp(pa_pk);
 				PlotScreen.adapter.notifyDataSetChanged(); 
 				finish();
 			}
