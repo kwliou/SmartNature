@@ -269,7 +269,7 @@ public class DatabaseHelper {
 	}
 
 	public Plant select_plant(int pa_pk) {
-		String selection = "pa_pk = " + pa_pk;
+		String selection = "pa_pk = " + pa_pk + " AND name IS NOT NULL";
 		Cursor cursor = this.db.query(TABLE_NAME_PLANT, null, selection, null, null, null, null);
 		Plant temp = null;
 		if (cursor.moveToFirst()) {
@@ -305,6 +305,11 @@ public class DatabaseHelper {
 		return temp;
 	}
 
+	public void delete_plant(int pa_pk) {
+		String selection = "pa_pk = ?";
+		this.db.delete(TABLE_NAME_PLANT, selection, new String[] {Integer.toString(pa_pk)});
+	}
+	
 	public long insert_entry(String name, String date) {
 		this.insertStmt_entry.clearBindings();
 		this.insertStmt_entry.bindString(1, name);
@@ -313,7 +318,7 @@ public class DatabaseHelper {
 	}
 
 	public Entry select_entry(int e_pk) {
-		String selection = "e_pk = " + e_pk;
+		String selection = "e_pk = " + e_pk + " AND name IS NOT NULL";
 		Cursor cursor = this.db.query(TABLE_NAME_ENTRY, null, selection, null, null, null, null);
 		Entry temp = null;
 		if (cursor.moveToFirst()) {
@@ -325,13 +330,32 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
-
+	
+	public String select_entry_name(int e_pk) {
+		String selection = "e_pk = " + e_pk;
+		Cursor cursor = this.db.query(TABLE_NAME_ENTRY, null, selection, null, null, null, null);
+		String temp = "";
+		if (cursor.moveToFirst()) {
+			do
+				temp = cursor.getString(cursor.getColumnIndex("name"));
+			while (cursor.moveToNext());
+		}
+		if (cursor != null && !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
+	
 	public int count_entry() {
 		Cursor cursor = this.db.query(TABLE_NAME_ENTRY, null, null, null, null, null, null);
 		int temp = cursor.getCount();
 		if (cursor != null && !cursor.isClosed())
 			cursor.close();
 		return temp;
+	}
+	
+	public void delete_entry(int e_pk) {
+		String selection = "e_pk = ?";
+		this.db.delete(TABLE_NAME_ENTRY, selection, new String[] {Integer.toString(e_pk)});
 	}
 
 	public long insert_map_gp(int g_map, int po_map) {

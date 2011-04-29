@@ -114,6 +114,17 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			public void onClick(View v) {
 				//remove(plant);
 				GardenGnome.gardens.get(gardenID).getPlot(plotID).getPlants().remove(plantID);
+				/*
+				int e_pk = -1;
+				List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
+				for(int i = 0; i < temp.size(); i++) {
+					if(e_pk != -1) 
+						break;
+					if(plant.getEntries().get(i).getName().equalsIgnoreCase(StartScreen.dh.select_entry_name(temp.get(i).intValue())))
+						e_pk = temp.get(i);
+				}
+				*/
+				StartScreen.dh.delete_plant(pa_pk);
 				PlotScreen.adapter.notifyDataSetChanged(); 
 				finish();
 			}
