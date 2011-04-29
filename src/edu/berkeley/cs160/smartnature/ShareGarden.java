@@ -46,9 +46,11 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 	/** used in adding hash code to image filename */
 	MessageDigest digester;
+	NotificationManager manager;
 	
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		setContentView(R.layout.share_garden);
 		garden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
 		try {
@@ -62,7 +64,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	@Override
 	public void onClick(View view) {
 		if (view.getId() == R.id.share_confirm && garden.getServerId() == 0) {
-			makeNote(android.R.drawable.stat_sys_upload, "Now uploading your", Notification.FLAG_ONGOING_EVENT, false);
+			makeNote(android.R.drawable.stat_sys_upload, "Now uploading", Notification.FLAG_ONGOING_EVENT, false);
 			new Thread(this).start();
 		}
 		else
@@ -137,8 +139,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			
 			String hash = "";
 			String code = garden.getCity() + "|" + garden.getState() + "|" + garden.getName() + "|" + i;
-			byte[] bytes = code.getBytes();
-			digester.update(bytes);
+			digester.update(code.getBytes());
 			byte[] digest = digester.digest();
 			for (byte b : digest)
 				hash += HEX[(b & 0xf0) >>> 4] + HEX[b & 0xf];
@@ -166,21 +167,21 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		return success;
 	}
 	
-	int noteIndex = 1;
 	public void makeNote(int icon, String text, int flags, boolean vibrate) {
-		NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		
 		manager.cancelAll();
 		Notification notification = new Notification(icon, text + " garden", System.currentTimeMillis());
-		CharSequence contentTitle = "GardenGnome";
-		String contentText = text + " " + garden.getName(); 
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, null, 0);
+		Intent intent = new Intent(this, ShareGarden.class).putExtra("garden_id", getIntent().getIntExtra("garden_id", 0));
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		int pendingflags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT; // for Samsung Galaxy S
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, pendingflags);
 		notification.flags |= flags;
 		if (vibrate)
 			notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
-		notification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
+		String title = "GardenGnome";
+		String contentText = text + " " + garden.getName(); 
+		notification.setLatestEventInfo(this, title, contentText, contentIntent);
 		
-		manager.notify(noteIndex++, notification);
+		manager.notify(1, notification); // NOTE: HTC does not like an id parameter of 0
 	}
 	
 }

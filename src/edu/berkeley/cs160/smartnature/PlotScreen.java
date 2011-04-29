@@ -192,7 +192,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		
 		switch (item.getItemId()) {
 			case R.id.m_home:
-				Intent intent = new Intent(this, StartScreen.class);
+				Intent intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;
 			case R.id.m_showhints:

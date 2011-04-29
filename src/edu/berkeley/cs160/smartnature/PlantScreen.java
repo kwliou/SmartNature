@@ -202,7 +202,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		
 		switch (item.getItemId()) {
 			case R.id.m_home:
-				Intent intent = new Intent(PlantScreen.this, StartScreen.class);
+				Intent intent = new Intent(PlantScreen.this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;
 			case R.id.m_showhints:
