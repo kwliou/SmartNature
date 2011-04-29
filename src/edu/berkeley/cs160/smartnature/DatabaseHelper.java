@@ -83,6 +83,16 @@ public class DatabaseHelper {
 		String selection = "g_pk = ?";
 		return db.update(TABLE_NAME_GARDEN, cv, selection, new String[] {Integer.toString(g_pk)});
 	}
+	
+	public long update_garden(int g_pk, String name, String city, String state) {
+		ContentValues cv = new ContentValues();
+		cv.put("name", name);
+		cv.put("city", city);
+		cv.put("state", state);
+		
+		String selection = "g_pk = ?";
+		return db.update(TABLE_NAME_GARDEN, cv, selection, new String[] {Integer.toString(g_pk)});
+	}
 
 	public void delete_garden(int g_pk) {
 		String selection = "g_pk = ?";
