@@ -66,7 +66,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		getListView().setOnItemClickListener(this);
 		findViewById(R.id.new_garden).setOnClickListener(this);
 		findViewById(R.id.search_encyclopedia).setOnClickListener(this);
-		findViewById(R.id.find_garden).setOnClickListener(this);		
+		findViewById(R.id.find_garden).setOnClickListener(this);
 	}
 
 	public void initAll() {
@@ -107,8 +107,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		gardens.add(g2);
 		*/
 		Log.w("debug", "initMockData called");
-		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview1, "0,0,800,480", "Berkeley", "California", -1, -1, "");
-		dh.insert_garden("Karl Linn", R.drawable.preview2, "0,0,800,480", "Berkeley", "California", -1, -1, "");
+		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview, "0,0,800,480", "Berkeley", "California", -1, -1, "");
+		dh.insert_garden("Karl Linn", R.drawable.preview, "0,0,800,480", "Berkeley", "California", -1, -1, "");
 
 		dh.insert_plot("Jerry Plot", "40,60,90,200," + Color.BLACK, Plot.RECT, Color.BLACK, "", 10, 0);
 		dh.insert_plot("Amy Plot", "140,120,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 0, 0);
@@ -124,6 +124,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			g1.addPlot(dh.select_plot(i));
 			dh.insert_map_gp(1, i);
 		}
+		
 		for(int i = 4; i < 7; i++) {
 			g2.addPlot(dh.select_plot(i));
 			dh.insert_map_gp(2, i);
@@ -186,7 +187,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		new Thread(setLocation).start();
 		removeDialog(0);
 	}
-
+	
+	/** sets garden location using user's physical location */
 	Runnable setLocation = new Runnable() {
 		@Override
 		public void run() {

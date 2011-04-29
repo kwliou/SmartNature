@@ -175,9 +175,8 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		}
 		float[] values = savedInstanceState.getFloatArray("drag_matrix");
 		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");
-
-		if (portraitMode && !prevPortraitMode) {
-			// changed from landscape to portrait
+		
+		if (portraitMode && !prevPortraitMode) { // changed from landscape to portrait
 			float tmp = values[Matrix.MTRANS_X];
 			values[Matrix.MTRANS_X] = -values[Matrix.MTRANS_Y];
 			values[Matrix.MTRANS_Y] = tmp;
@@ -185,8 +184,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			bgvalues[Matrix.MTRANS_X] = -bgvalues[Matrix.MTRANS_Y];
 			bgvalues[Matrix.MTRANS_Y] = tmp;
 		}
-		else if (!portraitMode && prevPortraitMode) {
-			// changed from portrait to landscape
+		else if (!portraitMode && prevPortraitMode) { // changed from portrait to landscape
 			float tmp = values[Matrix.MTRANS_X];
 			values[Matrix.MTRANS_X] = values[Matrix.MTRANS_Y];
 			values[Matrix.MTRANS_Y] = -tmp;
@@ -230,7 +228,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			intent.putExtra("drag_matrix", values);
 			intent.putExtra("bgdrag_matrix", bgvalues);
 			setResult(RESULT_OK, intent);
-			String shape_s = plot.getShape().getBounds().left + "," + plot.getShape().getBounds().top + "," + plot.getShape().getBounds().right + "," + plot.getShape().getBounds().bottom + "," + plot.getPaint().getColor();
+			String shape_s = plot.getBounds().left + "," + plot.getBounds().top + "," + plot.getBounds().right + "," + plot.getBounds().bottom + "," + plot.getPaint().getColor();
 			float[] polyPoints_f = plot.getPoints();
 			String polyPoints_s = "";
 			if(plot.getPoints().length >= 2) {
@@ -359,14 +357,8 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		plot.getPaint().setColor(color);
 		editView.invalidate();
 	}
-
-	public static float[] toFloatArray(ArrayList<Float> list) {
-		float[] pts = new float[list.size()];
-		for (int i = 0; i < pts.length; i++)
-			pts[i] = list.get(i);
-		return pts;
-	}
-
+	
+	/** handles button transparency */
 	@Override
 	public void onFocusChange(View view, boolean hasFocus) {
 		if (hasFocus)
@@ -374,7 +366,8 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		else
 			view.getBackground().setAlpha(getResources().getInteger(R.integer.btn_trans));
 	}
-
+	
+	/** handles button transparency */
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN)
@@ -391,5 +384,11 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		}
 		return false;
 	}
-
+	
+	public static float[] toFloatArray(ArrayList<Float> list) {
+		float[] pts = new float[list.size()];
+		for (int i = 0; i < pts.length; i++)
+			pts[i] = list.get(i);
+		return pts;
+	}
 }

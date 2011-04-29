@@ -14,7 +14,7 @@ public class Garden {
 	@Expose private String name;
 	@Expose private String city;
 	@Expose private String state;
-	/** database id on server */
+	/** database id on server, equal to -1 during uploading */
 	private int serverId;
 	private boolean is_public;
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
@@ -35,23 +35,9 @@ public class Garden {
 	}
 	
 	public void addPlot(Plot plot) {
-		// do not immediately refresh bounds to preserve viewport
-		/*
-		RectF pBounds = plot.getRotateBounds();
-		if (plots.isEmpty()) {
-			bounds = new RectF(pBounds);
-		}
-		else {
-			bounds.left = Math.min(bounds.left, pBounds.left);
-			bounds.top = Math.min(bounds.top, pBounds.top);
-			bounds.right = Math.max(bounds.right, pBounds.right);
-			bounds.bottom = Math.max(bounds.bottom, pBounds.bottom);
-		}
-		*/
-		//if (plots.isEmpty()) bounds = new RectF(plot.getRotateBounds());
-		
 		plot.setID(plots.size());
 		plots.add(plot);
+		// NOTE: do not immediately refresh bounds to preserve viewport
 	}
 	
 	/** add a polygonal plot */

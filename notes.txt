@@ -1,8 +1,24 @@
-User name:string password:string
-Garden name:string date_modified:date width:double height:double
-Plot garden_id:int name:string shape:int color:int points:string
-Plant name:string plot_id:int online_entry:string
-GardensUsers user_id:int garden_id:int
+Sharing settings:
+
+password.empty? + private (default setting)
+doesn't show up in search results
+only author can view it
+only author can edit it
+
+!password.empty? + private
+shows up in search results
+only people with password can view it
+only people with password can edit it
+
+password.empty? + public
+shows up in search results
+anyone can view it
+no one can edit it
+
+!password.empty? + public
+shows up in search results
+anyone can view it
+only people with password can edit it
 
 New ideas:
 show the actual angle number somewhere when rotating plot
@@ -11,21 +27,21 @@ show a shadow of old copy of plot when editing current copy
 maybe have different hint when garden is empty
 
 TODO:
-resizing polygons, going back into edit point mode?
+making sure app works without internet/camera/etc.
 parsing encyclopedia(s)
-not using more than one encyclopedia source (maybe add options?)
+make plant screen look better
 sharing gardens
 voice commands
 add dimensions to gardens/plots
 pinch and zoom for editview
 add alternate plot list view for gardens
+going back into edit polygon mode?
 
 Current issues:
 afraid share garden activity might end before it's finished
 zoomfit when polygon point mode?
 what do when a plot completely overlaps another? introduce z-index?
 dotted circle might be obscured in edit mode
-UI thread blocked when getting geolocation
 
 "Main"/home screen
 - start a new garden (Button)

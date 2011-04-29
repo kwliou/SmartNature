@@ -2,6 +2,7 @@ package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
 
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -64,10 +65,9 @@ public class Plot {
 		p.close();
 		polyPoints = points;
 		Rect bounds = new Rect((int) boundsF.left, (int) boundsF.top, (int) boundsF.right, (int) boundsF.bottom);
-		//boundsF.roundOut(bounds);
 		PathShape pshape = new PathShape(p, bounds.width(), bounds.height());
 		shape = new ShapeDrawable(pshape);
-		shape.setBounds(bounds);
+		setBounds(bounds);
 		initPaint();
 	}
 	
@@ -77,7 +77,7 @@ public class Plot {
 		type = shapeType;
 		rotation = angle;
 		shape = new ShapeDrawable(type == OVAL ? new OvalShape() : new RectShape());
-		shape.setBounds(bounds);
+		setBounds(bounds);
 		initPaint();
 	}
 	
@@ -94,7 +94,7 @@ public class Plot {
 		p.close();
 		PathShape pshape = new PathShape(p, bounds.width(), bounds.height());
 		shape = new ShapeDrawable(pshape);
-		shape.setBounds(bounds);
+		setBounds(bounds);
 		initPaint();
 	}
 	
@@ -109,15 +109,15 @@ public class Plot {
 			polyPoints = src.getPoints().clone();	
 		
 		try {
-			shape = new ShapeDrawable(src.getShape().getShape().clone());
+			shape = new ShapeDrawable(src.getShape().clone());
 		} catch (CloneNotSupportedException e) { e.printStackTrace(); }
-		shape.setBounds(src.getShape().copyBounds());
+		setBounds(src.getBounds());
 		getPaint().set(src.getPaint());
 		plants = src.getPlants();
 	}
 	
 	public void initPaint() {
-		Paint paint = shape.getPaint();
+		Paint paint = getPaint();
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeCap(Paint.Cap.ROUND);
 		paint.setStrokeJoin(Paint.Join.ROUND);
@@ -138,13 +138,13 @@ public class Plot {
 	}
 	
 	private boolean rectContains(float x, float y) {
-		Rect bounds = shape.getBounds();
+		Rect bounds = getBounds();
 		return bounds.left <= x && x <= bounds.right && bounds.top <= y && y <= bounds.bottom;  
 	}
 	
 	/** @see java.awt.geom.Ellipse2D#contains(double, double) */
 	private boolean ovalContains(float x, float y) {
-		Rect bounds = shape.getBounds();
+		Rect bounds = getBounds();
 		float ellw = bounds.width(), ellh = bounds.height();
 		float normx = (x - bounds.left) / ellw - 0.5f;
 		float normy = (y - bounds.top) / ellh - 0.5f;
@@ -213,25 +213,36 @@ public class Plot {
 		return new float[] { getBounds().centerX(), getBounds().centerY() };
 	}
 	
-	public Rect getBounds() { return shape.getBounds(); }
-	
-	public int getID(){ return id; }
-	
-	public int setID(int i) { return id = i; }
+	public void resize(int dx, int dy) {
+		Rect newBounds = new Rect(getBounds());
+		newBounds.inset(-dx, -dy);
+		if (type == POLY) {
+			RectF oldPBounds = new RectF(0, 0, getBounds().width(), getBounds().height());
+			RectF newPBounds = new RectF(0, 0, getBounds().width() + 2 * dx, getBounds().height() + 2 * dy);
+			Matrix m = new Matrix();
+			m.setRectToRect(oldPBounds, newPBounds, Matrix.ScaleToFit.FILL);
+			m.mapPoints(polyPoints);
+			Path p = new Path();
+			p.moveTo(polyPoints[0], polyPoints[1]);
+			for (int i = 2; i < polyPoints.length; i += 2) {
+				p.lineTo(polyPoints[i], polyPoints[i + 1]);
+			}
+			p.close();
+			
+			PathShape pshape = new PathShape(p, newBounds.width(), newBounds.height());
+			setShape(pshape);
+		}
+		
+		setBounds(newBounds);
+	}
 	
 	public float getAngle() { return rotation; }
 	
-	public void setAngle(float angle) { this.rotation = angle; }
-	
 	public int getColor() { return color; }
 	
-	public void setColor(int color) { this.color = color; }
+	public int getID(){ return id; }
 	
 	public String getName() { return name; }
-	
-	public void setName(String name) { this.name = name; }
-	
-	public Paint getPaint() { return shape.getPaint(); }
 	
 	public Plant getPlant(int index) { return plants.get(index); }
 	
@@ -239,12 +250,30 @@ public class Plot {
 	
 	public float[] getPoints() { return polyPoints; }
 	
+	public int getType() { return type; }
+	
+	public void setAngle(float angle) { this.rotation = angle; }
+	
+	public void setColor(int color) { this.color = color; }
+	
+	public int setID(int i) { return id = i; }
+	
+	public void setName(String name) { this.name = name; }
+	
 	public void setPoints(float[] points) { polyPoints = points; }
 	
-	public ShapeDrawable getShape() { return shape; }
+	/** ShapeDrawable related methods */
+
+	public void draw(Canvas canvas) { shape.draw(canvas); }
 	
-	public void setShape(ShapeDrawable shape) { this.shape = shape; }
+	public Rect getBounds() { return shape.getBounds(); }
 	
-	public int getType() { return type; }
+	public Paint getPaint() { return shape.getPaint(); }
+	
+	public Shape getShape() { return shape.getShape(); }
+	
+	public void setBounds(Rect bounds) { shape.setBounds(bounds); }
+	
+	public void setShape(Shape shape) { this.shape.setShape(shape); }
 	
 }

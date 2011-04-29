@@ -15,6 +15,36 @@
 		android:layout_width="fill_parent"
 		android:layout_height="25dp" />
 
+	<RelativeLayout
+		android:id="@+id/find_garden_msg"
+		android:visibility="gone"
+		android:orientation="horizontal"
+		android:padding="5dp"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<TextView
+			android:id="@+id/find_garden_msg_title"
+			android:text="Sorry!"
+			android:ellipsize="marquee"
+			android:textSize="24sp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
+		<TextView
+			android:text="No internet connection found."
+			android:ellipsize="marquee"
+			android:textSize="16sp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_below="@id/find_garden_msg_title"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
+	</RelativeLayout>
+
 	<ListView
 		android:id="@+id/android:list"
 		android:layout_width="fill_parent"

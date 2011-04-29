@@ -11,6 +11,7 @@
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	
 	<application
@@ -45,14 +46,15 @@
 		<activity android:name=".PlotScreen">
 		</activity>
 		
-		<activity android:name=".ShareGarden"
-			android:theme="@style/Theme.Dialog.NoTitleBar">
+		<activity android:name=".ShareGarden">
 		</activity>
 		
 		<activity android:name=".AddPlot"
 			android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
-		
+		<activity android:name=".AddPlant"
+			android:theme="@style/Theme.Dialog.NoTitleBar">
+		</activity>
 		<activity android:name=".EditScreen"
 			android:label="@string/app_name">
 		</activity>
