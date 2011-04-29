@@ -150,6 +150,8 @@ public class Garden {
 	
 	public ArrayList<String> getImages() {return images; }
 	
+	public void setImages(ArrayList<String> images) {this.images = images; }
+	
 	public ArrayList<Plot> getPlots() { return plots; }
 	
 	public Plot getPlot(int index) { return plots.get(index); }
