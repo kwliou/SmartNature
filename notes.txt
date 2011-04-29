@@ -20,6 +20,8 @@ shows up in search results
 anyone can view it
 only people with password can edit it
 
+content URI's look like content://media/external/images/media/734
+
 New ideas:
 show the actual angle number somewhere when rotating plot
 show the actual dimensions somewhere when resizing plot
@@ -39,6 +41,7 @@ add alternate plot list view for gardens
 going back into edit polygon mode?
 
 Current issues:
+what happens when user uploads garden with same name+city+state
 afraid share garden activity might end before it's finished
 zoomfit when polygon point mode?
 what do when a plot completely overlaps another? introduce z-index?

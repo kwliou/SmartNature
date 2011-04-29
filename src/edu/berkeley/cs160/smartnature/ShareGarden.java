@@ -13,14 +13,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -67,7 +66,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			makeNote(android.R.drawable.stat_sys_upload, "Now uploading", Notification.FLAG_ONGOING_EVENT, false);
 			new Thread(this).start();
 		}
-		else
+		else if (view.getId() == R.id.share_cancel)
 			finish();
 	}
 	
@@ -81,7 +80,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			return;
 		}
 		
-		if (!uploadImages()) {
+		if (garden.numImages() > 0 && !uploadImages()) {
 			makeNote(android.R.drawable.stat_notify_error, "Failed to upload photos from", Notification.FLAG_AUTO_CANCEL, true);
 			return;
 		}
@@ -91,22 +90,24 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	
 	public boolean uploadGarden() {
 		CheckBox permiss = (CheckBox) findViewById(R.id.garden_permissions);
+		EditText password = (EditText) findViewById(R.id.garden_password);
 		garden.setPublic(permiss.isChecked());
+		garden.setPassword(password.getText().toString());
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens");
-		String json = gson.toJson(garden);
+		HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens.json");
 		// rails server expects "garden" to be key value
-		String revised = "{\"garden\":{" + "\"public\":" + garden.isPublic() + "," + json.substring(1) + "}";
-		boolean postSuccess = false;
+		String json = "{\"garden\":" + gson.toJson(garden) + "}";
+		boolean success = true;
 		try {
-			StringEntity entity = new StringEntity(revised);
+			StringEntity entity = new StringEntity(json);
 			entity.setContentType("application/json");
 			httppost.setEntity(entity);
-			httpclient.execute(httppost);
-			postSuccess = true;
-		} catch (Exception e) { e.printStackTrace(); }
+			HttpResponse response = httpclient.execute(httppost);
+			String result = EntityUtils.toString(response.getEntity());
+			garden.setServerId(gson.fromJson(result, int.class));
+		} catch (Exception e) { success = false; e.printStackTrace(); }
 		
-		// get back server id of created garden
+		/*
 		boolean success = false;
 		if (postSuccess) {
 			String query = "http://gardengnome.heroku.com/search";
@@ -116,13 +117,12 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			HttpGet httpget = new HttpGet(query);
 			try {
 				HttpResponse response = httpclient.execute(httpget);
-				HttpEntity entity = response.getEntity();
-				String result = EntityUtils.toString(entity);
+				String result = EntityUtils.toString(response.getEntity());
 				garden.setServerId(gson.fromJson(result, int.class));
 				success = true;
 			} catch (Exception e) { e.printStackTrace(); }
-		}
-		return success;
+		}*/
+		return success && garden.getServerId() > 0;
 	}
 	
 	public boolean uploadImages() {
@@ -135,36 +135,51 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		//ObjectListing objlist = s3.listObjects(bucketName);
 		HttpClient httpclient = new DefaultHttpClient();
 		for (int i = 0; i < garden.numImages(); i++) {
-			Uri uri = garden.getImage(i);
-			
-			String hash = "";
-			String code = garden.getCity() + "|" + garden.getState() + "|" + garden.getName() + "|" + i;
-			digester.update(code.getBytes());
-			byte[] digest = digester.digest();
-			for (byte b : digest)
-				hash += HEX[(b & 0xf0) >>> 4] + HEX[b & 0xf];
-			
-			String fileName = garden.getName() + i + ".jpg";
+			Photo photo = garden.getImage(i);
+			// set image id from rails server
+			HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens/" + garden.getServerId() + "/photos.json");
+			String json = "{\"photo\":" + gson.toJson(photo) + "}";
 			try {
-				InputStream stream = getContentResolver().openInputStream(uri);
-				long fileSize = getContentResolver().openFileDescriptor(uri, "r").getStatSize();
+				StringEntity entity = new StringEntity(json);
+				entity.setContentType("application/json");
+				httppost.setEntity(entity);
+				HttpResponse response = httpclient.execute(httppost);
+				String result = EntityUtils.toString(response.getEntity());
+				photo.setServerId(gson.fromJson(result, int.class));
+			} catch (Exception e) { success = false; e.printStackTrace(); }
+			
+			if (!success || photo.getServerId() == 0)
+				return false;
+			
+			// upload image to s3
+			String code = garden.getCity() + "|" + garden.getState() + "|" + garden.getPassword() + "|" + photo.getServerId();
+			String fileName = garden.getName() + hexCode(code) + ".jpg";
+			Uri imageUri = photo.getUri();
+			try {
+				InputStream stream = getContentResolver().openInputStream(imageUri);
+				long fileSize = getContentResolver().openFileDescriptor(imageUri, "r").getStatSize();
 				ObjectMetadata metadata = new ObjectMetadata();
 				metadata.setContentLength(fileSize);
 				s3.putObject(bucketName, fileName, stream, metadata);
 				stream.close();
 			} catch (Exception e) { success = false; e.printStackTrace(); }
 			
-			// notify rails server that image is available 
-			HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens/" + garden.getServerId() + "/photos");
-			try {
-				StringEntity entity = new StringEntity("{\"photo\":{\"title\":\"Untitled\"}}");
-				entity.setContentType("application/json");
-				httppost.setEntity(entity);
-				httpclient.execute(httppost);
-			} catch (Exception e) { success = false; e.printStackTrace(); }
 		}
 		
 		return success;
+	}
+	
+	/** meant for SHA-256 */
+	public String hexCode(String input) {
+		char[] hash = new char[64];
+		digester.update(input.getBytes());
+		byte[] digest = digester.digest();
+		for (int i = 0; i < digest.length; i++) {
+			byte b = digest[i];
+			hash[2 * i] = HEX[(b & 0xf0) >>> 4];
+			hash[2 * i + 1] = HEX[b & 0xf];
+		}
+		return new String(hash);
 	}
 	
 	public void makeNote(int icon, String text, int flags, boolean vibrate) {
