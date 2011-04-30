@@ -42,13 +42,13 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		super.onCreate(savedInstanceState);
 		Bundle extras = getIntent().getExtras();
 		gardenID = extras.getInt("garden_id");
-		garden = GardenGnome.gardens.get(gardenID);
+		garden = GardenGnome.getGarden(gardenID);
 		plotID = extras.getInt("plot_id");
 		plot = garden.getPlot(plotID);
 		setTitle(plot.getName());
 
 		setContentView(R.layout.plot);
-
+		/*
 		List<Integer> temp = StartScreen.dh.select_map_gp_po(gardenID + 1);
 		po_pk = -1;
 		for(int i = 0; i < temp.size(); i++) {
@@ -57,7 +57,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 			if(plot.getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
 				po_pk = temp.get(i);
 		}
-
+		*/
 		initMockData();
 		getListView().setOnItemClickListener(this);
 
@@ -76,12 +76,12 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 
 	public void initMockData() {
 		//plot.getPlants().clear();
-		List<Integer> temp = StartScreen.dh.select_map_pp_pa(po_pk);
+		/*List<Integer> temp = StartScreen.dh.select_map_pp_pa(po_pk);
 		System.err.println("size = " + temp.size());
 		if(plot.getPlants().size() != temp.size()) {
 			for(int i = 0; i < temp.size(); i++)
 				plot.addPlant(StartScreen.dh.select_plant(temp.get(i)));
-		}
+		}*/
 		adapter = new PlantAdapter(this, R.layout.plant_list_item, plot.getPlants());
 		setListAdapter(adapter);
 	}
@@ -129,8 +129,8 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	public void onClick(View view) {
 		//showDialog(0);
 		plot.addPlant(new Plant(plantName.getText().toString()));
-		StartScreen.dh.insert_plant(plantName.getText().toString(), 0);
-		StartScreen.dh.insert_map_pp(po_pk, StartScreen.dh.count_plant());
+		//StartScreen.dh.insert_plant(plantName.getText().toString(), 0);
+		//StartScreen.dh.insert_map_pp(po_pk, StartScreen.dh.count_plant());
 		plantName.setText("");
 		adapter.notifyDataSetChanged(); //refresh ListView
 	}
@@ -222,9 +222,9 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 				break;
 			 */
 		case R.id.m_deleteplot:
-			GardenGnome.gardens.get(gardenID).getPlots().remove(plotID);
-			StartScreen.dh.delete_plot(po_pk);
-			StartScreen.dh.delete_map_gp(po_pk);
+			garden.remove(plot);
+			//StartScreen.dh.delete_plot(po_pk);
+			//StartScreen.dh.delete_map_gp(po_pk);
 			//EditScreen.editView.invalidate();
 			finish();
 

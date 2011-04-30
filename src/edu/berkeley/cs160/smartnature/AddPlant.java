@@ -30,7 +30,7 @@ public class AddPlant extends Activity implements View.OnClickListener{
 		
 		RadioGroup options = (RadioGroup)findViewById(R.id.rg_gardens);
 		
-		gardenList = GardenGnome.gardens;
+		gardenList = GardenGnome.getGardens();
 		for(int i=0; i<gardenList.size(); i++){
 			
 			RadioButton r = new RadioButton(this);
