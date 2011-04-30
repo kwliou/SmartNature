@@ -25,6 +25,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	final static int EDIT_GARDEN = 1, SHARE_GARDEN = 2, USE_CAMERA = 3, ADD_PLOT = 4, EDIT_PLOT = 5, VIEW_PLOT = 6;
 	
 	Garden mockGarden;
+	int gardenId;
 	GardenView gardenView;
 	View textEntryView;
 	AlertDialog dialog;
@@ -43,7 +44,8 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
-		mockGarden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		gardenId = getIntent().getIntExtra("garden_id", 0);
+		mockGarden = GardenGnome.getGarden(gardenId);
 		setTitle(mockGarden.getName());
 		if (savedInstanceState == null) // first init
 			mockGarden.refreshBounds();
@@ -165,7 +167,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case ADD_PLOT: // returning from AddPlot activity
 				if (data != null) {
-					data.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
+					data.putExtra("garden_id", gardenId);
 					data.putExtra("zoom_scale", gardenView.zoomScale);
 					float[] values = new float[9], bgvalues = new float[9];
 					gardenView.dragMatrix.getValues(values);
@@ -208,12 +210,12 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case R.id.m_gardenoptions:
 				intent = new Intent(this, GardenAttr.class);
-				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
+				intent.putExtra("garden_id", gardenId);
 				startActivityForResult(intent, EDIT_GARDEN);
 				break;
 			case R.id.m_sharegarden:
 				intent = new Intent(this, ShareGarden.class);
-				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
+				intent.putExtra("garden_id", gardenId);
 				startActivityForResult(intent, SHARE_GARDEN);
 				break;
 			case R.id.m_showlabels:

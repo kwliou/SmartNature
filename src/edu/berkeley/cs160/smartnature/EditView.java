@@ -65,7 +65,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	}
 	
 	public void initMockData() {
-		garden = context.mockGarden;
+		garden = context.garden;
 		for (Plot plot : garden.getPlots()) {
 			Paint p = plot.getPaint();
 			p.setStyle(Paint.Style.STROKE);

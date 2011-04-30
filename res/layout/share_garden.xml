@@ -75,15 +75,16 @@
 		<Button
 			android:id="@+id/share_confirm"
 			android:text="Share"
+			android:enabled="false"
 			android:layout_weight="1"
-			android:layout_width="wrap_content"
+			android:layout_width="0px"
 			android:layout_height="wrap_content" />
 
 		<Button
 			android:id="@+id/share_cancel"
 			android:text="Back"
 			android:layout_weight="1"
-			android:layout_width="wrap_content"
+			android:layout_width="0px"
 			android:layout_height="wrap_content" />
 
 	</LinearLayout>

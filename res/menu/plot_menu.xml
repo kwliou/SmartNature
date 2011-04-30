@@ -6,6 +6,6 @@
 		android:icon="@drawable/ic_menu_home"
 		android:title="@string/m_home" />
 	<item android:id="@+id/m_deleteplot"
-		android:icon="@drawable/ic_menu_delete"
+		android:icon="@android:drawable/ic_menu_delete"
 		android:title="@string/m_deleteplot" />
 </menu>

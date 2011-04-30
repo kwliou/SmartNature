@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
@@ -33,7 +34,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 public class ShareGarden extends Activity implements Runnable, View.OnClickListener {
 	
 	private static final char[] HEX = "0123456789abcdef".toCharArray();
-	
+	Button shareButton;
 	/** for AWS since certain Android versions do not have org.xml.sax.driver */
 	static {
 		System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
@@ -52,18 +53,29 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		super.onCreate(savedInstanceState);
 		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		setContentView(R.layout.share_garden);
-		garden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		garden = GardenGnome.getGarden(getIntent().getIntExtra("garden_id", 0));
 		try {
-			digester = java.security.MessageDigest.getInstance("SHA-256");
+			digester = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
 		findViewById(R.id.share_footer).getBackground().setAlpha(0xff);
-		findViewById(R.id.share_confirm).setOnClickListener(this);
+		shareButton = (Button) findViewById(R.id.share_confirm);
+		if (garden.getServerId() == -1)
+			shareButton.setText(R.string.btn_sharing);
+		else if (garden.getServerId() > 0)
+			shareButton.setText(R.string.btn_shared);
+		else {
+			shareButton.setEnabled(true);
+			findViewById(R.id.share_confirm).setOnClickListener(this);
+		}
 		findViewById(R.id.share_cancel).setOnClickListener(this);
 	}
 	
 	@Override
 	public void onClick(View view) {
 		if (view.getId() == R.id.share_confirm && garden.getServerId() == 0) {
+			garden.setServerId(-1);
+			shareButton.setEnabled(false);
+			shareButton.setText(R.string.btn_sharing);
 			makeNote(android.R.drawable.stat_sys_upload, "Now uploading", Notification.FLAG_ONGOING_EVENT, false);
 			new Thread(this).start();
 		}
@@ -73,8 +85,6 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	
 	@Override
 	public void run() {
-		garden.setServerId(-1);
-		
 		if (!uploadGarden()) {
 			garden.setServerId(0);
 			makeNote(android.R.drawable.stat_notify_error, "Failed to upload", Notification.FLAG_AUTO_CANCEL, true);
@@ -87,6 +97,11 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		}
 		
 		makeNote(android.R.drawable.stat_sys_upload_done, "Successfully uploaded", Notification.FLAG_AUTO_CANCEL, true);
+		runOnUiThread(new Runnable() {
+			@Override public void run() {
+				shareButton.setText(R.string.btn_shared);
+			}
+		});
 	}
 	
 	public boolean uploadGarden() {

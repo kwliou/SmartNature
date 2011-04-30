@@ -31,7 +31,7 @@ public class GardenAttr extends Activity {
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.garden_attr);
-		garden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		garden = GardenGnome.getGarden(getIntent().getIntExtra("garden_id", 0));
 		g_pk = getIntent().getIntExtra("garden_id", 0) + 1;
 		name = (EditText)findViewById(R.id.garden_name_edit); 
 		city = (EditText)findViewById(R.id.garden_city); 
@@ -48,7 +48,7 @@ public class GardenAttr extends Activity {
 		garden.setName(name.getText().toString());
 		garden.setCity(city.getText().toString());
 		garden.setState(state.getText().toString());
-		StartScreen.dh.update_garden(g_pk, garden.getName(), garden.getCity(), garden.getState());
+		//StartScreen.dh.update_garden(g_pk, garden.getName(), garden.getCity(), garden.getState());
 		super.onBackPressed();
 	}
 	

@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -36,43 +37,32 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 class GardenGnome extends Application {
-	static ArrayList<Garden> gardens = new ArrayList<Garden>();
-}
+	private static ArrayList<Garden> gardens = new ArrayList<Garden>();
+	private static DatabaseHelper dh;
 
-public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
-
-	GardenAdapter adapter;
-	ArrayList<Garden> gardens;
-	AlertDialog dialog;
-	View textEntryView;
-	public static DatabaseHelper dh;
-
-	LocationManager lm;
-	Geocoder geocoder;
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		geocoder = new Geocoder(this, Locale.getDefault());
-		gardens = GardenGnome.gardens;
-
-		dh = new DatabaseHelper(this);
-		initAll();
-		if(gardens.isEmpty())
-			initMockData();
-
-		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
-		setListAdapter(adapter);
-
-		getListView().setOnItemClickListener(this);
-		findViewById(R.id.new_garden).setOnClickListener(this);
-		findViewById(R.id.search_encyclopedia).setOnClickListener(this);
-		findViewById(R.id.find_garden).setOnClickListener(this);
+	public static void addGarden(Garden garden) {
+		gardens.add(garden);
+		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
 	}
-
-	public void initAll() {
+	
+	public static ArrayList<Garden> getGardens() {
+		return gardens;
+	}
+	
+	public static Garden getGarden(int index) {
+		return gardens.get(index);
+	}
+	
+	public static void updateGarden(int id, String str) {
+		dh.update_garden(id, str);
+	}
+	
+	public static void init(Context context) {
+		dh = new DatabaseHelper(context);
+		initAll();
+	}
+	
+	public static void initAll() {
 		gardens.clear();
 		for(int i = 0; i < dh.count_exist_garden(); i++) {
 			gardens.add(dh.select_garden(i + 1));
@@ -86,17 +76,17 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		Log.w("debug", "initMockData called");
 		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview, "0,0,800,480", "Berkeley", "California", 0, -1, "");
 		dh.insert_garden("Karl Linn", R.drawable.preview, "0,0,800,480", "Berkeley", "California", 0, -1, "");
-
+		
 		dh.insert_plot("Jerry Plot", "40,60,90,200," + Color.BLACK, Plot.RECT, Color.BLACK, "", 10, 0);
 		dh.insert_plot("Amy Plot", "140,120,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 0, 0);
 		dh.insert_plot("Shared Plot", "270,120,360,220," + Color.BLACK, Plot.POLY, Color.BLACK, "0,0,50,10,90,100", 0, 0);
 		dh.insert_plot("Cyndi Plot", "40,200,90,300," + Color.BLACK, Plot.RECT, Color.BLACK, "", 0, 0);
 		dh.insert_plot("Alex Plot", "140,50,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 10, 0);
 		dh.insert_plot("Flowers", "270,120,360,260," + Color.BLACK, Plot.POLY, Color.BLACK, " 0,0,50,10,90,100,70,140,60,120", 0, 0);
-
+		
 		Garden g1 = dh.select_garden(1);
 		Garden g2 = dh.select_garden(2);
-
+		
 		for(int i = 1; i < 4; i++) {
 			g1.addPlot(dh.select_plot(i));
 			dh.insert_map_gp(1, i);
@@ -106,11 +96,49 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			g2.addPlot(dh.select_plot(i));
 			dh.insert_map_gp(2, i);
 		}
-
+		
 		gardens.add(g1);
 		gardens.add(g2);
 	}
 	
+	public static void addPlot(Plot plot) {
+		Rect bounds = plot.getBounds();
+		String shape_s = "" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "," + Color.BLACK;
+		String points = plot.getType() == Plot.POLY ? "0,0" : ""; 
+		dh.insert_plot(plot.getName(), shape_s, plot.getType(), Color.BLACK, points, 0, 0);
+		
+	}
+}
+
+public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
+
+	GardenAdapter adapter;
+	ArrayList<Garden> gardens;
+	AlertDialog dialog;
+	View textEntryView;
+	
+	LocationManager lm;
+	Geocoder geocoder;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		geocoder = new Geocoder(this, Locale.getDefault());
+		gardens = GardenGnome.getGardens();
+		
+		GardenGnome.init(this);
+		
+		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
+		setListAdapter(adapter);
+
+		getListView().setOnItemClickListener(this);
+		findViewById(R.id.new_garden).setOnClickListener(this);
+		findViewById(R.id.search_encyclopedia).setOnClickListener(this);
+		findViewById(R.id.find_garden).setOnClickListener(this);
+	}
+		
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
@@ -125,7 +153,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			break;
 		}
 	}
-
+	
 	@Override
 	public Dialog onCreateDialog(int id) {
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
@@ -160,7 +188,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 
 		return dialog;
 	}
-
+	
 	public void onClick(DialogInterface dialog, int whichButton) {
 		EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
 		String gardenName = textEntry.getText().toString();
@@ -169,8 +197,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		Intent intent = new Intent(this, GardenScreen.class);
 		intent.putExtra("garden_id", gardens.size());
 		Garden garden = new Garden(gardenName);
-		gardens.add(garden);
-		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
+		GardenGnome.addGarden(garden);
 		adapter.notifyDataSetChanged();
 		startActivityForResult(intent, 0);
 		new Thread(setLocation).start();
@@ -201,27 +228,27 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			}
 		}
 	};
-
+	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		adapter.notifyDataSetChanged();
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_menu, menu);
 		return true;
 	}
-
+	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
 		intent.putExtra("garden_id", position);
 		startActivityForResult(intent, 0);
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -239,17 +266,17 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
+	
 	class GardenAdapter extends ArrayAdapter<Garden> {
 		private ArrayList<Garden> gardens;
 		private LayoutInflater li;
-
+		
 		public GardenAdapter(Context context, int textViewResourceId, ArrayList<Garden> items) {
 			super(context, textViewResourceId, items);
 			li = ((ListActivity) context).getLayoutInflater();
 			gardens = items;
 		}
-
+		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;

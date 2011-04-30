@@ -65,10 +65,10 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 		setContentView(R.layout.plant);
 
-		garden = GardenGnome.gardens.get(gardenID);
+		garden = GardenGnome.getGarden(gardenID);
 		plot = garden.getPlot(plotID);
 		plant = plot.getPlants().get(plantID);
-
+		/*
 		List<Integer> temp1 = StartScreen.dh.select_map_gp_po(gardenID + 1);
 		for(int i = 0; i < temp1.size(); i++) {
 			if(po_pk != -1) 
@@ -83,7 +83,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			if(plant.getName().equalsIgnoreCase(StartScreen.dh.select_plant_name(temp2.get(i).intValue())))
 				pa_pk = temp2.get(i);
 		}
-
+		*/
 		initMockData();
 		getListView().setOnItemClickListener(PlantScreen.this);
 
@@ -149,10 +149,10 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				Date currentDate = new Date();
 				String dateStr = currentDate.toString();
 
-				GardenGnome.gardens.get(gardenID).getPlots().get(plotID).getPlants().get(plantID).addEntry(
+				plot.getPlant(plantID).addEntry(
 						new Entry(entryText.getText().toString(), dateStr));
-				StartScreen.dh.insert_entry(entryText.getText().toString(), dateStr);
-				StartScreen.dh.insert_map_pe(pa_pk, StartScreen.dh.count_entry());
+				//StartScreen.dh.insert_entry(entryText.getText().toString(), dateStr);
+				//StartScreen.dh.insert_map_pe(pa_pk, StartScreen.dh.count_entry());
 				adapter.notifyDataSetChanged(); // refresh ListView
 				entry.setText("");
 
@@ -161,11 +161,12 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	}
 
 	public void initMockData() {
-		List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
+		/*List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
 		if(plant.getEntries().size() != temp.size()) {
 			for(int i = 0; i < temp.size(); i++)
 				plant.addEntry(StartScreen.dh.select_entry(temp.get(i)));
 		}
+		*/
 		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());
 		setListAdapter(adapter);
 	}
@@ -203,7 +204,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 			((Button) v.findViewById(R.id.delete_journal)).setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
-					int e_pk = -1;
+					/*int e_pk = -1;
 					List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
 					for(int i = 0; i < temp.size(); i++) {
 						if(e_pk != -1) 
@@ -213,7 +214,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 					}
 					remove(e);
 					StartScreen.dh.delete_map_pe(e_pk);
-					StartScreen.dh.delete_entry(e_pk);
+					StartScreen.dh.delete_entry(e_pk);*/
 				}
 			});
 			return v;
@@ -248,9 +249,9 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");		
 			 */
 		case R.id.m_deleteplant:
-			GardenGnome.gardens.get(gardenID).getPlot(plotID).getPlants().remove(plantID);
-			StartScreen.dh.delete_plant(pa_pk);
-			StartScreen.dh.delete_map_pp(pa_pk);
+			plot.getPlants().remove(plantID);
+			//StartScreen.dh.delete_plant(pa_pk);
+			//StartScreen.dh.delete_map_pp(pa_pk);
 			PlotScreen.adapter.notifyDataSetChanged(); 
 			finish();
 			break;

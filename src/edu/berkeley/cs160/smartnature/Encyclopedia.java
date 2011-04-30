@@ -189,7 +189,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 			int plotId, gardenId;
 			plotId = (Integer) data.getExtras().get("plotId");
 			gardenId = (Integer) data.getExtras().get("gardenId");
-			GardenGnome.gardens.get(gardenId).getPlot(plotId).addPlant(new Plant(pName));
+			/*GardenGnome.gardens.get(gardenId).getPlot(plotId).addPlant(new Plant(pName));
 			int po_pk;
 			List<Integer> temp = StartScreen.dh.select_map_gp_po(gardenId + 1);
 			po_pk = -1;
@@ -200,7 +200,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 					po_pk = temp.get(i);
 			}
 			StartScreen.dh.insert_plant(pName, 0);
-			StartScreen.dh.insert_map_pp(po_pk, StartScreen.dh.count_plant());
+			StartScreen.dh.insert_map_pp(po_pk, StartScreen.dh.count_plant());*/
 		}
 	}
 

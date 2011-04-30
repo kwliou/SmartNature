@@ -65,7 +65,6 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		public void run() {
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet httpget = new HttpGet(getString(R.string.server_url) + "stubs");
-			//int[] gardenIDs = {};
 			boolean success = true;
 			String[][] results = null;
 			try {
@@ -110,13 +109,15 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			result = EntityUtils.toString(entity);
 		} catch (Exception e) { e.printStackTrace(); }
 		
-		return gson.fromJson(result, Garden.class);
+		Garden garden = gson.fromJson(result, Garden.class);
+		garden.setServerId(Integer.parseInt(serverId));
+		return garden;
 	}
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		String[] stub = stubs.get(position);
-		GardenGnome.gardens.add(getGarden(stub[ID]));
+		GardenGnome.addGarden(getGarden(stub[ID]));
 		/*if (Boolean.parseBoolean(stub[PUBLIC]))
 			startActivityForResult(new Intent(this, GardenAttr.class), 0);
 		else {
@@ -128,7 +129,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	public Dialog onCreateDialog(int id) {
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(textEntryView);
-
+		
 		final Dialog dialog = builder.setTitle("Enter garden password")
 		.setPositiveButton(R.string.alert_dialog_ok, this)
 		.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
