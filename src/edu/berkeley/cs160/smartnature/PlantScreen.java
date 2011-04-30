@@ -1,7 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.app.AlertDialog;
@@ -15,14 +15,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class PlantScreen extends ListActivity implements View.OnClickListener, View.OnTouchListener, AdapterView.OnItemClickListener {
@@ -46,7 +46,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	Garden garden;
 	Plot plot;
 	Plant plant;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -64,11 +64,11 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		}
 
 		setContentView(R.layout.plant);
-		
+
 		garden = GardenGnome.gardens.get(gardenID);
 		plot = garden.getPlot(plotID);
 		plant = plot.getPlants().get(plantID);
-		
+
 		List<Integer> temp1 = StartScreen.dh.select_map_gp_po(gardenID + 1);
 		for(int i = 0; i < temp1.size(); i++) {
 			if(po_pk != -1) 
@@ -83,7 +83,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			if(plant.getName().equalsIgnoreCase(StartScreen.dh.select_plant_name(temp2.get(i).intValue())))
 				pa_pk = temp2.get(i);
 		}
-		
+
 		initMockData();
 		getListView().setOnItemClickListener(PlantScreen.this);
 
@@ -108,28 +108,21 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				startActivity(intent);
 			}
 		});
+
+		/*
 		deletePlantButton = (Button) findViewById(R.id.delete_plant);
 		//deletePlantButton.setText("Delete " + name + " from plot");
 		deletePlantButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				//remove(plant);
 				GardenGnome.gardens.get(gardenID).getPlot(plotID).getPlants().remove(plantID);
-				/*
-				int e_pk = -1;
-				List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
-				for(int i = 0; i < temp.size(); i++) {
-					if(e_pk != -1) 
-						break;
-					if(plant.getEntries().get(i).getName().equalsIgnoreCase(StartScreen.dh.select_entry_name(temp.get(i).intValue())))
-						e_pk = temp.get(i);
-				}
-				*/
 				StartScreen.dh.delete_plant(pa_pk);
 				StartScreen.dh.delete_map_pp(pa_pk);
 				PlotScreen.adapter.notifyDataSetChanged(); 
 				finish();
 			}
 		});
+		 */
 
 
 		/*
@@ -210,7 +203,17 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 			((Button) v.findViewById(R.id.delete_journal)).setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
+					int e_pk = -1;
+					List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
+					for(int i = 0; i < temp.size(); i++) {
+						if(e_pk != -1) 
+							break;
+						if(e.getName().equalsIgnoreCase(StartScreen.dh.select_entry_name(temp.get(i).intValue())))
+							e_pk = temp.get(i);
+					}
 					remove(e);
+					StartScreen.dh.delete_map_pe(e_pk);
+					StartScreen.dh.delete_entry(e_pk);
 				}
 			});
 			return v;
@@ -224,18 +227,18 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.plot_menu, menu);
+		inflater.inflate(R.menu.plant_menu, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.m_home:
-				Intent intent = new Intent(PlantScreen.this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-				break;
-			case R.id.m_showhints:
+		case R.id.m_home:
+			Intent intent = new Intent(PlantScreen.this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			break;
+		case R.id.m_showhints:
 			/*StartScreen.showHints = !StartScreen.showHints;
 				if (StartScreen.showHints){
 					plantHint.setVisibility(View.VISIBLE);
@@ -244,6 +247,12 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				}
 				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");		
 			 */
+		case R.id.m_deleteplant:
+			GardenGnome.gardens.get(gardenID).getPlot(plotID).getPlants().remove(plantID);
+			StartScreen.dh.delete_plant(pa_pk);
+			StartScreen.dh.delete_map_pp(pa_pk);
+			PlotScreen.adapter.notifyDataSetChanged(); 
+			finish();
 			break;
 		}
 		return super.onOptionsItemSelected(item);
