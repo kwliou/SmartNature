@@ -58,20 +58,9 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		bg = getResources().getDrawable(R.drawable.tile_dark);	
 		textSize = getResources().getDimension(R.dimen.labelsize_default);
 		initPaint();
-		initMockData();	
 		setOnLongClickListener(this);
 		setOnTouchListener(this);
 		gestureScanner = new GestureDetector(context, this);
-	}
-	
-	public void initMockData() {
-		garden = context.garden;
-		for (Plot plot : garden.getPlots()) {
-			Paint p = plot.getPaint();
-			p.setStyle(Paint.Style.STROKE);
-			p.setStrokeCap(Paint.Cap.ROUND);
-			p.setStrokeJoin(Paint.Join.ROUND);
-		}		
 	}
 	
 	public void initPaint() {
@@ -492,7 +481,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		rotatePaint.setColor(medGray);
 		//rotatePaint.clearShadowLayer();
 	}
-
+	
 	/** handles double tap in create polygon mode */
 	@Override
 	public boolean onDoubleTap(MotionEvent e) {

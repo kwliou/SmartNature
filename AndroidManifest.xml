@@ -33,14 +33,13 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".GardenScreen"
-			android:label="@string/app_name">
+		<activity android:name=".GardenScreen">
 		</activity>
 		
 		<activity android:name=".PlantScreen">
 		</activity>
 		
-		<activity android:name=".FindGarden">
+		<activity android:name=".FindGarden" android:label="Find a garden">
 		</activity>
 		
 		<activity android:name=".PlotScreen">
@@ -49,25 +48,20 @@
 		<activity android:name=".ShareGarden">
 		</activity>
 		
-		<activity android:name=".AddPlot"
-			android:theme="@style/Theme.Dialog.NoTitleBar">
+		<activity android:name=".AddPlot" android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
-		<activity android:name=".AddPlant"
-			android:theme="@style/Theme.Dialog.NoTitleBar">
+		<activity android:name=".AddPlant" android:theme="@style/Theme.Dialog.NoTitleBar">
 		</activity>
-		<activity android:name=".EditScreen"
-			android:label="@string/app_name">
+		<activity android:name=".EditScreen">
 		</activity>
 		
-		<activity android:name=".GardenAttr"
-			android:label="@string/app_name">
+		<activity android:name=".GardenAttr">
 		</activity>
 		
 		<activity android:name=".ColorPicker">
 		</activity>
 
-		<activity android:name=".Encyclopedia"
-			android:label="@string/app_name">
+		<activity android:name=".Encyclopedia" android:label="@string/app_name">
         </activity>
 	</application>
 </manifest>

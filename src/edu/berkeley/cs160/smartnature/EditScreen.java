@@ -158,7 +158,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		savedInstanceState.putFloatArray("bgdrag_matrix", bgvalues);
 		super.onSaveInstanceState(savedInstanceState);
 	}
-
+	
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
@@ -195,61 +195,64 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		editView.bgDragMatrix.setValues(bgvalues);
 		editView.onAnimationEnd();
 	}
-
+	
 	@Override
 	public void onBackPressed() {
 		if (createPoly) {
-			float[] pts = toFloatArray(editView.polyPts);
-			plot.set(new Plot(plot.getName(), pts));
-			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
-			oldPlot.set(plot);
-			((Button)findViewById(R.id.save_btn)).setText(R.string.btn_save_edit);
-			if (hintsOn) {
-				TextView hint = (TextView) findViewById(R.id.edit_hint);
-				hint.setText(R.string.hint_editscreen);
-			}
-			createPoly = false;
-			String polyPoints_s = "";
-			for(int i = 0; i < pts.length; i++)
-				polyPoints_s += pts[i];
+			createPolyPlot();
+			return;
+		}
+		
+		garden.remove(oldPlot);
+		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
+		Intent intent = new Intent().putExtra("zoom_scale", editView.zoomScale);
+		float[] values = new float[9], bgvalues = new float[9];
+		editView.dragMatrix.getValues(values);
+		editView.bgDragMatrix.getValues(bgvalues);
+		intent.putExtra("drag_matrix", values);
+		intent.putExtra("bgdrag_matrix", bgvalues);
+		setResult(RESULT_OK, intent);
+		// REPLACE THIS WITH GardenGnome.updatePlot( whatever )
+		/*String shape_s = plot.getBounds().left + "," + plot.getBounds().top + "," + plot.getBounds().right + "," + plot.getBounds().bottom + "," + plot.getPaint().getColor();
+		float[] polyPoints_f = plot.getPoints();
+		String polyPoints_s = "";
+		if(plot.getPoints().length >= 2) {
+			for(int i = 0; i < polyPoints_f.length; i++)
+				polyPoints_s = polyPoints_s + polyPoints_f[i] + ",";
+			polyPoints_s.substring(0, polyPoints_s.length() - 2);
+		}
+		
+		List<Integer> temp = StartScreen.dh.select_map_gp_po(extras.getInt("garden_id") + 1);
+		int po_pk = -1;
+		for(int i = 0; i < temp.size(); i++) {
+			if(po_pk != -1) 
+				break;
+			if(plot.getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
+				po_pk = temp.get(i);
+		}				
+		
+		StartScreen.dh.update_plot(po_pk, shape_s, plot.getColor(), polyPoints_s, plot.getAngle());*/
+		
+		finish();
+		overridePendingTransition(0, 0);
+	}
+	
+	public void createPolyPlot() {
+		float[] pts = toFloatArray(editView.polyPts);
+		plot.set(new Plot(plot.getName(), pts));
+		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+		oldPlot.set(plot);
+		((Button)findViewById(R.id.save_btn)).setText(R.string.btn_save_edit);
+		if (hintsOn) {
+			TextView hint = (TextView) findViewById(R.id.edit_hint);
+			hint.setText(R.string.hint_editscreen);
+		}
+		createPoly = false;
+		String polyPoints_s = "";
+		for(int i = 0; i < pts.length; i++)
+			polyPoints_s += pts[i];
 
-			editView.invalidate();
-		}
-		else {
-			garden.remove(oldPlot);
-			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-			Intent intent = new Intent();
-			intent.putExtra("zoom_scale", editView.zoomScale);
-			float[] values = new float[9], bgvalues = new float[9];
-			editView.dragMatrix.getValues(values);
-			editView.bgDragMatrix.getValues(bgvalues);
-			intent.putExtra("drag_matrix", values);
-			intent.putExtra("bgdrag_matrix", bgvalues);
-			setResult(RESULT_OK, intent);
-			// REPLACE THIS WITH GardenGnome.updatePlot( whatever )
-			/*String shape_s = plot.getBounds().left + "," + plot.getBounds().top + "," + plot.getBounds().right + "," + plot.getBounds().bottom + "," + plot.getPaint().getColor();
-			float[] polyPoints_f = plot.getPoints();
-			String polyPoints_s = "";
-			if(plot.getPoints().length >= 2) {
-				for(int i = 0; i < polyPoints_f.length; i++)
-					polyPoints_s = polyPoints_s + polyPoints_f[i] + ",";
-				polyPoints_s.substring(0, polyPoints_s.length() - 2);
-			}
-			
-			List<Integer> temp = StartScreen.dh.select_map_gp_po(extras.getInt("garden_id") + 1);
-			int po_pk = -1;
-			for(int i = 0; i < temp.size(); i++) {
-				if(po_pk != -1) 
-					break;
-				if(plot.getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
-					po_pk = temp.get(i);
-			}				
-			
-			StartScreen.dh.update_plot(po_pk, shape_s, plot.getColor(), polyPoints_s, plot.getAngle());*/
-			
-			finish();
-			overridePendingTransition(0, 0);
-		}
+		editView.invalidate();
 	}
 	
 	@Override
@@ -275,7 +278,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 
 		return super.onOptionsItemSelected(item);
 	}
-
+	
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
