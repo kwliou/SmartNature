@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -63,6 +62,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		initAll();
 		if(gardens.isEmpty())
 			initMockData();
+
 		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
 		setListAdapter(adapter);
 
@@ -74,7 +74,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 
 	public void initAll() {
 		gardens.clear();
-		for(int i = 0; i < dh.count_garden(); i++) {
+		for(int i = 0; i < dh.count_exist_garden(); i++) {
 			gardens.add(dh.select_garden(i + 1));
 			List<Integer> temp = dh.select_map_gp_po(i + 1);
 			for(int j = 0; j < temp.size(); j++)
@@ -110,35 +110,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		gardens.add(g1);
 		gardens.add(g2);
 	}
-
 	
-	
-	public void oldinitMockData() {
-		Garden g1 = new Garden("Berkeley Youth Alternatives");	
-		Garden g2 = new Garden("Karl Linn");
-		g1.setCity("Berkeley"); g1.setState("California");
-		g2.setCity("Berkeley"); g2.setState("California");
-
-		Rect bounds1 = new Rect(40, 60, 90, 200);
-		Rect bounds2 = new Rect(140, 120, 210, 190);
-		Rect bounds3 = new Rect(270, 120, 270 + 90, 120 + 100);
-		Rect bounds4 = new Rect(40, 200, 90, 300);
-		Rect bounds5 = new Rect(140, 50, 210, 190);
-		Rect bounds6 = new Rect(270, 120, 270 + 90, 120 + 140);
-
-		float[] pts = { 0, 0, 50, 10, 90, 100 };
-		float[] pts2 = { 0, 0, 50, 10, 90, 100, 70, 140, 60, 120 };
-
-		g1.addPlot("Jerry's Plot", bounds1, 10, Plot.RECT);
-		g1.addPlot("Amy's Plot", bounds2, 0, Plot.OVAL);
-		g1.addPlot("Shared Plot", bounds3, 0, pts);
-		g2.addPlot("Cyndi's Plot", bounds4, 0, Plot.RECT);
-		g2.addPlot("Alex's Plot", bounds5, 10, Plot.OVAL);
-		g2.addPlot("Flowers", bounds6, 0, pts2);
-
-		gardens.add(g1);
-		gardens.add(g2);
-	}
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {

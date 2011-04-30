@@ -32,7 +32,6 @@ public class DatabaseHelper {
 	private static final String INSERT_MAP_PP = "insert into " + TABLE_NAME_MAP_PP + " (po_map, pa_map) values (?, ?)";
 	private static final String INSERT_MAP_PE = "insert into " + TABLE_NAME_MAP_PE + " (pa_map, e_map) values (?, ?)";
 
-
 	private Context context;
 	private SQLiteDatabase db;
 	private SQLiteStatement insertStmt_garden, insertStmt_plot, insertStmt_plant, insertStmt_entry, insertStmt_map_gp, insertStmt_map_pp, insertStmt_map_pe;
@@ -83,13 +82,13 @@ public class DatabaseHelper {
 		String selection = "g_pk = ?";
 		return db.update(TABLE_NAME_GARDEN, cv, selection, new String[] {Integer.toString(g_pk)});
 	}
-	
+
 	public long update_garden(int g_pk, String name, String city, String state) {
 		ContentValues cv = new ContentValues();
 		cv.put("name", name);
 		cv.put("city", city);
 		cv.put("state", state);
-		
+
 		String selection = "g_pk = ?";
 		return db.update(TABLE_NAME_GARDEN, cv, selection, new String[] {Integer.toString(g_pk)});
 	}
@@ -177,7 +176,19 @@ public class DatabaseHelper {
 	}
 
 	public int count_garden() {
-		Cursor cursor = this.db.query(TABLE_NAME_GARDEN, null, null, null, null, null, null);
+		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_GARDEN, null);
+		int temp = -1;
+		if (cursor.getCount() > 0) {
+			cursor.moveToNext();
+			temp = cursor.getInt(0);
+		}
+		if (cursor != null && !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
+	
+	public int count_exist_garden() {
+		Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME_GARDEN, null);
 		int temp = cursor.getCount();
 		if (cursor != null && !cursor.isClosed())
 			cursor.close();
@@ -254,13 +265,22 @@ public class DatabaseHelper {
 	}
 
 	public int count_plot() {
-		Cursor cursor = this.db.query(TABLE_NAME_PLOT, null, null, null, null, null, null);
-		int temp = cursor.getCount();
+		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PLOT, null);
+		int temp = -1;
+		if (cursor.getCount() > 0) {
+			cursor.moveToNext();
+			temp = cursor.getInt(0);
+		}
 		if (cursor != null && !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
-
+	
+	public void delete_plot(int po_pk) {
+		String selection = "po_pk = ?";
+		this.db.delete(TABLE_NAME_PLOT, selection, new String[] {Integer.toString(po_pk)});
+	}
+	
 	public long insert_plant(String name, int id) {
 		this.insertStmt_plant.clearBindings();
 		this.insertStmt_plant.bindString(1, name);
@@ -269,7 +289,7 @@ public class DatabaseHelper {
 	}
 
 	public Plant select_plant(int pa_pk) {
-		String selection = "pa_pk = " + pa_pk;
+		String selection = "pa_pk = " + pa_pk + " AND name IS NOT NULL";
 		Cursor cursor = this.db.query(TABLE_NAME_PLANT, null, selection, null, null, null, null);
 		Plant temp = null;
 		if (cursor.moveToFirst()) {
@@ -282,7 +302,7 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
-	
+
 	public String select_plant_name(int pa_pk) {
 		String selection = "pa_pk = " + pa_pk;
 		Cursor cursor = this.db.query(TABLE_NAME_PLANT, null, selection, null, null, null, null);
@@ -298,11 +318,20 @@ public class DatabaseHelper {
 	}
 
 	public int count_plant() {
-		Cursor cursor = this.db.query(TABLE_NAME_PLANT, null, null, null, null, null, null);
-		int temp = cursor.getCount();
+		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PLANT, null);
+		int temp = -1;
+		if (cursor.getCount() > 0) {
+			cursor.moveToNext();
+			temp = cursor.getInt(0);
+		}
 		if (cursor != null && !cursor.isClosed())
 			cursor.close();
 		return temp;
+	}
+
+	public void delete_plant(int pa_pk) {
+		String selection = "pa_pk = ?";
+		this.db.delete(TABLE_NAME_PLANT, selection, new String[] {Integer.toString(pa_pk)});
 	}
 
 	public long insert_entry(String name, String date) {
@@ -313,7 +342,7 @@ public class DatabaseHelper {
 	}
 
 	public Entry select_entry(int e_pk) {
-		String selection = "e_pk = " + e_pk;
+		String selection = "e_pk = " + e_pk + " AND name IS NOT NULL";
 		Cursor cursor = this.db.query(TABLE_NAME_ENTRY, null, selection, null, null, null, null);
 		Entry temp = null;
 		if (cursor.moveToFirst()) {
@@ -326,12 +355,35 @@ public class DatabaseHelper {
 		return temp;
 	}
 
-	public int count_entry() {
-		Cursor cursor = this.db.query(TABLE_NAME_ENTRY, null, null, null, null, null, null);
-		int temp = cursor.getCount();
+	public String select_entry_name(int e_pk) {
+		String selection = "e_pk = " + e_pk;
+		Cursor cursor = this.db.query(TABLE_NAME_ENTRY, null, selection, null, null, null, null);
+		String temp = "";
+		if (cursor.moveToFirst()) {
+			do
+				temp = cursor.getString(cursor.getColumnIndex("name"));
+			while (cursor.moveToNext());
+		}
 		if (cursor != null && !cursor.isClosed())
 			cursor.close();
 		return temp;
+	}
+
+	public int count_entry() {
+		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_ENTRY, null);
+		int temp = -1;
+		if (cursor.getCount() > 0) {
+			cursor.moveToNext();
+			temp = cursor.getInt(0);
+		}
+		if (cursor != null && !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
+
+	public void delete_entry(int e_pk) {
+		String selection = "e_pk = ?";
+		this.db.delete(TABLE_NAME_ENTRY, selection, new String[] {Integer.toString(e_pk)});
 	}
 
 	public long insert_map_gp(int g_map, int po_map) {
@@ -354,7 +406,12 @@ public class DatabaseHelper {
 			cursor.close();
 		return list;
 	}
-
+	
+	public void delete_map_gp(int po_map) {
+		String selection = "po_map = ?";
+		this.db.delete(TABLE_NAME_MAP_GP, selection, new String[] {Integer.toString(po_map)});
+	}
+	
 	public long insert_map_pp(int po_map, int pa_map) {
 		this.insertStmt_map_pp.clearBindings();
 		this.insertStmt_map_pp.bindLong(1, (long)po_map);
@@ -376,6 +433,11 @@ public class DatabaseHelper {
 		return list;
 	}
 
+	public void delete_map_pp(int pa_map) {
+		String selection = "pa_map = ?";
+		this.db.delete(TABLE_NAME_MAP_PP, selection, new String[] {Integer.toString(pa_map)});
+	}
+
 	public long insert_map_pe(int pa_map, int e_map) {
 		this.insertStmt_map_pe.clearBindings();
 		this.insertStmt_map_pe.bindLong(1, (long)pa_map);
@@ -395,6 +457,11 @@ public class DatabaseHelper {
 		if (cursor != null && !cursor.isClosed())
 			cursor.close();
 		return list;
+	}
+
+	public void delete_map_pe(int e_map) {
+		String selection = "e_map = ?";
+		this.db.delete(TABLE_NAME_MAP_PE, selection, new String[] {Integer.toString(e_map)});
 	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {

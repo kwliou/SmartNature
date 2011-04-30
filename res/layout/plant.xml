@@ -28,6 +28,7 @@
 			android:id="@+id/lookup_plant"
 			android:text="Encyclopedia entry" 
 			/>
+		<!--
 		<Button
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -35,6 +36,7 @@
 			android:id="@+id/delete_plant"
 			android:text="Delete this Plant" 
 			/>
+		-->
 	</LinearLayout>
 
 	<!-- 
