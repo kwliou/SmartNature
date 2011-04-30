@@ -60,8 +60,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 
 		dh = new DatabaseHelper(this);
 		initAll();
-		if(gardens.isEmpty())
-			initMockData();
+		//if(gardens.isEmpty())
+		//	initMockData();
 		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
 		setListAdapter(adapter);
 
@@ -73,7 +73,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 
 	public void initAll() {
 		gardens.clear();
-		for(int i = 0; i < dh.count_garden(); i++) {
+		for(int i = 0; i < dh.count_exist_garden(); i++) {
 			gardens.add(dh.select_garden(i + 1));
 			List<Integer> temp = dh.select_map_gp_po(i + 1);
 			for(int j = 0; j < temp.size(); j++)

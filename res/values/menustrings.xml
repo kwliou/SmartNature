@@ -18,5 +18,5 @@
 	<string name="m_syncgarden">Manual sync</string>
 	<string name="m_takephoto">Take a photo</string>
 	<string name="m_deleteplant">Delete plant</string>
-	<string name="m_deleteplot">Delete plant</string>
+	<string name="m_deleteplot">Delete plot</string>
 </resources>

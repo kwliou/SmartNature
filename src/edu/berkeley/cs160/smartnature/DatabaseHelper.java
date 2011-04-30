@@ -186,6 +186,14 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
+	
+	public int count_exist_garden() {
+		Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME_GARDEN, null);
+		int temp = cursor.getCount();
+		if (cursor != null && !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
 
 	public long insert_plot(String name, String shape, int type, int color, String polyPoints, float rotation, int id) {
 		this.insertStmt_plot.clearBindings();
@@ -267,7 +275,12 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
-
+	
+	public void delete_plot(int po_pk) {
+		String selection = "po_pk = ?";
+		this.db.delete(TABLE_NAME_PLOT, selection, new String[] {Integer.toString(po_pk)});
+	}
+	
 	public long insert_plant(String name, int id) {
 		this.insertStmt_plant.clearBindings();
 		this.insertStmt_plant.bindString(1, name);
@@ -393,7 +406,12 @@ public class DatabaseHelper {
 			cursor.close();
 		return list;
 	}
-
+	
+	public void delete_map_gp(int po_map) {
+		String selection = "po_map = ?";
+		this.db.delete(TABLE_NAME_MAP_GP, selection, new String[] {Integer.toString(po_map)});
+	}
+	
 	public long insert_map_pp(int po_map, int pa_map) {
 		this.insertStmt_map_pp.clearBindings();
 		this.insertStmt_map_pp.bindLong(1, (long)po_map);
