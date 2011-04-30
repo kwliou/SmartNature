@@ -34,6 +34,7 @@ sharing gardens
 parsing encyclopedia(s)
 make plant screen look better
 voice commands
+add ability to lookup species through plant screen and remember chosen result
 add long click context menus
 add dimensions to gardens/plots
 pinch and zoom for editview

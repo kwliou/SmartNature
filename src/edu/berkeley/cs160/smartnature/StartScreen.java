@@ -59,8 +59,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		geocoder = new Geocoder(this, Locale.getDefault());
 		gardens = GardenGnome.gardens;
 
-		//dh = new DatabaseHelper(this);
-		//initAll();
+		dh = new DatabaseHelper(this);
+		initAll();
 		if(gardens.isEmpty())
 			initMockData();
 		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
@@ -83,7 +83,37 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	}
 	
 	public void initMockData() {
+		Log.w("debug", "initMockData called");
+		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview, "0,0,800,480", "Berkeley", "California", 0, -1, "");
+		dh.insert_garden("Karl Linn", R.drawable.preview, "0,0,800,480", "Berkeley", "California", 0, -1, "");
+
+		dh.insert_plot("Jerry Plot", "40,60,90,200," + Color.BLACK, Plot.RECT, Color.BLACK, "", 10, 0);
+		dh.insert_plot("Amy Plot", "140,120,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 0, 0);
+		dh.insert_plot("Shared Plot", "270,120,360,220," + Color.BLACK, Plot.POLY, Color.BLACK, "0,0,50,10,90,100", 0, 0);
+		dh.insert_plot("Cyndi Plot", "40,200,90,300," + Color.BLACK, Plot.RECT, Color.BLACK, "", 0, 0);
+		dh.insert_plot("Alex Plot", "140,50,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 10, 0);
+		dh.insert_plot("Flowers", "270,120,360,260," + Color.BLACK, Plot.POLY, Color.BLACK, " 0,0,50,10,90,100,70,140,60,120", 0, 0);
+
+		Garden g1 = dh.select_garden(1);
+		Garden g2 = dh.select_garden(2);
+
+		for(int i = 1; i < 4; i++) {
+			g1.addPlot(dh.select_plot(i));
+			dh.insert_map_gp(1, i);
+		}
 		
+		for(int i = 4; i < 7; i++) {
+			g2.addPlot(dh.select_plot(i));
+			dh.insert_map_gp(2, i);
+		}
+
+		gardens.add(g1);
+		gardens.add(g2);
+	}
+
+	
+	
+	public void oldinitMockData() {
 		Garden g1 = new Garden("Berkeley Youth Alternatives");	
 		Garden g2 = new Garden("Karl Linn");
 		g1.setCity("Berkeley"); g1.setState("California");
@@ -108,35 +138,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 
 		gardens.add(g1);
 		gardens.add(g2);
-		
-		/*Log.w("debug", "initMockData called");
-		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview, "0,0,800,480", "Berkeley", "California", -1, -1, "");
-		dh.insert_garden("Karl Linn", R.drawable.preview, "0,0,800,480", "Berkeley", "California", -1, -1, "");
-
-		dh.insert_plot("Jerry Plot", "40,60,90,200," + Color.BLACK, Plot.RECT, Color.BLACK, "", 10, 0);
-		dh.insert_plot("Amy Plot", "140,120,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 0, 0);
-		dh.insert_plot("Shared Plot", "270,120,360,220," + Color.BLACK, Plot.POLY, Color.BLACK, "0,0,50,10,90,100", 0, 0);
-		dh.insert_plot("Cyndi Plot", "40,200,90,300," + Color.BLACK, Plot.RECT, Color.BLACK, "", 0, 0);
-		dh.insert_plot("Alex Plot", "140,50,210,190," + Color.BLACK, Plot.OVAL, Color.BLACK, "", 10, 0);
-		dh.insert_plot("Flowers", "270,120,360,260," + Color.BLACK, Plot.POLY, Color.BLACK, " 0,0,50,10,90,100,70,140,60,120", 0, 0);
-
-		Garden g1 = dh.select_garden(1);
-		Garden g2 = dh.select_garden(2);
-
-		for(int i = 1; i < 4; i++) {
-			g1.addPlot(dh.select_plot(i));
-			dh.insert_map_gp(1, i);
-		}
-		
-		for(int i = 4; i < 7; i++) {
-			g2.addPlot(dh.select_plot(i));
-			dh.insert_map_gp(2, i);
-		}
-
-		gardens.add(g1);
-		gardens.add(g2);*/
 	}
-
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
@@ -196,7 +198,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		intent.putExtra("garden_id", gardens.size());
 		Garden garden = new Garden(gardenName);
 		gardens.add(garden);
-		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", -1, -1, "");
+		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
 		adapter.notifyDataSetChanged();
 		startActivityForResult(intent, 0);
 		new Thread(setLocation).start();

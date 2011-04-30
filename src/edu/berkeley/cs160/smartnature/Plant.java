@@ -6,6 +6,7 @@ import com.google.gson.annotations.Expose;
 public class Plant {
 	
 	@Expose private String name;
+	@Expose private String online_entry;
 	private int id;
 	private ArrayList<Entry> entries;
 

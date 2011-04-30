@@ -57,11 +57,13 @@
 				android:orientation="vertical">
 				<LinearLayout
 					android:id="@+id/titleAndButton"
+					android:orientation="horizontal"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content" >
 					<TextView
 						android:id="@+id/searchName"
 						android:textSize="20dp"
+						android:layout_weight="1"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="temp plant" 
@@ -69,6 +71,7 @@
 					<Button 
 						android:id="@+id/addToPlot"
 						android:text="Add To Plot" 
+						android:layout_marginRight="4dp"
 						android:layout_height="wrap_content" 
 						android:layout_width="wrap_content" />
 				</LinearLayout>
