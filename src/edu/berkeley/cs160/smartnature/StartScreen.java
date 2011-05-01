@@ -1,6 +1,5 @@
 package edu.berkeley.cs160.smartnature;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -219,7 +218,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 				List<Address> addresses = new ArrayList<Address>();
 				try {
 					addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-				} catch (IOException e) { e.printStackTrace(); }
+				} catch (Exception e) { e.printStackTrace(); }
 				if (!addresses.isEmpty()) {
 					Address addr = addresses.get(0);
 					System.out.println(addr.getLocality() + "," + addr.getAdminArea() + "," + addr.getCountryCode());

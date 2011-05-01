@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -84,7 +85,8 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			hint.setVisibility(View.VISIBLE);
 		}
 		
-		findViewById(R.id.edit_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+		Drawable footer = findViewById(R.id.edit_footer).getBackground().mutate();
+		footer.setAlpha(getResources().getInteger(R.integer.bar_trans));
 		initButton(R.id.save_btn);
 		initButton(R.id.edit_zoomfit_btn);
 		

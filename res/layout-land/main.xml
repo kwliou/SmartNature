@@ -53,12 +53,7 @@
 
 		<TextView
 			android:text="@string/garden_list_title"
-			android:background="#ffd4d4d4"
-			android:textAppearance="?android:listSeparatorTextViewStyle"
-			android:gravity="center_vertical"
-			android:paddingLeft="5sp"
-			android:layout_width="fill_parent"
-			android:layout_height="25dp" />
+			style="@style/Widget.TextView.ListSeparator" />
 
 		<ListView
 			android:id="@+id/android:list"

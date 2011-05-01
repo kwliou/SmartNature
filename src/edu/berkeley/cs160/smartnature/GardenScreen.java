@@ -5,7 +5,9 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -32,7 +34,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	ZoomControls zoomControls;
 	
 	/** User-related options */
-	boolean showLabels = true, showFullScreen, zoomAutoHidden;
+	boolean hintsOn, showLabels = true, showFullScreen, zoomAutoHidden;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
 	/** URI of photo from camera app */
@@ -40,7 +42,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		showFullScreen = getSharedPreferences("global", MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
+		loadPreferences();
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
@@ -52,20 +54,27 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
-		findViewById(R.id.garden_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+		
+		Drawable footer = findViewById(R.id.garden_footer).getBackground().mutate();
+		footer.setAlpha(getResources().getInteger(R.integer.bar_trans));
 		initButton(R.id.addplot_btn);
 		initButton(R.id.zoomfit_btn);
-		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
 		zoomControls = (ZoomControls) findViewById(R.id.zoom_controls);
-		zoomAutoHidden = getSharedPreferences("global", MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
 			zoomControls.setVisibility(View.GONE);
 		zoomControls.setOnZoomInClickListener(zoomIn);
 		zoomControls.setOnZoomOutClickListener(zoomOut);
+	}
+	
+	public void loadPreferences() {
+		SharedPreferences prefs = getSharedPreferences("global", Context.MODE_PRIVATE);
+		hintsOn = prefs.getBoolean("show_hints", true);
+		showFullScreen = prefs.getBoolean("garden_fullscreen", false);
+		zoomAutoHidden = prefs.getBoolean("zoom_autohide", false);
 	}
 	
 	public void initButton(int id) {
@@ -78,14 +87,13 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
+		savedInstanceState.putParcelable("key", imageUri);
 		savedInstanceState.putFloat("zoom_scale", gardenView.zoomScale);
 		savedInstanceState.putBoolean("portrait_mode", gardenView.portraitMode);
 		float[] values = new float[9], bgvalues = new float[9];
 		gardenView.dragMatrix.getValues(values);
 		gardenView.bgDragMatrix.getValues(bgvalues);
 		savedInstanceState.putFloatArray("drag_matrix", values);
-		savedInstanceState.putParcelable("key", imageUri);
-		//("drag_matrix", values);
 		savedInstanceState.putFloatArray("bgdrag_matrix", bgvalues);
 		super.onSaveInstanceState(savedInstanceState);
 	}
@@ -93,10 +101,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
+		imageUri = (Uri) savedInstanceState.getParcelable("key");
 		gardenView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
 		boolean portraitMode = getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight();
-		imageUri = (Uri) savedInstanceState.getParcelable("key");
 		
 		float[] values = savedInstanceState.getFloatArray("drag_matrix");
 		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");

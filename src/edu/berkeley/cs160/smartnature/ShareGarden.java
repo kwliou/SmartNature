@@ -57,7 +57,6 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		try {
 			digester = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-		findViewById(R.id.share_footer).getBackground().setAlpha(0xff);
 		shareButton = (Button) findViewById(R.id.share_confirm);
 		if (garden.getServerId() == -1)
 			shareButton.setText(R.string.btn_sharing);
@@ -71,12 +70,6 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	}
 	
 	@Override
-	public void onBackPressed() {
-		findViewById(R.id.share_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
-		super.onBackPressed();
-	}
-	
-	@Override
 	public void onClick(View view) {
 		if (view.getId() == R.id.share_confirm && garden.getServerId() == 0) {
 			garden.setServerId(-1);
@@ -86,7 +79,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			new Thread(this).start();
 		}
 		else if (view.getId() == R.id.share_cancel)
-			onBackPressed();
+			finish();
 	}
 	
 	@Override
