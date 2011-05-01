@@ -30,7 +30,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener {
+public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnKeyListener {
 	
 	static private int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4;
 	static StubAdapter adapter;
@@ -49,6 +49,38 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		adapter = new StubAdapter(this, R.layout.findgarden_list_item, stubs);
 		setListAdapter(adapter);
 		getListView().setOnItemClickListener(this);
+
+		findViewById(R.id.search_garden_name).setOnKeyListener(new View.OnKeyListener() {
+			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					findViewById(R.id.search_garden_city).requestFocus();
+					return true;
+				}
+				return false;
+			}
+		});
+		
+		findViewById(R.id.search_garden_city).setOnKeyListener(new View.OnKeyListener() {
+			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					findViewById(R.id.search_garden_state).requestFocus();
+					return true;
+				}
+				return false;
+			}
+		});
+
+		findViewById(R.id.search_garden_state).setOnKeyListener(new View.OnKeyListener() {
+			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+					mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
+					return true;
+				}
+				return false;
+			}
+		});
+		
 		if (previousData == null) {
 			setProgressBarIndeterminateVisibility(true);
 			new Thread(getStubs).start();
@@ -112,6 +144,15 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		Garden garden = gson.fromJson(result, Garden.class);
 		garden.setServerId(Integer.parseInt(serverId));
 		return garden;
+	}
+	
+	@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+			switch (view.getId()) {
+				//case R.id.search_garden_name
+			}
+		}
+		return false;
 	}
 	
 	@Override
@@ -188,4 +229,5 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			return view;
 		}
 	}
+
 }

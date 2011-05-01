@@ -8,9 +8,8 @@
 
 	<LinearLayout
 		android:orientation="horizontal"
-		android:layout_marginLeft="3dp"
-		android:layout_marginRight="3dp"
-		android:layout_marginTop="6dp"
+		android:padding="3dp"
+		android:layout_marginTop="3dp"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 
@@ -50,12 +49,20 @@
 		</LinearLayout>
 
 		<Button
+			android:id="@+id/btn_find_garden"
 			android:text="Search"
 			android:drawableTop="@android:drawable/ic_menu_gallery"
 			android:layout_width="wrap_content"
 			android:layout_height="fill_parent" />
 
 	</LinearLayout>
+
+	<TextView
+		android:text="Nearby gardens"
+		android:gravity="center_vertical"
+		style="@style/Widget.TextView.ListSeparator"
+		android:layout_width="fill_parent"
+		android:layout_height="25dp" />
 
 	<RelativeLayout
 		android:id="@+id/find_garden_msg"
