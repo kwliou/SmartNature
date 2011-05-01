@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ZoomControls;
 
 public class EditScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener, ColorPickerDialog.OnColorChangedListener {
@@ -199,10 +200,14 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 	
 	@Override
 	public void onBackPressed() {
-		if (createPoly) {
+		// connect the points and go to the default edit mode
+		if (createPoly && editView.polyPts.size() >= 6) {
 			createPolyPlot();
 			return;
 		}
+		
+		if (createPoly)
+			garden.remove(plot);
 		
 		garden.remove(oldPlot);
 		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
@@ -284,7 +289,10 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 	public void onClick(View view) {
 		switch (view.getId()) {
 		case R.id.save_btn:
-			onBackPressed();
+			if (createPoly && editView.polyPts.size() < 6)
+				Toast.makeText(this, "Shape needs more than 2 points", Toast.LENGTH_SHORT).show();
+			else
+				onBackPressed();
 			break;
 		case R.id.edit_zoomfit_btn:
 			editView.zoomScale = 1;
