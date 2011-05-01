@@ -14,11 +14,7 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 
-		<ImageView
-			android:src="@drawable/search"
-			android:paddingBottom="3dp"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+		
 
 		<EditText
 			android:id="@+id/searchText"
@@ -26,7 +22,8 @@
 			android:layout_weight="1"
 			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
-			android:layout_marginLeft="5dp" />
+			android:layout_marginLeft="5dp" 
+			android:drawableLeft="@android:drawable/ic_menu_search"/>
 
 		<Button
 			android:id="@+id/searchButton"
@@ -34,7 +31,7 @@
 			android:layout_marginLeft="5dp"
 			android:layout_marginRight="5dp"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+			android:layout_height="fill_parent" />
 
 	</LinearLayout>
 	<ViewFlipper 
