@@ -14,12 +14,13 @@ public class Garden {
 	@Expose private String name;
 	@Expose private String city;
 	@Expose private String state;
-	/** database id on server */
+	/** database id on server, equal to -1 during uploading */
 	private int serverId;
-	private boolean is_public;
+	@Expose private boolean is_public;
+	@Expose private String password;  // should we turn this into a SHA-256 hash?
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
 	private RectF bounds = new RectF(0, 0, 800, 480);
-	private ArrayList<String> images = new ArrayList<String>();
+	private ArrayList<Photo> images = new ArrayList<Photo>();
 	
 	private static Rect padding = new Rect(30, 30, 30, 30);
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
@@ -110,7 +111,9 @@ public class Garden {
 		
 	public String getName() { return name; }
 	
-	public Uri getPreview() {return getImage(images.size() - 1); }
+	public String getPassword() { return password; }
+	
+	public Uri getPreview() {return images.get(images.size() - 1).getUri(); }
 	
 	public RectF getRawBounds() { return bounds; }
 	
@@ -124,6 +127,8 @@ public class Garden {
 	
 	public void setName(String name) { this.name = name; }
 	
+	public void setPassword(String password) { this.password = password; }
+	
 	public void setPublic(boolean is_public) { this.is_public = is_public; }
 	
 	public void setRawBounds(RectF bounds) { this.bounds = bounds; }
@@ -134,7 +139,14 @@ public class Garden {
 	
 	/** Helpful ArrayList-related methods */
 	
-	public ArrayList<String> getImages() {return images; }
+	public ArrayList<Photo> getImages() {return images; }
+	
+	//public void setImages(ArrayList<Photo> images) {this.images = images; }
+	public void setImages(ArrayList<String> uris) {
+		images = new ArrayList<Photo>(); 
+		for (String uri : uris)
+			images.add(new Photo(Uri.parse(uri)));
+	}
 	
 	public ArrayList<Plot> getPlots() { return plots; }
 	
@@ -148,9 +160,9 @@ public class Garden {
 	
 	public int size() { return plots.size(); }
 	
-	public Uri getImage(int index) {return Uri.parse(images.get(index)); }
+	public Photo getImage(int index) {return images.get(index); }
 	
-	public void addImage(Uri uri) { images.add(uri.toString()); }
+	public void addImage(Uri uri) { images.add(new Photo(uri)); }
 	
 	public int numImages() { return images.size(); }
 	

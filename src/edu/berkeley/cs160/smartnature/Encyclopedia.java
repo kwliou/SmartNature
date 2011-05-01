@@ -1,16 +1,15 @@
 package edu.berkeley.cs160.smartnature;
 
 import java.io.IOException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 
 import android.app.ListActivity;
 import android.content.Context;
@@ -19,7 +18,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -191,7 +189,18 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 			int plotId, gardenId;
 			plotId = (Integer) data.getExtras().get("plotId");
 			gardenId = (Integer) data.getExtras().get("gardenId");
-			GardenGnome.gardens.get(gardenId).getPlot(plotId).addPlant(new Plant(pName));
+			/*GardenGnome.gardens.get(gardenId).getPlot(plotId).addPlant(new Plant(pName));
+			int po_pk;
+			List<Integer> temp = StartScreen.dh.select_map_gp_po(gardenId + 1);
+			po_pk = -1;
+			for(int i = 0; i < temp.size(); i++) {
+				if(po_pk != -1) 
+					break;
+				if(GardenGnome.gardens.get(gardenId).getPlot(plotId).getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
+					po_pk = temp.get(i);
+			}
+			StartScreen.dh.insert_plant(pName, 0);
+			StartScreen.dh.insert_map_pp(po_pk, StartScreen.dh.count_plant());*/
 		}
 	}
 

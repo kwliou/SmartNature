@@ -5,19 +5,22 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Toast;
+import android.widget.EditText;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -31,7 +34,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 public class ShareGarden extends Activity implements Runnable, View.OnClickListener {
 	
 	private static final char[] HEX = "0123456789abcdef".toCharArray();
-	
+	Button shareButton;
 	/** for AWS since certain Android versions do not have org.xml.sax.driver */
 	static {
 		System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
@@ -40,79 +43,105 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	}
 	
 	Garden garden;
-	boolean success;
 	Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 	/** used in adding hash code to image filename */
 	MessageDigest digester;
+	NotificationManager manager;
 	
-	@Override public void onCreate(Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		setContentView(R.layout.share_garden);
-		garden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		garden = GardenGnome.getGarden(getIntent().getIntExtra("garden_id", 0));
 		try {
-			digester = java.security.MessageDigest.getInstance("SHA-256");
+			digester = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-		findViewById(R.id.share_confirm).setOnClickListener(this);
+		shareButton = (Button) findViewById(R.id.share_confirm);
+		if (garden.getServerId() == -1)
+			shareButton.setText(R.string.btn_sharing);
+		else if (garden.getServerId() > 0)
+			shareButton.setText(R.string.btn_shared);
+		else {
+			shareButton.setEnabled(true);
+			findViewById(R.id.share_confirm).setOnClickListener(this);
+		}
 		findViewById(R.id.share_cancel).setOnClickListener(this);
 	}
 	
 	@Override
 	public void onClick(View view) {
-		if (view.getId() == R.id.share_confirm)
+		if (view.getId() == R.id.share_confirm && garden.getServerId() == 0) {
+			garden.setServerId(-1);
+			shareButton.setEnabled(false);
+			shareButton.setText(R.string.btn_sharing);
+			makeNote(android.R.drawable.stat_sys_upload, "Now uploading", Notification.FLAG_ONGOING_EVENT, false);
 			new Thread(this).start();
-		finish();
+		}
+		else if (view.getId() == R.id.share_cancel)
+			finish();
 	}
 	
 	@Override
 	public void run() {
-		boolean permit = ((CheckBox)findViewById(R.id.garden_permissions)).isChecked();
+		if (!uploadGarden()) {
+			garden.setServerId(0);
+			makeNote(android.R.drawable.stat_notify_error, "Failed to upload", Notification.FLAG_AUTO_CANCEL, true);
+			return;
+		}
+		
+		if (garden.numImages() > 0 && !uploadImages()) {
+			makeNote(android.R.drawable.stat_notify_error, "Failed to upload photos from", Notification.FLAG_AUTO_CANCEL, true);
+			return;
+		}
+		
+		makeNote(android.R.drawable.stat_sys_upload_done, "Successfully uploaded", Notification.FLAG_AUTO_CANCEL, true);
+		runOnUiThread(new Runnable() {
+			@Override public void run() {
+				shareButton.setText(R.string.btn_shared);
+			}
+		});
+	}
+	
+	public boolean uploadGarden() {
+		CheckBox permiss = (CheckBox) findViewById(R.id.garden_permissions);
+		EditText password = (EditText) findViewById(R.id.garden_password);
+		garden.setPublic(permiss.isChecked());
+		garden.setPassword(password.getText().toString());
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens");
-		String json = gson.toJson(garden);
+		HttpPost httppost = new HttpPost(getString(R.string.server_url) + "gardens.json");
 		// rails server expects "garden" to be key value
-		String revised = "{\"garden\":{" + "\"public\":" + permit + "," + json.substring(1) + "}";
-		boolean postSuccess = false;
+		String json = "{\"garden\":" + gson.toJson(garden) + "}";
+		boolean success = true;
 		try {
-			StringEntity entity = new StringEntity(revised);
+			StringEntity entity = new StringEntity(json);
 			entity.setContentType("application/json");
 			httppost.setEntity(entity);
-			httpclient.execute(httppost);
-			postSuccess = true;
-		} catch (Exception e) { e.printStackTrace(); }
+			HttpResponse response = httpclient.execute(httppost);
+			String result = EntityUtils.toString(response.getEntity());
+			garden.setServerId(gson.fromJson(result, int.class));
+		} catch (Exception e) { success = false; e.printStackTrace(); }
 		
-		// get back server id of created garden
+		/*
+		boolean success = false;
 		if (postSuccess) {
-			String query = "http://gardengnome.heroku.com/search?";
-			query += "name=" + Uri.encode(garden.getName());
+			String query = "http://gardengnome.heroku.com/search";
+			query += "?name=" + Uri.encode(garden.getName());
 			query += "&city=" + Uri.encode(garden.getCity());
 			query += "&state=" + Uri.encode(garden.getState());
 			HttpGet httpget = new HttpGet(query);
 			try {
 				HttpResponse response = httpclient.execute(httpget);
-				HttpEntity entity = response.getEntity();
-				String result = EntityUtils.toString(entity);
+				String result = EntityUtils.toString(response.getEntity());
 				garden.setServerId(gson.fromJson(result, int.class));
 				success = true;
 			} catch (Exception e) { e.printStackTrace(); }
-		}
-		if (success) {
-			runOnUiThread(new Runnable() {
-				@Override public void run() {
-					Toast.makeText(ShareGarden.this, "Garden has been uploaded online", Toast.LENGTH_SHORT).show();				
-				}
-			});
-			
-			uploadImages();
-		}
-		else
-			runOnUiThread(new Runnable() {
-				@Override public void run() {
-					Toast.makeText(ShareGarden.this, "Garden was not successfully uploaded.", Toast.LENGTH_SHORT).show();				
-				}
-			});
+		}*/
+		return success && garden.getServerId() > 0;
 	}
 	
-	public void uploadImages() {
+	public boolean uploadImages() {
+		boolean success = true;
 		String accessKey = "AKIAIPOGJD62WOASLQYA";
 		String secretKey = "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";
 		BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -120,43 +149,67 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		String bucketName = "gardengnome";
 		//ObjectListing objlist = s3.listObjects(bucketName);
 		HttpClient httpclient = new DefaultHttpClient();
-		for (int i = 0; i < garden.numImages(); i++) {
-			Uri uri = garden.getImage(i);
-			
-			String hash = "";
-			String code = garden.getCity() + "|" + garden.getState() + "|" + garden.getName() + "|" + i;
-			byte[] bytes = code.getBytes();
-			digester.update(bytes);
-			byte[] digest = digester.digest();
-			for (byte b : digest)
-				hash += HEX[(b & 0xf0) >>> 4] + HEX[b & 0xf];
-			
-			String imageUrl = garden.getName() + i + ".jpg";
+		for (Photo photo : garden.getImages()) {
+			// get image id from rails server
+			HttpPost httppost = new HttpPost(getString(R.string.server_url) + "gardens/" + garden.getServerId() + "/photos.json");
+			String json = "{\"photo\":" + gson.toJson(photo) + "}";
 			try {
-				InputStream stream = getContentResolver().openInputStream(uri);
-				long size = getContentResolver().openFileDescriptor(uri, "r").getStatSize();
-				ObjectMetadata metadata = new ObjectMetadata();
-				metadata.setContentLength(size);
-				s3.putObject(bucketName, imageUrl, stream, metadata);
-				stream.close();
-			} catch (Exception e) { e.printStackTrace(); }
-			
-			// notify rails server that image is available 
-			HttpPost httppost = new HttpPost("http://gardengnome.heroku.com/gardens/" + garden.getServerId() + "/photos");
-			try {
-				StringEntity entity = new StringEntity("{\"photo\":{\"title\":\"Untitled\"}}");
+				StringEntity entity = new StringEntity(json);
 				entity.setContentType("application/json");
 				httppost.setEntity(entity);
-				httpclient.execute(httppost);
-			} catch (Exception e) { e.printStackTrace(); }
+				HttpResponse response = httpclient.execute(httppost);
+				String result = EntityUtils.toString(response.getEntity());
+				photo.setServerId(gson.fromJson(result, int.class));
+			} catch (Exception e) { success = false; e.printStackTrace(); }
+			
+			if (!success || photo.getServerId() == 0)
+				return false;
+			
+			// upload image to s3
+			String code = garden.getCity() + "|" + garden.getState() + "|" + garden.getPassword() + "|" + photo.getServerId();
+			String fileName = garden.getName() + hexCode(code) + ".jpg";
+			Uri imageUri = photo.getUri();
+			try {
+				InputStream stream = getContentResolver().openInputStream(imageUri);
+				long fileSize = getContentResolver().openFileDescriptor(imageUri, "r").getStatSize();
+				ObjectMetadata metadata = new ObjectMetadata();
+				metadata.setContentLength(fileSize);
+				s3.putObject(bucketName, fileName, stream, metadata);
+				stream.close();
+			} catch (Exception e) { success = false; e.printStackTrace(); }
 		}
 		
-		runOnUiThread(new Runnable() {
-			@Override public void run() {
-				Toast.makeText(ShareGarden.this, "Photos have been uploaded online", Toast.LENGTH_SHORT).show();				
-			}
-		});
-		
+		return success;
 	}
+	
+	/** meant for SHA-256 */
+	public String hexCode(String input) {
+		char[] hash = new char[64];
+		digester.update(input.getBytes());
+		byte[] digest = digester.digest();
+		for (int i = 0; i < digest.length; i++) {
+			byte b = digest[i];
+			hash[2 * i] = HEX[(b >> 4) & 0xf];
+			hash[2 * i + 1] = HEX[b & 0xf];
+		}
+		return new String(hash);
+	}
+	
+	public void makeNote(int icon, String text, int flags, boolean vibrate) {
+		manager.cancelAll();
+		Notification notification = new Notification(icon, text + " garden", System.currentTimeMillis());
+		Intent intent = new Intent(this, ShareGarden.class).putExtra("garden_id", getIntent().getIntExtra("garden_id", 0));
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		int pendingflags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT; // for Samsung Galaxy S
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, pendingflags);
+		notification.flags |= flags;
+		if (vibrate)
+			notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
+		String title = "GardenGnome";
+		String contentText = text + " " + garden.getName(); 
+		notification.setLatestEventInfo(this, title, contentText, contentIntent);
 		
+		manager.notify(1, notification); // NOTE: HTC does not like an id parameter of 0
+	}
+	
 }

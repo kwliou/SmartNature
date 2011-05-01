@@ -1,9 +1,11 @@
 package edu.berkeley.cs160.smartnature;
 
+import com.google.gson.annotations.Expose;
+
 public class Entry {
 	
-	private String name;
-	private String date;
+	@Expose private String name;
+	@Expose private String date;
 
 	Entry(String name, String date) {
 		this.name = name;

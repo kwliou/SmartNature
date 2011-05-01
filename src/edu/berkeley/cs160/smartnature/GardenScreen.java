@@ -5,7 +5,9 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -22,16 +24,17 @@ import android.widget.ZoomControls;
 public class GardenScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
 	
 	/** request codes used in intents */
-	final static int EDIT_GARDEN = 1, USE_CAMERA = 2, ADD_PLOT = 3, EDIT_PLOT = 4, VIEW_PLOT = 5;
+	final static int EDIT_GARDEN = 1, SHARE_GARDEN = 2, USE_CAMERA = 3, ADD_PLOT = 4, EDIT_PLOT = 5, VIEW_PLOT = 6;
 	
 	Garden mockGarden;
+	int gardenId;
 	GardenView gardenView;
 	View textEntryView;
 	AlertDialog dialog;
 	ZoomControls zoomControls;
 	
 	/** User-related options */
-	boolean showLabels = true, showFullScreen, zoomAutoHidden;
+	boolean hintsOn, showLabels = true, showFullScreen, zoomAutoHidden;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
 	/** URI of photo from camera app */
@@ -39,31 +42,39 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		showFullScreen = getSharedPreferences("global", MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
+		loadPreferences();
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
-		mockGarden = GardenGnome.gardens.get(getIntent().getIntExtra("garden_id", 0));
+		gardenId = getIntent().getIntExtra("garden_id", 0);
+		mockGarden = GardenGnome.getGarden(gardenId);
 		setTitle(mockGarden.getName());
 		if (savedInstanceState == null) // first init
 			mockGarden.refreshBounds();
 		
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
-		findViewById(R.id.garden_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+		
+		Drawable footer = findViewById(R.id.garden_footer).getBackground().mutate();
+		footer.setAlpha(getResources().getInteger(R.integer.bar_trans));
 		initButton(R.id.addplot_btn);
 		initButton(R.id.zoomfit_btn);
-		boolean hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			((TextView)findViewById(R.id.garden_hint)).setText(R.string.hint_gardenscreen);
 			((TextView)findViewById(R.id.garden_hint)).setVisibility(View.VISIBLE);
 		}
 		zoomControls = (ZoomControls) findViewById(R.id.zoom_controls);
-		zoomAutoHidden = getSharedPreferences("global", MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
 			zoomControls.setVisibility(View.GONE);
 		zoomControls.setOnZoomInClickListener(zoomIn);
 		zoomControls.setOnZoomOutClickListener(zoomOut);
+	}
+	
+	public void loadPreferences() {
+		SharedPreferences prefs = getSharedPreferences("global", Context.MODE_PRIVATE);
+		hintsOn = prefs.getBoolean("show_hints", true);
+		showFullScreen = prefs.getBoolean("garden_fullscreen", false);
+		zoomAutoHidden = prefs.getBoolean("zoom_autohide", false);
 	}
 	
 	public void initButton(int id) {
@@ -76,14 +87,13 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
+		savedInstanceState.putParcelable("key", imageUri);
 		savedInstanceState.putFloat("zoom_scale", gardenView.zoomScale);
 		savedInstanceState.putBoolean("portrait_mode", gardenView.portraitMode);
 		float[] values = new float[9], bgvalues = new float[9];
 		gardenView.dragMatrix.getValues(values);
 		gardenView.bgDragMatrix.getValues(bgvalues);
 		savedInstanceState.putFloatArray("drag_matrix", values);
-		savedInstanceState.putParcelable("key", imageUri);
-		//("drag_matrix", values);
 		savedInstanceState.putFloatArray("bgdrag_matrix", bgvalues);
 		super.onSaveInstanceState(savedInstanceState);
 	}
@@ -91,10 +101,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
+		imageUri = (Uri) savedInstanceState.getParcelable("key");
 		gardenView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
 		boolean portraitMode = getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight();
-		imageUri = (Uri) savedInstanceState.getParcelable("key");
 		
 		float[] values = savedInstanceState.getFloatArray("drag_matrix");
 		float[] bgvalues = savedInstanceState.getFloatArray("bgdrag_matrix");
@@ -107,7 +117,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			bgvalues[Matrix.MTRANS_X] = -bgvalues[Matrix.MTRANS_Y];
 			bgvalues[Matrix.MTRANS_Y] = tmp;
 		}
-		else if (portraitMode && prevPortraitMode) { // changed from portrait to landscape
+		else if (!portraitMode && prevPortraitMode) { // changed from portrait to landscape
 			float tmp = values[Matrix.MTRANS_X];
 			values[Matrix.MTRANS_X] = values[Matrix.MTRANS_Y];
 			values[Matrix.MTRANS_Y] = -tmp;
@@ -144,22 +154,34 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case USE_CAMERA: // returning from Camera activity
 				if (resultCode == RESULT_OK) {
+					System.out.print("imageUri=" + imageUri.toString() + " => " );
+					android.database.Cursor cursor = managedQuery(imageUri, new String[] {MediaStore.Images.Media.DATA}, null, null, null);
+					int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+					cursor.moveToFirst();
+					System.out.println(cursor.getString(column_index));
+					
 					if (data != null && data.getData() != null)
 						imageUri = data.getData();
-					System.out.println("imageUri=" + imageUri.toString());
+					System.out.print("imageUri=" + imageUri.toString() + " => " );
+					cursor = managedQuery(imageUri, new String[] {MediaStore.Images.Media.DATA}, null, null, null);
+					column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+					cursor.moveToFirst();
+					System.out.println(cursor.getString(column_index));
 					mockGarden.addImage(imageUri);
 				}
 				break;
 			case ADD_PLOT: // returning from AddPlot activity
-				data.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
-				data.putExtra("zoom_scale", gardenView.zoomScale);
-				float[] values = new float[9], bgvalues = new float[9];
-				gardenView.dragMatrix.getValues(values);
-				gardenView.bgDragMatrix.getValues(bgvalues);
-				data.putExtra("drag_matrix", values);
-				data.putExtra("bgdrag_matrix", bgvalues);
-				startActivityForResult(data, 0);
-				overridePendingTransition(0, 0);
+				if (data != null) {
+					data.putExtra("garden_id", gardenId);
+					data.putExtra("zoom_scale", gardenView.zoomScale);
+					float[] values = new float[9], bgvalues = new float[9];
+					gardenView.dragMatrix.getValues(values);
+					gardenView.bgDragMatrix.getValues(bgvalues);
+					data.putExtra("drag_matrix", values);
+					data.putExtra("bgdrag_matrix", bgvalues);
+					startActivityForResult(data, 0);
+					overridePendingTransition(0, 0);
+				}
 				break;
 			case EDIT_PLOT: // returning from EditScreen activity
 				gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1); //extras.getFloat("zoom_scale");
@@ -193,13 +215,13 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case R.id.m_gardenoptions:
 				intent = new Intent(this, GardenAttr.class);
-				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
+				intent.putExtra("garden_id", gardenId);
 				startActivityForResult(intent, EDIT_GARDEN);
 				break;
 			case R.id.m_sharegarden:
 				intent = new Intent(this, ShareGarden.class);
-				intent.putExtra("garden_id", GardenGnome.gardens.indexOf(mockGarden));
-				startActivity(intent);
+				intent.putExtra("garden_id", gardenId);
+				startActivityForResult(intent, SHARE_GARDEN);
 				break;
 			case R.id.m_showlabels:
 				showLabels = !showLabels;
@@ -213,9 +235,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				// HTC camera app ignores EXTRA_OUTPUT
 				ContentValues values = new ContentValues();
 				values.put(Images.Media.TITLE, fileName);
-				//values.put(MediaStore.Images.Media.DESCRIPTION, "Image capture by camera");
+				//values.put(Images.Media.DESCRIPTION, "Image capture by camera");
 				imageUri = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 				intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+				intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1); // some devices take low-quality pics without this
 				startActivityForResult(intent, USE_CAMERA);
 				break;
 		}

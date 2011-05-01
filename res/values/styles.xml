@@ -17,4 +17,15 @@
 		<item name="android:shadowColor">#BB000000</item>
 		<item name="android:shadowRadius">2.5</item>
 	</style>
+	
+	<style name="Widget.TextView.ListSeparator" parent="@android:style/Widget.TextView">
+        <item name="android:background">#ffd4d4d4</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">25dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/secondary_text_light</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">5sp</item>
+	</style>
 </resources>

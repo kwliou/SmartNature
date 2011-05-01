@@ -11,6 +11,7 @@
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	
 	<application
@@ -32,42 +33,27 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".GardenScreen"
-			android:label="@string/app_name">
-		</activity>
+		<activity android:name=".GardenScreen" />
 		
-		<activity android:name=".PlantScreen">
-		</activity>
+		<activity android:name=".PlantScreen" />
 		
-		<activity android:name=".FindGarden">
-		</activity>
+		<activity android:name=".FindGarden" android:label="Find a garden" />
 		
-		<activity android:name=".PlotScreen">
-		</activity>
+		<activity android:name=".PlotScreen" />
 		
-		<activity android:name=".ShareGarden"
-			android:theme="@style/Theme.Dialog.NoTitleBar">
-		</activity>
+		<activity android:name=".ShareGarden" />
 		
-		<activity android:name=".AddPlot"
-			android:theme="@style/Theme.Dialog.NoTitleBar">
-		</activity>
-		<activity android:name=".AddPlant"
-			android:theme="@style/Theme.Dialog.NoTitleBar">
-		</activity>
-		<activity android:name=".EditScreen"
-			android:label="@string/app_name">
-		</activity>
+		<activity android:name=".AddPlot" android:theme="@style/Theme.Dialog.NoTitleBar" />
 		
-		<activity android:name=".GardenAttr"
-			android:label="@string/app_name">
-		</activity>
+		<activity android:name=".AddPlant" android:theme="@style/Theme.Dialog.NoTitleBar" />
 		
-		<activity android:name=".ColorPicker">
-		</activity>
+		<activity android:name=".EditScreen" />
+		
+		<activity android:name=".GardenAttr" />
+		
+		<activity android:name=".ColorPicker" />
 
-		<activity android:name=".Encyclopedia"
-			android:label="@string/app_name">
-        </activity>
+		<activity android:name=".Encyclopedia" android:label="@string/app_name" />
+		
 	</application>
 </manifest>

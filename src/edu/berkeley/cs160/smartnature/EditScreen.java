@@ -1,12 +1,16 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,18 +20,17 @@ import android.view.View;
 import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ZoomControls;
 
-import java.util.ArrayList;
-
 public class EditScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener, ColorPickerDialog.OnColorChangedListener {
-	
-	Garden mockGarden;
+
+	Garden garden;
 	EditView editView;
 	Plot plot, oldPlot;
 	Bundle extras;
 	ZoomControls zoomControls;
-	
+
 	boolean footerShown;
 	/** false if activity has been previously started */
 	boolean firstInit = true;
@@ -36,17 +39,17 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 	boolean hintsOn, showLabels = true, showFullScreen, zoomAutoHidden;
 	/** describes what zoom button was pressed: 1 for +, -1 for -, and 0 by default */
 	int zoomPressed;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		firstInit = savedInstanceState == null;
-		showFullScreen = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("garden_fullscreen", false); 
+		loadPreferences();
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
 		
 		extras = getIntent().getExtras();
-		mockGarden = GardenGnome.gardens.get(extras.getInt("garden_id"));
+		garden = GardenGnome.getGarden(extras.getInt("garden_id"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		
 		if (extras.getInt("type") == Plot.POLY)
@@ -59,9 +62,9 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		
 		if (firstInit) { 
 			oldPlot = new Plot(plot);
-			mockGarden.addPlot(oldPlot);
+			garden.addPlot(oldPlot);
 		} else
-			oldPlot = mockGarden.getPlot(mockGarden.size() - 1);
+			oldPlot = garden.getPlot(garden.size() - 1);
 		
 		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
 		setContentView(R.layout.edit_plot);
@@ -77,30 +80,33 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			editView.onAnimationEnd();
 		}
 		
-		hintsOn = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("show_hints", true);
 		if (hintsOn) {
 			TextView hint = (TextView) findViewById(R.id.edit_hint);
-			hint.setText(R.string.hint_editscreen);
-			if (createPoly)
-				hint.setText(R.string.hint_editpoly); 
-			
+			hint.setText(createPoly ? R.string.hint_editpoly : R.string.hint_editscreen);
 			hint.setVisibility(View.VISIBLE);
 		}
 		
-		findViewById(R.id.edit_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+		Drawable footer = findViewById(R.id.edit_footer).getBackground().mutate();
+		footer.setAlpha(getResources().getInteger(R.integer.bar_trans));
 		initButton(R.id.save_btn);
 		initButton(R.id.edit_zoomfit_btn);
 		
 		zoomControls = (ZoomControls) findViewById(R.id.edit_zoom_controls);
 		zoomControls.setOnZoomInClickListener(zoomIn);
 		zoomControls.setOnZoomOutClickListener(zoomOut);
-		zoomAutoHidden = getSharedPreferences("global", Context.MODE_PRIVATE).getBoolean("zoom_autohide", false);
 		if (zoomAutoHidden)
 			zoomControls.setVisibility(View.GONE);
 		
 		editView.invalidate();
 	}
-
+	
+	public void loadPreferences() {
+		SharedPreferences prefs = getSharedPreferences("global", Context.MODE_PRIVATE);
+		hintsOn = prefs.getBoolean("show_hints", true);
+		showFullScreen = prefs.getBoolean("garden_fullscreen", false);
+		zoomAutoHidden = prefs.getBoolean("zoom_autohide", false);
+	}
+	
 	public void initButton(int id) {
 		View view = findViewById(id);
 		view.setOnClickListener(this);
@@ -110,8 +116,8 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 	}
 	
 	public void createPlot() {
-		RectF gBounds = mockGarden.getRawBounds();
-		if (mockGarden.isEmpty()) {
+		RectF gBounds = garden.getRawBounds();
+		if (garden.isEmpty()) {
 			int width = getWindowManager().getDefaultDisplay().getWidth();
 			int height = getWindowManager().getDefaultDisplay().getHeight();
 			gBounds = new RectF(0, 0, width, height);
@@ -120,21 +126,24 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		String name = extras.getString("name");
 		Rect bounds = new Rect((int)gBounds.left, (int)gBounds.top, (int)gBounds.right, (int)gBounds.bottom);
 		bounds.inset((int)gBounds.width()/3, (int)gBounds.height()/3);
-		System.out.println(bounds);
 		if (type == Plot.POLY)
 			plot = new Plot(name, bounds, new float[] { 0, 0 });
 		else
 			plot = new Plot(name, bounds, type);
-			
-		mockGarden.addPlot(plot);
-		mockGarden.refreshBounds();
+		
+		String shape_s = "" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "," + Color.BLACK;
+		garden.addPlot(plot);
+		//StartScreen.dh.insert_map_gp(extras.getInt("garden_id") + 1, StartScreen.dh.count_plot());
+		garden.refreshBounds();
+		//String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
+		//StartScreen.dh.update_garden(extras.getInt("garden_id") + 1, bounds_s);
 	}
 	
 	public void loadPlot() {
 		if (extras.containsKey("type"))
-			plot = mockGarden.getPlot(mockGarden.size() - 2);
+			plot = garden.getPlot(garden.size() - 2);
 		else
-			plot = mockGarden.getPlot(extras.getInt("plot_id"));
+			plot = garden.getPlot(extras.getInt("plot_id"));
 	}
 	
 	@Override
@@ -191,47 +200,65 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 	
 	@Override
 	public void onBackPressed() {
-		if (createPoly) {
-			float[] pts = toFloatArray(editView.polyPts);
-			plot.set(new Plot(plot.getName(), pts));
-			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
-			oldPlot.set(plot);
-			((Button)findViewById(R.id.save_btn)).setText(R.string.btn_save_edit);
-			if (hintsOn) {
-				TextView hint = (TextView) findViewById(R.id.edit_hint);
-				hint.setText(R.string.hint_editscreen);
-			}
-			createPoly = false;
-			editView.invalidate();
+		// connect the points and go to the default edit mode
+		if (createPoly && editView.polyPts.size() >= 6) {
+			createPolyPlot();
+			return;
 		}
-		else {
-			mockGarden.remove(oldPlot);
-			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-			Intent intent = new Intent();
-			intent.putExtra("zoom_scale", editView.zoomScale);
-			float[] values = new float[9], bgvalues = new float[9];
-			editView.dragMatrix.getValues(values);
-			editView.bgDragMatrix.getValues(bgvalues);
-			intent.putExtra("drag_matrix", values);
-			intent.putExtra("bgdrag_matrix", bgvalues);
-			setResult(RESULT_OK, intent);
-			finish();
-			overridePendingTransition(0, 0);
+		
+		if (createPoly)
+			garden.remove(plot);
+		
+		garden.remove(oldPlot);
+		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
+		Intent intent = new Intent().putExtra("zoom_scale", editView.zoomScale);
+		float[] values = new float[9], bgvalues = new float[9];
+		editView.dragMatrix.getValues(values);
+		editView.bgDragMatrix.getValues(bgvalues);
+		intent.putExtra("drag_matrix", values);
+		intent.putExtra("bgdrag_matrix", bgvalues);
+		setResult(RESULT_OK, intent);
+		// REPLACE THIS WITH GardenGnome.updatePlot( whatever )
+		/*String shape_s = plot.getBounds().left + "," + plot.getBounds().top + "," + plot.getBounds().right + "," + plot.getBounds().bottom + "," + plot.getPaint().getColor();
+		float[] polyPoints_f = plot.getPoints();
+		String polyPoints_s = "";
+		if(plot.getPoints().length >= 2) {
+			for(int i = 0; i < polyPoints_f.length; i++)
+				polyPoints_s = polyPoints_s + polyPoints_f[i] + ",";
+			polyPoints_s.substring(0, polyPoints_s.length() - 2);
 		}
+		
+		List<Integer> temp = StartScreen.dh.select_map_gp_po(extras.getInt("garden_id") + 1);
+		int po_pk = -1;
+		for(int i = 0; i < temp.size(); i++) {
+			if(po_pk != -1) 
+				break;
+			if(plot.getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
+				po_pk = temp.get(i);
+		}				
+		
+		StartScreen.dh.update_plot(po_pk, shape_s, plot.getColor(), polyPoints_s, plot.getAngle());*/
+		
+		finish();
+		overridePendingTransition(0, 0);
 	}
 	
-	/** in this method views actually have valid dimensions */
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		/*
-		if (firstInit && !footerShown) {
-			footerShown = true;
-			TranslateAnimation anim = new TranslateAnimation(0, 0, findViewById(R.id.edit_footer).getHeight(), 0);
-			anim.setDuration(getResources().getInteger(R.integer.footer_duration));
-			findViewById(R.id.edit_footer).startAnimation(anim);
+	public void createPolyPlot() {
+		float[] pts = toFloatArray(editView.polyPts);
+		plot.set(new Plot(plot.getName(), pts));
+		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+		oldPlot.set(plot);
+		((Button)findViewById(R.id.save_btn)).setText(R.string.btn_save_edit);
+		if (hintsOn) {
+			TextView hint = (TextView) findViewById(R.id.edit_hint);
+			hint.setText(R.string.hint_editscreen);
 		}
-		*/
+		String polyPoints_s = "";
+		for(int i = 0; i < pts.length; i++)
+			polyPoints_s += pts[i];
+
+		createPoly = false;
+		editView.invalidate();
 	}
 	
 	@Override
@@ -254,21 +281,26 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			editView.invalidate();
 			break;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
 	
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-			case R.id.save_btn:
+		case R.id.save_btn:
+			if (createPoly && editView.polyPts.size() < 6)
+				Toast.makeText(this, "Shape needs more than 2 points", Toast.LENGTH_SHORT).show();
+			else
 				onBackPressed();
-				break;
-			case R.id.edit_zoomfit_btn:
-				editView.zoomScale = 1;
-				mockGarden.refreshBounds(mockGarden.size() - (createPoly ? 2 : 1));
-				editView.reset();
-				break;
+			break;
+		case R.id.edit_zoomfit_btn:
+			editView.zoomScale = 1;
+			garden.refreshBounds(garden.size() - (createPoly ? 2 : 1));
+			String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
+			//GardenGnome.updateGarden(extras.getInt("garden_id") + 1, bounds_s);
+			editView.reset();
+			break;
 		}
 	}
 	
@@ -316,7 +348,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			}
 		}
 	};
-	
+
 	@Override
 	public void colorChanged(int color) {
 		getPreferences(MODE_PRIVATE).edit().putInt("color", color).commit();
@@ -357,5 +389,4 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			pts[i] = list.get(i);
 		return pts;
 	}
-	
 }

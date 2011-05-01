@@ -143,7 +143,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, PlotScreen.class);
 			intent.putExtra("name", focusedPlot.getName());
-			intent.putExtra("garden_id", GardenGnome.gardens.indexOf(garden));
+			intent.putExtra("garden_id", context.gardenId);
 			intent.putExtra("plot_id", garden.getPlots().indexOf(focusedPlot));
 			context.startActivityForResult(intent, GardenScreen.VIEW_PLOT);
 			//context.handleZoom();
@@ -156,7 +156,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, EditScreen.class);
 			intent.putExtra("name", focusedPlot.getName());
-			intent.putExtra("garden_id", GardenGnome.gardens.indexOf(garden));
+			intent.putExtra("garden_id", context.gardenId);
 			intent.putExtra("plot_id", garden.indexOf(focusedPlot));
 			intent.putExtra("zoom_scale", zoomScale);
 			float[] values = new float[9], bgvalues = new float[9];

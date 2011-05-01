@@ -55,23 +55,13 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		super(context, attrs);
 		this.context = (EditScreen) context;
 		editPlot = this.context.plot;
+		garden = this.context.garden;
 		bg = getResources().getDrawable(R.drawable.tile_dark);	
 		textSize = getResources().getDimension(R.dimen.labelsize_default);
 		initPaint();
-		initMockData();	
 		setOnLongClickListener(this);
 		setOnTouchListener(this);
 		gestureScanner = new GestureDetector(context, this);
-	}
-	
-	public void initMockData() {
-		garden = context.mockGarden;
-		for (Plot plot : garden.getPlots()) {
-			Paint p = plot.getPaint();
-			p.setStyle(Paint.Style.STROKE);
-			p.setStrokeCap(Paint.Cap.ROUND);
-			p.setStrokeJoin(Paint.Join.ROUND);
-		}		
 	}
 	
 	public void initPaint() {
@@ -457,9 +447,16 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 			Rect bounds = editPlot.getBounds();
 			inverse.postRotate(-editPlot.getAngle(), bounds.centerX(), bounds.centerY());
 			inverse.mapPoints(dxy);
-			int dx = (int) (dxy[2] - dxy[0]);
-			int dy = (int) (portraitMode ? dxy[1] - dxy[3] : dxy[3] - dxy[1]);
-			editPlot.resize(dx, dy);
+			float minSize = getResources().getDimension(R.dimen.resizebox_min) + 5;
+			float minDx = (minSize - editPlot.getBounds().width())/2;
+			float minDy = (minSize - editPlot.getBounds().height())/2;
+			float dx = dxy[2] - dxy[0];
+			float dy = portraitMode ? dxy[1] - dxy[3] : dxy[3] - dxy[1];
+			if (dx < minDx)
+				dx = 0;
+			if (dy < minDy)
+				dy = 0;
+			editPlot.resize((int)dx, (int)dy);
 		}
 		else if (mode == ROTATE_SHAPE) {
 			float dx = dxy[2] - shapeMid[0];
@@ -485,7 +482,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		rotatePaint.setColor(medGray);
 		//rotatePaint.clearShadowLayer();
 	}
-
+	
 	/** handles double tap in create polygon mode */
 	@Override
 	public boolean onDoubleTap(MotionEvent e) {

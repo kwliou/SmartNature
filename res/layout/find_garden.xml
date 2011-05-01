@@ -6,15 +6,93 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
+	<LinearLayout
+		android:orientation="horizontal"
+		android:padding="3dp"
+		android:layout_marginTop="3dp"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<LinearLayout
+			android:orientation="vertical"
+			android:layout_weight="1"
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent">
+
+			<EditText
+				android:id="@+id/search_garden_name"
+				android:hint="Garden name"
+				android:scrollHorizontally="true"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" />
+
+			<LinearLayout
+				android:orientation="horizontal"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent">
+				<EditText
+					android:id="@+id/search_garden_city"
+					android:hint="City"
+					android:scrollHorizontally="true"
+					android:layout_weight="1"
+					android:layout_width="0px"
+					android:layout_height="wrap_content" />
+				<EditText
+					android:id="@+id/search_garden_state"
+					android:hint="State"
+					android:scrollHorizontally="true"
+					android:layout_weight="1"
+					android:layout_width="0px"
+					android:layout_height="wrap_content" />
+			</LinearLayout>
+
+		</LinearLayout>
+
+		<Button
+			android:id="@+id/btn_find_garden"
+			android:text="Search"
+			android:drawableTop="@android:drawable/ic_menu_gallery"
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent" />
+
+	</LinearLayout>
+
 	<TextView
-		android:text="Public gardens"
-		android:background="#ffd4d4d4"
+		android:text="Nearby gardens"
 		android:gravity="center_vertical"
-		android:textAppearance="?android:listSeparatorTextViewStyle"
-		android:paddingLeft="5sp"
+		style="@style/Widget.TextView.ListSeparator"
 		android:layout_width="fill_parent"
 		android:layout_height="25dp" />
 
+	<RelativeLayout
+		android:id="@+id/find_garden_msg"
+		android:visibility="gone"
+		android:orientation="horizontal"
+		android:padding="5dp"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<TextView
+			android:id="@+id/find_garden_msg_title"
+			android:text="Sorry!"
+			android:ellipsize="marquee"
+			android:textSize="24sp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
+		<TextView
+			android:text="No internet connection found."
+			android:ellipsize="marquee"
+			android:textSize="16sp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_below="@id/find_garden_msg_title"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
+	</RelativeLayout>
 	<ListView
 		android:id="@+id/android:list"
 		android:layout_width="fill_parent"

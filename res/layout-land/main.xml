@@ -22,7 +22,7 @@
 
 		<Button
 			android:id="@+id/new_garden"
-			android:text="@string/new_garden"
+			android:text="@string/btn_new_garden"
 			android:textSize="16sp"
 			android:layout_margin="5dp"
 			android:layout_width="fill_parent"
@@ -30,7 +30,7 @@
 
 		<Button
 			android:id="@+id/search_encyclopedia"
-			android:text="@string/search_encyclopedia"
+			android:text="@string/btn_search_encyclopedia"
 			android:textSize="16sp"
 			android:layout_margin="5dp"
 			android:layout_width="fill_parent"
@@ -53,12 +53,7 @@
 
 		<TextView
 			android:text="@string/garden_list_title"
-			android:background="#ffd4d4d4"
-			android:textAppearance="?android:listSeparatorTextViewStyle"
-			android:gravity="center_vertical"
-			android:paddingLeft="5sp"
-			android:layout_width="fill_parent"
-			android:layout_height="25dp" />
+			style="@style/Widget.TextView.ListSeparator" />
 
 		<ListView
 			android:id="@+id/android:list"
