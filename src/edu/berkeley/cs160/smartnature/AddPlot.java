@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 public class AddPlot extends Activity implements View.OnClickListener, View.OnKeyListener {
 	
@@ -25,33 +24,34 @@ public class AddPlot extends Activity implements View.OnClickListener, View.OnKe
 	public void onClick(View view) {
 		EditText et_plot_name = (EditText) findViewById(R.id.et_plot_name);
 		
-		if (view.getId() == R.id.b_add_cancel)
+		if (view.getId() == R.id.b_add_cancel) {
 			finish();
-		else if (et_plot_name.getText().length() == 0)
-			Toast.makeText(this, "Plot name cannot be blank", Toast.LENGTH_SHORT).show();
-		else {
-			Intent intent = new Intent(this, EditScreen.class);
-			Bundle bundle = new Bundle();
-			
-			int radioId = ((RadioGroup)findViewById(R.id.rg_shape)).getCheckedRadioButtonId();
-			int shapeType;
-			switch (radioId) {
-				case R.id.rb_rectangle:
-					shapeType = Plot.RECT;
-					break;
-				case R.id.rb_ellipse:
-					shapeType = Plot.OVAL;
-					break;
-				default:
-					shapeType = Plot.POLY;
-					break;
-			}
-			bundle.putString("name", et_plot_name.getText().toString());
-			bundle.putInt("type", shapeType);
-			intent.putExtras(bundle);
-			setResult(RESULT_OK, intent);
-			finish();
+			return;
 		}
+		Intent intent = new Intent(this, EditScreen.class);
+		Bundle bundle = new Bundle();
+		
+		int radioId = ((RadioGroup)findViewById(R.id.rg_shape)).getCheckedRadioButtonId();
+		int shapeType;
+		switch (radioId) {
+			case R.id.rb_rectangle:
+				shapeType = Plot.RECT;
+				break;
+			case R.id.rb_ellipse:
+				shapeType = Plot.OVAL;
+				break;
+			default:
+				shapeType = Plot.POLY;
+				break;
+		}
+		String plotName = et_plot_name.getText().toString().trim();
+		if (plotName.length() == 0)
+			plotName = "Untitled plot"; 
+		bundle.putString("name", plotName);
+		bundle.putInt("type", shapeType);
+		intent.putExtras(bundle);
+		setResult(RESULT_OK, intent);
+		finish();
 	}
 	
 	@Override

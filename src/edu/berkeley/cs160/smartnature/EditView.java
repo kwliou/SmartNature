@@ -55,6 +55,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		super(context, attrs);
 		this.context = (EditScreen) context;
 		editPlot = this.context.plot;
+		garden = this.context.garden;
 		bg = getResources().getDrawable(R.drawable.tile_dark);	
 		textSize = getResources().getDimension(R.dimen.labelsize_default);
 		initPaint();

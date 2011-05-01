@@ -71,6 +71,12 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	}
 	
 	@Override
+	public void onBackPressed() {
+		findViewById(R.id.share_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
+		super.onBackPressed();
+	}
+	
+	@Override
 	public void onClick(View view) {
 		if (view.getId() == R.id.share_confirm && garden.getServerId() == 0) {
 			garden.setServerId(-1);
@@ -80,7 +86,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			new Thread(this).start();
 		}
 		else if (view.getId() == R.id.share_cancel)
-			finish();
+			onBackPressed();
 	}
 	
 	@Override
@@ -190,7 +196,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		byte[] digest = digester.digest();
 		for (int i = 0; i < digest.length; i++) {
 			byte b = digest[i];
-			hash[2 * i] = HEX[(b & 0xf0) >>> 4];
+			hash[2 * i] = HEX[(b >> 4) & 0xf];
 			hash[2 * i + 1] = HEX[b & 0xf];
 		}
 		return new String(hash);

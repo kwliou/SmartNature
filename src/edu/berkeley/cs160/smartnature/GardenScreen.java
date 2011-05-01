@@ -109,7 +109,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			bgvalues[Matrix.MTRANS_X] = -bgvalues[Matrix.MTRANS_Y];
 			bgvalues[Matrix.MTRANS_Y] = tmp;
 		}
-		else if (portraitMode && prevPortraitMode) { // changed from portrait to landscape
+		else if (!portraitMode && prevPortraitMode) { // changed from portrait to landscape
 			float tmp = values[Matrix.MTRANS_X];
 			values[Matrix.MTRANS_X] = values[Matrix.MTRANS_Y];
 			values[Matrix.MTRANS_Y] = -tmp;
@@ -143,9 +143,6 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		switch (requestCode) {
 			case EDIT_GARDEN: // returning from GardenAttr activity
 				setTitle(mockGarden.getName());
-				break;
-			case SHARE_GARDEN: // returning from ShareGarden activity
-				findViewById(R.id.garden_footer).getBackground().setAlpha(getResources().getInteger(R.integer.bar_trans));
 				break;
 			case USE_CAMERA: // returning from Camera activity
 				if (resultCode == RESULT_OK) {

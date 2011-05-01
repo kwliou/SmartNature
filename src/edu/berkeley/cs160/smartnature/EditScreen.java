@@ -1,7 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -247,11 +246,11 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			TextView hint = (TextView) findViewById(R.id.edit_hint);
 			hint.setText(R.string.hint_editscreen);
 		}
-		createPoly = false;
 		String polyPoints_s = "";
 		for(int i = 0; i < pts.length; i++)
 			polyPoints_s += pts[i];
 
+		createPoly = false;
 		editView.invalidate();
 	}
 	
@@ -289,7 +288,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			editView.zoomScale = 1;
 			garden.refreshBounds(garden.size() - (createPoly ? 2 : 1));
 			String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
-			GardenGnome.updateGarden(extras.getInt("garden_id") + 1, bounds_s);
+			//GardenGnome.updateGarden(extras.getInt("garden_id") + 1, bounds_s);
 			editView.reset();
 			break;
 		}

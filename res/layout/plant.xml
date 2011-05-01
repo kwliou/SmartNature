@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:orientation="vertical">
+	android:layout_height="fill_parent">
 
 	<TextView
 		android:id="@+id/plant_hint"
@@ -21,11 +21,9 @@
 		<Button
 			android:id="@+id/lookup_plant"
 			android:text="Encyclopedia entry"
-			android:layout_weight="1"
-			android:layout_width="wrap_content"
+			android:layout_width="0px"
 			android:layout_height="0px" />
-		<!--
-		<Button android:layout_width="wrap_content" android:layout_height="wrap_content" 
+		<!-- <Button android:layout_width="wrap_content" android:layout_height="wrap_content" 
 			android:layout_weight="1" android:id="@+id/delete_plant" android:text="Delete 
 			this Plant" /> -->
 	</LinearLayout>
@@ -40,19 +38,22 @@
 
 	<LinearLayout
 		android:orientation="horizontal"
-		android:layout_margin="3dp"
+		android:gravity="center_vertical"
+		android:layout_marginTop="3dp"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 
 		<ImageView
 			android:src="@drawable/plant_temp_pic"
-			android:layout_width="100dp"
-			android:layout_height="100dp" />
+			android:paddingBottom="6dp"
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent" />
 
 		<EditText
 			android:id="@+id/entryText"
 			android:hint="Add journal entry"
 			android:maxLength="255"
+			android:gravity="top"
 			android:layout_weight="1"
 			android:layout_width="wrap_content"
 			android:layout_height="fill_parent" />
@@ -61,7 +62,7 @@
 			android:text="Post"
 			android:drawableTop="@android:drawable/ic_menu_edit"
 			android:layout_width="wrap_content"
-			android:layout_height="fill_parent" />
+			android:layout_height="wrap_content" />
 	</LinearLayout>
 
 	<TextView

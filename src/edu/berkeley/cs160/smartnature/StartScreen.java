@@ -21,6 +21,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,8 +30,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,7 +45,7 @@ class GardenGnome extends Application {
 
 	public static void addGarden(Garden garden) {
 		gardens.add(garden);
-		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
+		//dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
 	}
 	
 	public static ArrayList<Garden> getGardens() {
@@ -53,11 +56,15 @@ class GardenGnome extends Application {
 		return gardens.get(index);
 	}
 	
-	public static void updateGarden(int id, String str) {
+	public static void removeGarden(int location) {
+		gardens.remove(location);
+	}
+	
+	public static void tmpupdateGarden(int id, String str) {
 		dh.update_garden(id, str);
 	}
 	
-	public static void init(Context context) {
+	public static void tmpinit(Context context) {
 		dh = new DatabaseHelper(context);
 		initAll();
 	}
@@ -72,7 +79,7 @@ class GardenGnome extends Application {
 		}
 	}
 	
-	public void initMockData() {
+	public void tmpinitMockData() {
 		Log.w("debug", "initMockData called");
 		dh.insert_garden("Berkeley Youth Alternatives", R.drawable.preview, "0,0,800,480", "Berkeley", "California", 0, -1, "");
 		dh.insert_garden("Karl Linn", R.drawable.preview, "0,0,800,480", "Berkeley", "California", 0, -1, "");
@@ -113,7 +120,7 @@ class GardenGnome extends Application {
 public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 
 	GardenAdapter adapter;
-	ArrayList<Garden> gardens;
+	ArrayList<Garden> gardens = GardenGnome.getGardens();
 	AlertDialog dialog;
 	View textEntryView;
 	
@@ -126,19 +133,17 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		setContentView(R.layout.main);
 		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		geocoder = new Geocoder(this, Locale.getDefault());
-		gardens = GardenGnome.getGardens();
-		
-		GardenGnome.init(this);
+		//GardenGnome.init(this);
 		
 		adapter = new GardenAdapter(this, R.layout.garden_list_item, gardens);
 		setListAdapter(adapter);
-
+		registerForContextMenu(getListView());
 		getListView().setOnItemClickListener(this);
 		findViewById(R.id.new_garden).setOnClickListener(this);
 		findViewById(R.id.search_encyclopedia).setOnClickListener(this);
 		findViewById(R.id.find_garden).setOnClickListener(this);
 	}
-		
+	
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
@@ -185,13 +190,12 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			}
 		});
 		
-
 		return dialog;
 	}
 	
 	public void onClick(DialogInterface dialog, int whichButton) {
 		EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
-		String gardenName = textEntry.getText().toString();
+		String gardenName = textEntry.getText().toString().trim();
 		if (gardenName.length() == 0)
 			gardenName = "Untitled garden";
 		Intent intent = new Intent(this, GardenScreen.class);
@@ -265,6 +269,32 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		case R.id.m_help:
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, view, menuInfo);
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+		menu.setHeaderTitle(gardens.get(info.position).getName());
+		menu.add(Menu.NONE, 0, Menu.NONE, "Edit info"); //menu.add(Menu.NONE).setNumericShortcut(1);
+		menu.add(Menu.NONE, 1, Menu.NONE, "Delete"); //menu.add("Delete").setNumericShortcut(2);
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+			case 0:
+				Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
+				startActivity(intent);
+				break;
+			case 1:
+				GardenGnome.removeGarden(info.position);
+				adapter.notifyDataSetChanged();
+				break;
+		}
+		
+		return super.onContextItemSelected(item);
 	}
 	
 	class GardenAdapter extends ArrayAdapter<Garden> {

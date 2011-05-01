@@ -1,7 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
