@@ -19,9 +19,10 @@ public class SearchResult {
 		altNames = a;
 		picURL = p;
 		linkURL = l;
-		try {
-			bmp = BitmapFactory.decodeStream(new URL(picURL).openConnection().getInputStream());
-		} catch (IOException e) { e.printStackTrace(); }
+	}
+	
+	public Bitmap getBitmap() {
+		return bmp;
 	}
 	
 	public String getName(){
@@ -34,10 +35,12 @@ public class SearchResult {
 		return picURL;
 	}
 	
-	public Bitmap getBitmap() {
-		return bmp;
-	}
 	public String getLinkURL(){
 		return linkURL;
 	}
+	
+	public void setBitmap(Bitmap bmp) {
+		this.bmp = bmp;
+	}
+	
 }
