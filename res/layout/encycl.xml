@@ -3,27 +3,23 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:background="#ffffff">
+	android:layout_height="fill_parent">
 
 	<LinearLayout
 		android:orientation="horizontal"
-		android:gravity="center"
 		android:paddingBottom="5dp"
 		android:layout_marginTop="10dp"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 
-		
-
 		<EditText
 			android:id="@+id/searchText"
 			android:hint="Enter plant name"
+			android:drawableLeft="@android:drawable/ic_menu_search"
 			android:layout_weight="1"
-			android:layout_height="wrap_content"
+			android:layout_marginLeft="5dp"
 			android:layout_width="wrap_content"
-			android:layout_marginLeft="5dp" 
-			android:drawableLeft="@android:drawable/ic_menu_search"/>
+			android:layout_height="wrap_content" />
 
 		<Button
 			android:id="@+id/searchButton"
@@ -34,10 +30,40 @@
 			android:layout_height="fill_parent" />
 
 	</LinearLayout>
-	
-		<ListView
-			android:id="@+id/android:list"
+
+	<RelativeLayout
+		android:id="@+id/encycl_msg"
+		android:visibility="gone"
+		android:orientation="horizontal"
+		android:padding="5dp"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<TextView
+			android:id="@+id/encycl_msg_title"
+			android:text="Sorry!"
+			android:ellipsize="marquee"
+			android:textSize="24sp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
 			android:layout_width="fill_parent"
-			android:layout_height="fill_parent" />
-		
+			android:layout_height="wrap_content" />
+
+		<TextView
+			android:text="No internet connection found."
+			android:ellipsize="marquee"
+			android:textSize="16sp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_below="@id/encycl_msg_title"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
+	</RelativeLayout>
+
+	<ListView
+		android:id="@+id/android:list"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent" />
+
 </LinearLayout>

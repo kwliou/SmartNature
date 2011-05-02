@@ -1,18 +1,28 @@
 package edu.berkeley.cs160.smartnature;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import java.io.IOException;
+import java.net.URL;
+
 public class SearchResult {
 
 	private String name;
 	private String altNames;
 	private String picURL;
 	private String linkURL;
+	private Bitmap bmp;
 	
 	SearchResult(String n, String a, String p, String l){
 		name = n;
 		altNames = a;
 		picURL = p;
 		linkURL = l;
-		
+	}
+	
+	public Bitmap getBitmap() {
+		return bmp;
 	}
 	
 	public String getName(){
@@ -28,4 +38,9 @@ public class SearchResult {
 	public String getLinkURL(){
 		return linkURL;
 	}
+	
+	public void setBitmap(Bitmap bmp) {
+		this.bmp = bmp;
+	}
+	
 }
