@@ -39,4 +39,8 @@ public class Plant {
 		entries.add(entry);
 	}
 	
+	public Entry getEntry(int index) { 
+		return entries.get(index); 
+	}
+	
 }

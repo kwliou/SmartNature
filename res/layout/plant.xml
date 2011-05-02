@@ -23,18 +23,22 @@
 			android:text="Encyclopedia entry"
 			android:layout_width="0px"
 			android:layout_height="0px" />
-		<!-- <Button android:layout_width="wrap_content" android:layout_height="wrap_content" 
+		<!-- 
+		<Button android:layout_width="wrap_content" android:layout_height="wrap_content" 
 			android:layout_weight="1" android:id="@+id/delete_plant" android:text="Delete 
-			this Plant" /> -->
+			this Plant" /> 
+			-->
 	</LinearLayout>
 
-	<!-- <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" 
+	<!-- 
+	<LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" 
 		android:id="@+id/linearLayout1" android:orientation="vertical" android:gravity="center" 
 		> <ImageView android:src="@drawable/carrots" android:layout_width="wrap_content" 
 		android:layout_height="wrap_content" android:id="@+id/addImage" /> <TextView 
 		android:text="Click on picture to add an image" android:id="@+id/textView1" 
 		android:layout_width="wrap_content" android:layout_height="wrap_content" 
-		/> </LinearLayout> -->
+		/> </LinearLayout> 
+		-->
 
 	<LinearLayout
 		android:orientation="horizontal"
