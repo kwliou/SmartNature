@@ -19,4 +19,6 @@
 	<string name="m_takephoto">Take a photo</string>
 	<string name="m_deleteplant">Delete plant</string>
 	<string name="m_deleteplot">Delete plot</string>
+	<string name="m_searchplant">Search plant</string>
+	<string name="m_renameplant">Rename plant</string>
 </resources>

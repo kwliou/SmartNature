@@ -8,4 +8,10 @@
 	<item android:id="@+id/m_deleteplant"
 		android:icon="@android:drawable/ic_menu_delete"
 		android:title="@string/m_deleteplant" />
+	<item android:id="@+id/m_searchplant"
+		android:icon="@android:drawable/ic_menu_search"
+		android:title="@string/m_searchplant" />
+	<item android:id="@+id/m_renameplant"
+		android:icon="@android:drawable/ic_menu_edit"
+		android:title="@string/m_searchplant" />
 </menu>

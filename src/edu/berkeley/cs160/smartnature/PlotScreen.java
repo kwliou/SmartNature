@@ -127,7 +127,11 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	@Override
 	public void onClick(View view) {
 		//showDialog(0);
-		plot.addPlant(new Plant(plantName.getText().toString()));
+		String plantString = plantName.getText().toString();
+		if (plantString.length() == 0)
+			plantString = "Untitled plant";
+		
+		plot.addPlant(new Plant(plantString));
 		//StartScreen.dh.insert_plant(plantName.getText().toString(), 0);
 		//StartScreen.dh.insert_map_pp(po_pk, StartScreen.dh.count_plant());
 		plantName.setText("");

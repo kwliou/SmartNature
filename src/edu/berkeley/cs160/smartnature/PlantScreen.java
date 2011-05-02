@@ -5,20 +5,26 @@ import java.util.Date;
 import java.util.List;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,9 +33,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
-public class PlantScreen extends ListActivity implements View.OnClickListener, View.OnTouchListener, AdapterView.OnItemClickListener {
+public class PlantScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, View.OnTouchListener, AdapterView.OnItemClickListener {
 
 	AlertDialog dialog;
 
@@ -50,6 +57,9 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	Garden garden;
 	Plot plot;
 	Plant plant;
+	
+	View textEntryView;
+	EditText input;
 	
 	/** Voice Recognition */
 	Button speakButton;
@@ -107,6 +117,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		plantHint = (TextView)findViewById(R.id.plant_hint);
 		plantHint.setText(R.string.hint_plantscreen);
 
+		/*
 		searchPlantButton = (Button) findViewById(R.id.lookup_plant);
 		//searchPlantButton.setText("Search for " + name);
 		searchPlantButton.setOnClickListener(new OnClickListener() {
@@ -121,7 +132,6 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			}
 		});
 
-		/*
 		deletePlantButton = (Button) findViewById(R.id.delete_plant);
 		//deletePlantButton.setText("Delete " + name + " from plot");
 		deletePlantButton.setOnClickListener(new OnClickListener() {
@@ -134,23 +144,14 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				finish();
 			}
 		});
-		 */
 
-
-		/*
 		if (StartScreen.showHints){
 			plantHint.setVisibility(View.VISIBLE);
 		}else{
 			plantHint.setVisibility(View.GONE);
 		}
-		 */
 
-		/*
-		 * addImage.setOnClickListener(new OnClickListener() {
-		 * 
-		 * @Override public void onClick(View v) { 
-		 * } });
-		 */
+		*/
 
 		// Button addPicButton = (Button) findViewById(R.id.addPicButton);
 		Button addEntryButton = (Button) findViewById(R.id.addEntryButton);
@@ -161,9 +162,13 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				Date currentDate = new Date();
 				String dateStr = currentDate.toString();
 
+				String entryName = entryText.getText().toString();
+				if (entryName.length() == 0)
+					entryName = "Untitled entry";
+				
 				if (matches.isEmpty()){
 					plot.getPlant(plantID).addEntry(
-						new Entry(entryText.getText().toString(), dateStr));
+						new Entry(entryName, dateStr));
 				}else{
 					plot.getPlant(plantID).addEntry(
 							new Entry(matches.get(0).toString(), dateStr));					
@@ -205,7 +210,12 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		}
 		*/
 		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());
+		
+		
 		setListAdapter(adapter);
+		
+	
+		
 	}
 
 	@Override
@@ -235,6 +245,7 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
   /** Handle the results from the recognition activity. */
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+  	
       if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
           // Fill the list view with the strings the recognizer thought it could have heard
       		matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);  
@@ -243,7 +254,9 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
       }
 			
       super.onActivityResult(requestCode, resultCode, data);
+
   }
+
 
   
 	class EntryAdapter extends ArrayAdapter<Entry> {
@@ -266,9 +279,19 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			((TextView) v.findViewById(R.id.entry_name)).setText(e.getName());
 			((TextView) v.findViewById(R.id.entry_date)).setText(e.getDate());
 
+			/*
 			((Button) v.findViewById(R.id.delete_journal)).setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
-					/*int e_pk = -1;
+					Intent intent = new Intent(PlantScreen.this, EntryScreen.class);
+					intent.putExtra("name", name);
+					intent.putExtra("garden_id", gardenID);
+					intent.putExtra("plot_id", plotID);
+					intent.putExtra("plant_id", plantID);
+					intent.putExtra("entry_id", position);
+					startActivity(intent);
+					
+	
+					int e_pk = -1;
 					List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
 					for(int i = 0; i < temp.size(); i++) {
 						if(e_pk != -1) 
@@ -278,17 +301,36 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 					}
 					remove(e);
 					StartScreen.dh.delete_map_pe(e_pk);
-					StartScreen.dh.delete_entry(e_pk);*/
+					StartScreen.dh.delete_entry(e_pk);
+
 				}
 			});
+			*/
+
 			return v;
 		}
 	}
 
+
+	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		Intent intent = new Intent(PlantScreen.this, EntryScreen.class);
+		intent.putExtra("name", name);
+		intent.putExtra("garden_id", gardenID);
+		intent.putExtra("plot_id", plotID);
+		intent.putExtra("plant_id", plantID);
+		intent.putExtra("entry_id", position);
+		startActivity(intent);
 	}
-
+	
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		plant.getEntries().remove(position);
+		PlantScreen.adapter.notifyDataSetChanged(); 
+		//finish();
+		return false;
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -298,9 +340,10 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent; 
 		switch (item.getItemId()) {
 		case R.id.m_home:
-			Intent intent = new Intent(PlantScreen.this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent = new Intent(PlantScreen.this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			break;
 		case R.id.m_showhints:
@@ -319,7 +362,113 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 			PlotScreen.adapter.notifyDataSetChanged(); 
 			finish();
 			break;
+		case R.id.m_searchplant:
+			intent = new Intent(PlantScreen.this, Encyclopedia.class);
+			Bundle bundle = new Bundle(1);
+			bundle.putString("name", name);
+
+			intent.putExtras(bundle);
+			startActivity(intent);
+			break;
+		case R.id.m_renameplant:
+			showDialog(0);
+			
+			//plant.setName(name);
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	@Override
+	public Dialog onCreateDialog(int id) {
+		AlertDialog.Builder builder;
+    switch(id) {
+	    case 0:
+	    	
+				textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
+				builder = new AlertDialog.Builder(this).setView(textEntryView);
+		
+				dialog = builder.setTitle("Enter new plant name")
+				.setPositiveButton(R.string.alert_dialog_ok, this)
+				.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
+				.create();
+		
+				// automatically show soft keyboard
+				input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+				input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+					@Override
+					public void onFocusChange(View v, boolean hasFocus) {
+						if (hasFocus)
+							dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+					}
+				});
+				
+				input.setOnKeyListener(new View.OnKeyListener() {
+					@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
+						if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+							InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+							mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
+							return true;
+						}
+						return false;
+					}
+				});    	
+	      break;
+	      
+	    case 1:
+	    	/*
+				textEntryView = LayoutInflater.from(this).inflate(R.layout.edit_entry_dialog, null);
+				builder = new AlertDialog.Builder(this).setView(textEntryView);
+		
+				dialog = builder.setTitle("Enter new plant name")
+				.setPositiveButton(R.string.alert_dialog_ok, this)
+				.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
+				.create();
+		
+				// automatically show soft keyboard
+				input = (EditText) textEntryView.findViewById(R.id.journal_text_entry);
+				input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+					@Override
+					public void onFocusChange(View v, boolean hasFocus) {
+						if (hasFocus)
+							dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+					}
+				});
+				
+				
+				input.setOnKeyListener(new View.OnKeyListener() {
+					@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
+						if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+							InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+							mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
+							return true;
+						}
+						return false;
+					}
+				});  
+				*/ 
+	        break;
+	    default:
+	        dialog = null;
+    }
+
+    
+
+		
+		return dialog;
+	}
+	public void onClick(DialogInterface dialog, int whichButton) {
+		EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
+		String plantName = textEntry.getText().toString().trim();
+		if (plantName.length() == 0)
+			plantName = "Untitled plant";
+		plant.setName(plantName);
+		setTitle(plantName);
+		PlotScreen.adapter.notifyDataSetChanged(); 
+		removeDialog(0);
+		
+	}
+	
+
+	
 }
