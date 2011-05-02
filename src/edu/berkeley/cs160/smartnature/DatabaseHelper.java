@@ -128,7 +128,7 @@ public class DatabaseHelper {
 				temp.setImages(images_al);
 			} while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -157,22 +157,35 @@ public class DatabaseHelper {
 				temp_l.add(temp_g);
 			} while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp_l;
 	}
 
-	public List<String> select_all_garden(String column) {
-		List<String> list = new ArrayList<String>();
-		Cursor cursor = this.db.query(TABLE_NAME_GARDEN, new String[] {column}, null, null, null, null, "g_pk asc");
+	public List<Integer> select_all_garden_pk() {
+		List<Integer> list = new ArrayList<Integer>();
+		Cursor cursor = this.db.query(TABLE_NAME_GARDEN, new String[] {"g_pk"}, null, null, null, null, "g_pk asc");
 		if (cursor.moveToFirst()) {
 			do 
-				list.add(cursor.getString(cursor.getColumnIndex(column)));
+				list.add(cursor.getInt(cursor.getColumnIndex("g_pk")));
 			while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed()) 
+		if (cursor != null || !cursor.isClosed()) 
 			cursor.close();
 		return list;
+	}
+	
+	public int select_garden_pk(String name) {
+		Cursor cursor = this.db.query(TABLE_NAME_GARDEN, null, "name = ?", new String[] {name}, null, null, "g_pk asc");
+		int temp = -1;
+		if (cursor.moveToFirst()) {
+			do
+				temp = cursor.getInt(cursor.getColumnIndex("g_pk"));
+			while (cursor.moveToNext());
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return temp;
 	}
 
 	public int count_garden() {
@@ -182,15 +195,7 @@ public class DatabaseHelper {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
 		}
-		if (cursor != null && !cursor.isClosed())
-			cursor.close();
-		return temp;
-	}
-	
-	public int count_exist_garden() {
-		Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME_GARDEN, null);
-		int temp = cursor.getCount();
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -243,7 +248,7 @@ public class DatabaseHelper {
 				temp.getPaint().setColor(color);
 			} while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		if (temp == null)
 			System.err.println("select_plot fail");
@@ -259,7 +264,7 @@ public class DatabaseHelper {
 				temp = cursor.getString(cursor.getColumnIndex("name"));
 			while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -271,16 +276,16 @@ public class DatabaseHelper {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
-	
+
 	public void delete_plot(int po_pk) {
 		String selection = "po_pk = ?";
 		this.db.delete(TABLE_NAME_PLOT, selection, new String[] {Integer.toString(po_pk)});
 	}
-	
+
 	public long insert_plant(String name, int id) {
 		this.insertStmt_plant.clearBindings();
 		this.insertStmt_plant.bindString(1, name);
@@ -298,7 +303,7 @@ public class DatabaseHelper {
 				temp.setID(cursor.getInt(cursor.getColumnIndex("id")));
 			} while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -312,7 +317,7 @@ public class DatabaseHelper {
 				temp = cursor.getString(cursor.getColumnIndex("name"));
 			while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -324,7 +329,7 @@ public class DatabaseHelper {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -350,7 +355,7 @@ public class DatabaseHelper {
 				temp = new Entry(cursor.getString(cursor.getColumnIndex("name")), cursor.getString(cursor.getColumnIndex("date")));
 			while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -364,7 +369,7 @@ public class DatabaseHelper {
 				temp = cursor.getString(cursor.getColumnIndex("name"));
 			while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -376,7 +381,7 @@ public class DatabaseHelper {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return temp;
 	}
@@ -402,16 +407,34 @@ public class DatabaseHelper {
 				list.add(cursor.getInt(cursor.getColumnIndex("po_map")));
 			while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return list;
 	}
 	
-	public void delete_map_gp(int po_map) {
+	public List<Integer> select_map_gp_g() {
+		List<Integer> list = new ArrayList<Integer>();
+		Cursor cursor = this.db.rawQuery("SELECT DISTINCT g_map FROM " + TABLE_NAME_MAP_GP, null);
+		if (cursor.moveToFirst()) {
+			do
+				list.add(cursor.getInt(cursor.getColumnIndex("g_map")));
+			while (cursor.moveToNext());
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return list;
+	}
+	
+	public void delete_map_gp_g(int g_map) {
+		String selection = "g_map = ?";
+		this.db.delete(TABLE_NAME_MAP_GP, selection, new String[] {Integer.toString(g_map)});
+	}
+	
+	public void delete_map_gp_p(int po_map) {
 		String selection = "po_map = ?";
 		this.db.delete(TABLE_NAME_MAP_GP, selection, new String[] {Integer.toString(po_map)});
 	}
-	
+
 	public long insert_map_pp(int po_map, int pa_map) {
 		this.insertStmt_map_pp.clearBindings();
 		this.insertStmt_map_pp.bindLong(1, (long)po_map);
@@ -428,7 +451,7 @@ public class DatabaseHelper {
 				list.add(cursor.getInt(cursor.getColumnIndex("pa_map")));
 			while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return list;
 	}
@@ -454,7 +477,7 @@ public class DatabaseHelper {
 				list.add(cursor.getInt(cursor.getColumnIndex("e_map")));
 			while (cursor.moveToNext());
 		}
-		if (cursor != null && !cursor.isClosed())
+		if (cursor != null || !cursor.isClosed())
 			cursor.close();
 		return list;
 	}
