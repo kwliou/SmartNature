@@ -66,12 +66,15 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 			});
 			return;
 		}
-		resultList.clear();
-		invalidate();
 		if (resultBox.child(1).attr("id").equals("_ctl0_mainHolder_noresults")) {
 			// Toast.makeText(Encyclopedia.this, "Sorry, no results were found.", Toast.LENGTH_SHORT).show();
 			resultList.add(new SearchResult("No results found", "Please try refining your search", "", ""));
-			invalidate();
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					setProgressBarIndeterminateVisibility(false);
+					adapter.notifyDataSetChanged();
+				}
+			});
 		} else {
 			Elements results = resultBox.child(1).children();
 			for (int i = 0; i < results.size(); i++) {
@@ -81,14 +84,11 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 				String altNames = next.child(2).text().replaceFirst("Also known as:", "Known as:");
 				String linkURL = "http://www.plantcare.com/encyclopedia/" + next.child(1).attr("href");
 				SearchResult result = new SearchResult(name, altNames, plantURL, linkURL);
-				new Thread(new LoadBitmap(result)).start();
+				new Thread(new LoadBitmap(result, i == results.size() - 1)).start();
 				resultList.add(result);
 				invalidate();
 			}
 		}
-		runOnUiThread(new Runnable() {
-			@Override public void run() { setProgressBarIndeterminateVisibility(false); }
-		});
 	}
 	
 	@Override
@@ -107,6 +107,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		if (searchText.equals(""))
 			Toast.makeText(this, "Please enter the plant you are looking for.", Toast.LENGTH_SHORT).show();
 		else {
+			resultList.clear();
 			findViewById(R.id.encycl_msg).setVisibility(View.GONE);
 			setProgressBarIndeterminateVisibility(true);
 			new Thread(this).start();
@@ -121,14 +122,20 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	
 	class LoadBitmap implements Runnable {
 		private SearchResult result;
-		LoadBitmap(SearchResult result) { this.result = result; }
+		private boolean last;
+		LoadBitmap(SearchResult result, boolean last) { this.result = result; this.last = last; }
 		@Override
 		public void run() {
 			try {
 				result.setBitmap(BitmapFactory.decodeStream(new URL(result.getPicURL()).openConnection().getInputStream()));
 			} catch (IOException e) { e.printStackTrace(); }
-			
-			invalidate();
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					if (last)
+						setProgressBarIndeterminateVisibility(false);
+					adapter.notifyDataSetChanged();
+				}
+			});
 		}
 	}
 	
@@ -156,7 +163,6 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 				try {
 					((ImageView) v.findViewById(R.id.searchPic)).setImageBitmap(s.getBitmap());
 				} catch (Exception e) {
-					((ImageView) v.findViewById(R.id.searchPic)).setImageResource(R.drawable.preview);
 					e.printStackTrace();
 				}
 			}
