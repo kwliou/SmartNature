@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,22 +19,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 public class Encyclopedia extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener{
 	
 	static ResultAdapter adapter;
 
-	boolean searchScreen = true;
 
 	String pName = "";
 	String name = "";
@@ -64,11 +59,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		
 		searchButton.setOnClickListener(new View.OnClickListener() {
         	public void onClick (View v) {
-        		if(!searchScreen){
-        			ViewFlipper vf = (ViewFlipper) findViewById(R.id.ViewFlipper01);
-        			vf.showNext();
-        			searchScreen = true;
-        		}
+        		
         		EditText search = (EditText)findViewById(R.id.searchText);
 
         		if(!search.getText().toString().equals("")){
@@ -132,77 +123,23 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
     
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		if(searchScreen){	
-			searchScreen = false;
-			ViewFlipper vf = (ViewFlipper) findViewById(R.id.ViewFlipper01);
-			vf.showNext();
-		}
+		
+		Intent result = new Intent(Encyclopedia.this, EncyclopediaResult.class);
+		Bundle bundle = new Bundle();
+		
 		String plantURL = ((TextView)arg1.findViewById(R.id.linkURL)).getText().toString();
-		LinearLayout details = (LinearLayout) findViewById(R.id.plantDescription);
 		pName = ((TextView)arg1.findViewById(R.id.name)).getText().toString();
 		
-		details.removeAllViews();
 		
-		TextView plantName = (TextView)findViewById(R.id.searchName);
-		plantName.setText(pName);
+		bundle.putString("name", pName);
+		bundle.putString("linkURL", plantURL);
 		
+		result.putExtras(bundle);
 		
-		Document doc;
-		try {
-			doc = Jsoup.connect(plantURL).get();
-			Elements tables = doc.getElementsByTag("table");
-			Element table = tables.get(0);
-			Elements tableValues = table.children();
-			for(int i = 0; i < tableValues.size(); i++){
-				Element e = tableValues.get(i);
-				String category = e.child(0).text();
-				String value = e.child(1).text();
-				TextView detail = new TextView(Encyclopedia.this);
-				detail.setText(category + " " + value);
-				detail.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-				//Toast.makeText(Encyclopedia.this, category + " " + value, Toast.LENGTH_SHORT).show();
-				details.addView(detail);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		Button addToPlot = (Button)findViewById(R.id.addToPlot);
-		addToPlot.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				startActivityForResult(new Intent(Encyclopedia.this, AddPlant.class), 0);
-				
-			}
-		});
-		//Intent browserIntent = new Intent("android.intent.action.VIEW", Uri.parse(plantURL));
-		//startActivity(browserIntent);
+		startActivity(result);
 	}
 	
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		
-		if (data != null){
-			int plotId, gardenId;
-			plotId = (Integer) data.getExtras().get("plotId");
-			gardenId = (Integer) data.getExtras().get("gardenId");
-			/*GardenGnome.gardens.get(gardenId).getPlot(plotId).addPlant(new Plant(pName));
-			int po_pk;
-			List<Integer> temp = StartScreen.dh.select_map_gp_po(gardenId + 1);
-			po_pk = -1;
-			for(int i = 0; i < temp.size(); i++) {
-				if(po_pk != -1) 
-					break;
-				if(GardenGnome.gardens.get(gardenId).getPlot(plotId).getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
-					po_pk = temp.get(i);
-			}
-			StartScreen.dh.insert_plant(pName, 0);
-			StartScreen.dh.insert_map_pp(po_pk, StartScreen.dh.count_plant());*/
-		}
-	}
+	
 
 	@Override
 	public void onClick(View arg0) {

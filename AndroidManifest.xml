@@ -54,6 +54,7 @@
 		<activity android:name=".ColorPicker" />
 
 		<activity android:name=".Encyclopedia" android:label="@string/app_name" />
+		<activity android:name=".EncyclopediaResult" />
 		
 	</application>
 </manifest>
