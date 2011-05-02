@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -52,7 +53,14 @@ public class EncyclopediaResult extends Activity implements View.OnClickListener
 	    				String category = e.child(0).text();
 	    				String value = e.child(1).text();
 	    				TextView detail = new TextView(EncyclopediaResult.this);
-	    				detail.setText(category + " " + value);
+	    				TextView categ = new TextView(EncyclopediaResult.this);
+	    				categ.setText(category);
+	    				categ.setTypeface(Typeface.DEFAULT_BOLD, 0);
+	    				//categ.setTypeface(Typeface.DEFAULT_BOLD);
+	    				detail.setText(value);
+	    				categ.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+	    				//Toast.makeText(Encyclopedia.this, category + " " + value, Toast.LENGTH_SHORT).show();
+	    				details.addView(categ);
 	    				detail.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 	    				//Toast.makeText(Encyclopedia.this, category + " " + value, Toast.LENGTH_SHORT).show();
 	    				details.addView(detail);
