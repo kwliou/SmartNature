@@ -70,11 +70,13 @@ class GardenGnome extends Application {
 	
 	public static void initAll() {
 		gardens.clear();
-		for(int i = 0; i < dh.count_exist_garden(); i++) {
-			gardens.add(dh.select_garden(i + 1));
-			List<Integer> temp = dh.select_map_gp_po(i + 1);
-			for(int j = 0; j < temp.size(); j++)
-				gardens.get(i).addPlot(dh.select_plot(temp.get(j)));
+		List<Integer> existing_garden = dh.select_all_garden_pk();
+		for(int i = 0; i < existing_garden.size(); i++) {
+			gardens.add(dh.select_garden(existing_garden.get(i)));
+			List<Integer> existing_plot = dh.select_map_gp_po(existing_garden.get(i));
+			for(int j = 0; j < existing_plot.size(); j++)
+				gardens.get(i).addPlot(dh.select_plot(existing_plot.get(j)));
+
 		}
 	}
 	
