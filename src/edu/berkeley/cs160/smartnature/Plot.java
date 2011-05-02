@@ -2,8 +2,6 @@ package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
 
-import com.google.gson.annotations.Expose;
-
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -13,17 +11,21 @@ import android.graphics.RectF;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.*;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Plot {
 	
 	static final int RECT = 1, OVAL = 2, POLY = 3;
 	private ShapeDrawable shape;
 	@Expose private String name;
-	@Expose private int type;
+	@Expose @SerializedName("shape") private int type;
 	@Expose private int color;
-	@Expose private float[] polyPoints = {};
+	@Expose @SerializedName("points") private float[] polyPoints = {};
 	/** angle of clockwise rotation in degrees */
-	@Expose private float rotation;
+	@Expose @SerializedName("angle") private float rotation;
 	
+	private int serverId;
 	private int id;
 	private ArrayList<Plant> plants = new ArrayList<Plant>();
 	
@@ -240,6 +242,11 @@ public class Plot {
 	
 	public float getAngle() { return rotation; }
 	
+	public String getBoundsJson() {
+		Rect bounds = getBounds();
+		return "\"" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "\"";
+	}
+	
 	public int getColor() { return color; }
 	
 	public int getID(){ return id; }
@@ -252,6 +259,8 @@ public class Plot {
 	
 	public float[] getPoints() { return polyPoints; }
 	
+	public int getServerId() { return serverId; }
+	
 	public int getType() { return type; }
 	
 	public void setAngle(float angle) { this.rotation = angle; }
@@ -263,6 +272,8 @@ public class Plot {
 	public void setName(String name) { this.name = name; }
 	
 	public void setPoints(float[] points) { polyPoints = points; }
+	
+	public void setServerId(int serverId) { this.serverId = serverId; }
 	
 	/** ShapeDrawable related methods */
 
