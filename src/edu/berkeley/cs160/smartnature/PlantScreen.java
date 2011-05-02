@@ -8,7 +8,10 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class PlantScreen extends ListActivity implements View.OnClickListener, View.OnTouchListener, AdapterView.OnItemClickListener {
@@ -46,7 +50,13 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 	Garden garden;
 	Plot plot;
 	Plant plant;
-
+	
+	/** Voice Recognition */
+	Button speakButton;
+	private ListView mList;
+	private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+	ArrayList<String> matches = new ArrayList<String>();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -84,6 +94,8 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				pa_pk = temp2.get(i);
 		}
 		*/
+		
+		
 		initMockData();
 		getListView().setOnItemClickListener(PlantScreen.this);
 
@@ -136,8 +148,8 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		/*
 		 * addImage.setOnClickListener(new OnClickListener() {
 		 * 
-		 * @Override public void onClick(View v) { //TODO // Call Deepti's
-		 * Picture dialog } });
+		 * @Override public void onClick(View v) { 
+		 * } });
 		 */
 
 		// Button addPicButton = (Button) findViewById(R.id.addPicButton);
@@ -149,8 +161,17 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 				Date currentDate = new Date();
 				String dateStr = currentDate.toString();
 
-				plot.getPlant(plantID).addEntry(
+				if (matches.isEmpty()){
+					plot.getPlant(plantID).addEntry(
 						new Entry(entryText.getText().toString(), dateStr));
+				}else{
+					plot.getPlant(plantID).addEntry(
+							new Entry(matches.get(0).toString(), dateStr));					
+				
+				}
+
+				
+				
 				//StartScreen.dh.insert_entry(entryText.getText().toString(), dateStr);
 				//StartScreen.dh.insert_map_pe(pa_pk, StartScreen.dh.count_entry());
 				adapter.notifyDataSetChanged(); // refresh ListView
@@ -158,6 +179,22 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 
 			}
 		});
+		
+		/** Voice Recognition **/
+    speakButton = (Button) findViewById(R.id.recordVoiceButton);
+    //mList = (ListView) findViewById(R.id.entryList);
+    
+    PackageManager pm = getPackageManager();
+    List<ResolveInfo> activities = pm.queryIntentActivities(
+            new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+    if (activities.size() != 0) {
+        speakButton.setOnClickListener(this);
+    } else {
+        speakButton.setEnabled(false);
+        speakButton.setText("Recognizer not present");
+    }
+    
+    
 	}
 
 	public void initMockData() {
@@ -177,11 +214,38 @@ public class PlantScreen extends ListActivity implements View.OnClickListener, V
 		return false;
 	}
 
+  /** Handle the click on the start recognition button. */
 	@Override
-	public void onClick(View view) {
-		System.out.println("clicked");
+	public void onClick(View v) {
+    if (v.getId() == R.id.recordVoiceButton) {
+      startVoiceRecognitionActivity();
+    }
+		//System.out.println("clicked");
 	}
 
+  /** Fire an intent to start the speech recognition activity. */
+  private void startVoiceRecognitionActivity() {
+      Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+      intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+              RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+      intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech recognition demo");
+      startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
+  }
+
+  /** Handle the results from the recognition activity. */
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+          // Fill the list view with the strings the recognizer thought it could have heard
+      		matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);  
+      		//ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+          //mList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, matches));
+      }
+			
+      super.onActivityResult(requestCode, resultCode, data);
+  }
+
+  
 	class EntryAdapter extends ArrayAdapter<Entry> {
 
 		private ArrayList<Entry> items;

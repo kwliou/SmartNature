@@ -64,7 +64,11 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" />
 	</LinearLayout>
-
+	<Button
+		android:id="@+id/recordVoiceButton"
+		android:text="Record Voice"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
 	<TextView
 		android:text="List of entries"
 		style="@style/Widget.TextView.ListSeparator"
