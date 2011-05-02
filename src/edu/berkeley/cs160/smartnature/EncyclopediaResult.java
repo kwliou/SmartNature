@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 public class EncyclopediaResult extends Activity implements View.OnClickListener{
 
-	String name = "";
+	String pName = "";
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,8 +28,8 @@ public class EncyclopediaResult extends Activity implements View.OnClickListener
         
     		Bundle extras = getIntent().getExtras();
     		if (extras != null && extras.containsKey("name")) {
-    			name = extras.getString("name");
-    			setTitle(name);
+    			pName = extras.getString("name");
+    			setTitle(pName);
     		
     		
 	    		String plantURL = extras.getString("linkURL");
@@ -38,7 +38,7 @@ public class EncyclopediaResult extends Activity implements View.OnClickListener
 	    		details.removeAllViews();
 	    		
 	    		TextView plantName = (TextView)findViewById(R.id.searchName);
-	    		plantName.setText(name);
+	    		plantName.setText(pName);
 	    		
 	    		
 	    		Document doc;
@@ -76,14 +76,14 @@ public class EncyclopediaResult extends Activity implements View.OnClickListener
 			int plotId, gardenId;
 			plotId = (Integer) data.getExtras().get("plotId");
 			gardenId = (Integer) data.getExtras().get("gardenId");
-			/*GardenGnome.gardens.get(gardenId).getPlot(plotId).addPlant(new Plant(pName));
-			int po_pk;
+			GardenGnome.getGardens().get(gardenId).getPlot(plotId).addPlant(new Plant(pName));
+			/*int po_pk;
 			List<Integer> temp = StartScreen.dh.select_map_gp_po(gardenId + 1);
 			po_pk = -1;
 			for(int i = 0; i < temp.size(); i++) {
 				if(po_pk != -1) 
 					break;
-				if(GardenGnome.gardens.get(gardenId).getPlot(plotId).getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
+				if(GardenGnome.getGardens().get(gardenId).getPlot(plotId).getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
 					po_pk = temp.get(i);
 			}
 			StartScreen.dh.insert_plant(pName, 0);
