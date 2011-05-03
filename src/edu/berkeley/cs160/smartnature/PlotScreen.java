@@ -47,16 +47,8 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		setTitle(plot.getName());
 
 		setContentView(R.layout.plot);
-		/*
-		List<Integer> temp = StartScreen.dh.select_map_gp_po(gardenID + 1);
-		po_pk = -1;
-		for(int i = 0; i < temp.size(); i++) {
-			if(po_pk != -1) 
-				break;
-			if(plot.getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
-				po_pk = temp.get(i);
-		}
-		*/
+		po_pk = GardenGnome.getPlotPk(gardenID, plot);
+
 		initMockData();
 		getListView().setOnItemClickListener(this);
 
@@ -74,13 +66,8 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	}
 
 	public void initMockData() {
-		//plot.getPlants().clear();
-		/*List<Integer> temp = StartScreen.dh.select_map_pp_pa(po_pk);
-		System.err.println("size = " + temp.size());
-		if(plot.getPlants().size() != temp.size()) {
-			for(int i = 0; i < temp.size(); i++)
-				plot.addPlant(StartScreen.dh.select_plant(temp.get(i)));
-		}*/
+		plot.getPlants().clear();
+		GardenGnome.initPlant(po_pk, plot);
 		adapter = new PlantAdapter(this, R.layout.plant_list_item, plot.getPlants());
 		setListAdapter(adapter);
 	}
@@ -131,9 +118,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		if (plantString.length() == 0)
 			plantString = "Untitled plant";
 		
-		plot.addPlant(new Plant(plantString));
-		//StartScreen.dh.insert_plant(plantName.getText().toString(), 0);
-		//StartScreen.dh.insert_map_pp(po_pk, StartScreen.dh.count_plant());
+		GardenGnome.addPlant(po_pk, plantString, plot);
 		plantName.setText("");
 		adapter.notifyDataSetChanged(); //refresh ListView
 	}
@@ -225,10 +210,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 				break;
 			 */
 		case R.id.m_deleteplot:
-			garden.remove(plot);
-			//StartScreen.dh.delete_plot(po_pk);
-			//StartScreen.dh.delete_map_gp(po_pk);
-			//EditScreen.editView.invalidate();
+			GardenGnome.removePlot(gardenID, po_pk, plot);
 			finish();
 
 		}

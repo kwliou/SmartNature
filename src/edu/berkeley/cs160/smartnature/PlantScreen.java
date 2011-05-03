@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -22,10 +21,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,7 +32,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 public class PlantScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, View.OnTouchListener, AdapterView.OnItemClickListener {
@@ -53,7 +51,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	ImageView addImage;
 	TextView plantTextView, plantHint;
 	Button addEntryButton, deleteEntryButton, searchPlantButton, deletePlantButton;
-	int po_pk = -1, pa_pk = -1;
+	int po_pk, pa_pk;
 	Garden garden;
 	Plot plot;
 	Plant plant;
@@ -88,24 +86,10 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		garden = GardenGnome.getGarden(gardenID);
 		plot = garden.getPlot(plotID);
 		plant = plot.getPlants().get(plantID);
-		/*
-		List<Integer> temp1 = StartScreen.dh.select_map_gp_po(gardenID + 1);
-		for(int i = 0; i < temp1.size(); i++) {
-			if(po_pk != -1) 
-				break;
-			if(plot.getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp1.get(i).intValue())))
-				po_pk = temp1.get(i);
-		}
-		List<Integer> temp2 = StartScreen.dh.select_map_pp_pa(po_pk);
-		for(int i = 0; i < temp2.size(); i++) {
-			if(pa_pk != -1) 
-				break;
-			if(plant.getName().equalsIgnoreCase(StartScreen.dh.select_plant_name(temp2.get(i).intValue())))
-				pa_pk = temp2.get(i);
-		}
-		*/
 		
-		
+		po_pk = GardenGnome.getPlotPk(gardenID, plot);
+		pa_pk = GardenGnome.getPlantPk(po_pk, plant);
+	
 		initMockData();
 		getListView().setOnItemClickListener(PlantScreen.this);
 
@@ -167,18 +151,13 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 					entryName = "Untitled entry";
 				
 				if (matches.isEmpty()){
-					plot.getPlant(plantID).addEntry(
-						new Entry(entryName, dateStr));
+					Entry temp = new Entry(entryName, dateStr);
+					GardenGnome.addEntry(pa_pk, plant, temp);
 				}else{
-					plot.getPlant(plantID).addEntry(
-							new Entry(matches.get(0).toString(), dateStr));					
+					Entry temp = new Entry(matches.get(0).toString(), dateStr);
+					GardenGnome.addEntry(pa_pk, plant, temp);					
 				
 				}
-
-				
-				
-				//StartScreen.dh.insert_entry(entryText.getText().toString(), dateStr);
-				//StartScreen.dh.insert_map_pe(pa_pk, StartScreen.dh.count_entry());
 				adapter.notifyDataSetChanged(); // refresh ListView
 				entry.setText("");
 
@@ -203,19 +182,10 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	}
 
 	public void initMockData() {
-		/*List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
-		if(plant.getEntries().size() != temp.size()) {
-			for(int i = 0; i < temp.size(); i++)
-				plant.addEntry(StartScreen.dh.select_entry(temp.get(i)));
-		}
-		*/
-		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());
-		
-		
+		plant.getEntries().clear();
+		GardenGnome.initEntry(pa_pk, plant);
+		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());	
 		setListAdapter(adapter);
-		
-	
-		
 	}
 
 	@Override
@@ -289,20 +259,6 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 					intent.putExtra("plant_id", plantID);
 					intent.putExtra("entry_id", position);
 					startActivity(intent);
-					
-	
-					int e_pk = -1;
-					List<Integer> temp = StartScreen.dh.select_map_pe_e(pa_pk);
-					for(int i = 0; i < temp.size(); i++) {
-						if(e_pk != -1) 
-							break;
-						if(e.getName().equalsIgnoreCase(StartScreen.dh.select_entry_name(temp.get(i).intValue())))
-							e_pk = temp.get(i);
-					}
-					remove(e);
-					StartScreen.dh.delete_map_pe(e_pk);
-					StartScreen.dh.delete_entry(e_pk);
-
 				}
 			});
 			*/
@@ -321,6 +277,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		intent.putExtra("plot_id", plotID);
 		intent.putExtra("plant_id", plantID);
 		intent.putExtra("entry_id", position);
+		intent.putExtra("pa_pk", pa_pk);
 		startActivity(intent);
 	}
 	
@@ -356,9 +313,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");		
 			 */
 		case R.id.m_deleteplant:
-			plot.getPlants().remove(plantID);
-			//StartScreen.dh.delete_plant(pa_pk);
-			//StartScreen.dh.delete_map_pp(pa_pk);
+			GardenGnome.removePlant(plantID, pa_pk, plot);
 			PlotScreen.adapter.notifyDataSetChanged(); 
 			finish();
 			break;

@@ -131,12 +131,10 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		else
 			plot = new Plot(name, bounds, type);
 		
-		String shape_s = "" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "," + Color.BLACK;
-		garden.addPlot(plot);
-		//StartScreen.dh.insert_map_gp(extras.getInt("garden_id") + 1, StartScreen.dh.count_plot());
+		GardenGnome.addPlot(extras.getInt("garden_id"), plot);
 		garden.refreshBounds();
-		//String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
-		//StartScreen.dh.update_garden(extras.getInt("garden_id") + 1, bounds_s);
+		String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
+		GardenGnome.tmpupdateGarden(extras.getInt("garden_id"), bounds_s);
 	}
 	
 	public void loadPlot() {
@@ -218,27 +216,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		intent.putExtra("drag_matrix", values);
 		intent.putExtra("bgdrag_matrix", bgvalues);
 		setResult(RESULT_OK, intent);
-		// REPLACE THIS WITH GardenGnome.updatePlot( whatever )
-		/*String shape_s = plot.getBounds().left + "," + plot.getBounds().top + "," + plot.getBounds().right + "," + plot.getBounds().bottom + "," + plot.getPaint().getColor();
-		float[] polyPoints_f = plot.getPoints();
-		String polyPoints_s = "";
-		if(plot.getPoints().length >= 2) {
-			for(int i = 0; i < polyPoints_f.length; i++)
-				polyPoints_s = polyPoints_s + polyPoints_f[i] + ",";
-			polyPoints_s.substring(0, polyPoints_s.length() - 2);
-		}
-		
-		List<Integer> temp = StartScreen.dh.select_map_gp_po(extras.getInt("garden_id") + 1);
-		int po_pk = -1;
-		for(int i = 0; i < temp.size(); i++) {
-			if(po_pk != -1) 
-				break;
-			if(plot.getName().equalsIgnoreCase(StartScreen.dh.select_plot_name(temp.get(i).intValue())))
-				po_pk = temp.get(i);
-		}				
-		
-		StartScreen.dh.update_plot(po_pk, shape_s, plot.getColor(), polyPoints_s, plot.getAngle());*/
-		
+		GardenGnome.updatePlot(extras.getInt("garden_id"), plot);
 		finish();
 		overridePendingTransition(0, 0);
 	}
@@ -298,7 +276,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			editView.zoomScale = 1;
 			garden.refreshBounds(garden.size() - (createPoly ? 2 : 1));
 			String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
-			//GardenGnome.updateGarden(extras.getInt("garden_id") + 1, bounds_s);
+			GardenGnome.tmpupdateGarden(extras.getInt("garden_id"), bounds_s);
 			editView.reset();
 			break;
 		}

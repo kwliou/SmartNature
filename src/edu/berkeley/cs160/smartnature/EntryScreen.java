@@ -1,28 +1,15 @@
 package edu.berkeley.cs160.smartnature;
 
-import java.util.ArrayList;
-import java.util.Date;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ListActivity;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class EntryScreen extends ListActivity {
@@ -33,7 +20,7 @@ public class EntryScreen extends ListActivity {
 	Plot plot;
 	Plant plant;
 	Entry entry;
-	int gardenID, plotID, plantID, entryID; 
+	int gardenID, plotID, plantID, entryID, pa_pk; 
 
 	TextView entryDate, entryText;
 	Button editEntryButton, deleteEntryButton;
@@ -50,6 +37,7 @@ public class EntryScreen extends ListActivity {
 		plant = plot.getPlant(plantID);
 		entryID = extras.getInt("entry_id");
 		entry = plant.getEntry(entryID);
+		pa_pk = extras.getInt("pa_pk");
 		
 		setTitle(entry.getDate());
 		setContentView(R.layout.entry);
@@ -97,7 +85,7 @@ public class EntryScreen extends ListActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.plot_menu, menu);
+		inflater.inflate(R.menu.entry_menu, menu);
 		return true;
 	}
 
@@ -115,11 +103,9 @@ public class EntryScreen extends ListActivity {
 				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");			
 				break;
 			 */
-		case R.id.m_deleteplot:
-			garden.remove(plot);
-			//StartScreen.dh.delete_plot(po_pk);
-			//StartScreen.dh.delete_map_gp(po_pk);
-			//EditScreen.editView.invalidate();
+		case R.id.m_deleteentry:
+			GardenGnome.removeEntry(entryID, GardenGnome.getEntryPk(pa_pk, entry), plant);
+			PlantScreen.adapter.notifyDataSetChanged(); 
 			finish();
 
 		}

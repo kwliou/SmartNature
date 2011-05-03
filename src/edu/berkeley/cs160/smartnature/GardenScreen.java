@@ -242,8 +242,6 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				startActivityForResult(intent, USE_CAMERA);
 				break;
 			case R.id.m_deletegarden:
-				//StartScreen.dh.delete_map_gp_g(StartScreen.dh.select_garden_pk(mockGarden.getName()));
-				//StartScreen.dh.delete_garden(StartScreen.dh.select_garden_pk(mockGarden.getName()));
 				GardenGnome.removeGarden(gardenId);
 				finish();
 				break;
