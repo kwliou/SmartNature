@@ -2,8 +2,6 @@ package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
 
-import com.google.gson.annotations.Expose;
-
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -13,18 +11,24 @@ import android.graphics.RectF;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.*;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Plot {
 	
 	static final int RECT = 1, OVAL = 2, POLY = 3;
 	private ShapeDrawable shape;
 	@Expose private String name;
-	@Expose private int type;
+	@Expose private int shapetype;
 	@Expose private int color;
-	@Expose private float[] polyPoints = {};
+	@Expose private String bounds; // used in JSON 
+	@Expose private String points; // used in JSON
+	private float[] polyPoints = {};
 	/** angle of clockwise rotation in degrees */
-	@Expose private float rotation;
+	@Expose @SerializedName("angle") private float rotation;
 	
-	private int id;
+	private int serverId;
+	//private int id;
 	private ArrayList<Plant> plants = new ArrayList<Plant>();
 	
 	/** creates a copy of a plot except for its plants */
@@ -32,8 +36,8 @@ public class Plot {
 		set(src);
 	}
 	
-	Plot(String plotName, Rect bounds, int shapeType) {
-		this(plotName, bounds, 0, shapeType);
+	Plot(String plotName, Rect bounds, int type) {
+		this(plotName, bounds, 0, type);
 	}
 	
 
@@ -43,7 +47,7 @@ public class Plot {
 
 	Plot(String plotName, float[] points) {
 		name = plotName;
-		type = POLY;
+		shapetype = POLY;
 		
 		// compute bounds 
 		RectF boundsF = new RectF(points[0], points[1], points[0], points[1]);
@@ -74,11 +78,11 @@ public class Plot {
 	}
 	
 	/** create a rectangular or elliptical plot */
-	Plot(String plotName, Rect bounds, float angle, int shapeType) {
+	Plot(String plotName, Rect bounds, float angle, int type) {
 		name = plotName;
-		type = shapeType;
+		shapetype = type;
 		rotation = angle;
-		shape = new ShapeDrawable(type == OVAL ? new OvalShape() : new RectShape());
+		shape = new ShapeDrawable(shapetype == OVAL ? new OvalShape() : new RectShape());
 		setBounds(bounds);
 		initPaint();
 	}
@@ -86,7 +90,7 @@ public class Plot {
 	/** create a polygonal plot */
 	Plot(String plotName, Rect bounds, float angle, float[] points) {
 		name = plotName;
-		type = POLY;
+		shapetype = POLY;
 		polyPoints = points;
 		rotation = angle;
 		Path p = new Path();
@@ -103,11 +107,11 @@ public class Plot {
 	/** clones data from another plot except for plants */
 	public void set(Plot src) {
 		name = src.getName();
-		type = src.getType();
+		shapetype = src.getType();
 		color = src.getColor();
 		rotation = src.getAngle();
 		
-		if (type == POLY)
+		if (shapetype == POLY)
 			polyPoints = src.getPoints().clone();	
 		
 		try {
@@ -131,9 +135,9 @@ public class Plot {
 	}
 	
 	public boolean contains(float x, float y) {
-		if (type == OVAL)
+		if (shapetype == OVAL)
 			return ovalContains(x, y);
-		else if (type == POLY)
+		else if (shapetype == POLY)
 			return pathContains(x, y);
 		else
 			return rectContains(x, y);
@@ -182,7 +186,7 @@ public class Plot {
 		Matrix m = new Matrix();
 		m.setRotate(rotation, getBounds().centerX(), getBounds().centerY());
 		
-		if (type == POLY) {
+		if (shapetype == POLY) {
 			float[] rotPoints = new float[polyPoints.length];
 			m.preTranslate(getBounds().left, getBounds().top);
 			m.mapPoints(rotPoints, polyPoints);
@@ -203,7 +207,7 @@ public class Plot {
 	}
 	
 	public float[] getCenter() {
-		if (type == POLY) {
+		if (shapetype == POLY) {
 			float centerX = 0, centerY = 0;
 			for (int i = 0; i < polyPoints.length; i += 2) {
 				centerX += polyPoints[i];
@@ -218,7 +222,7 @@ public class Plot {
 	public void resize(int dx, int dy) {
 		Rect newBounds = new Rect(getBounds());
 		newBounds.inset(-dx, -dy);
-		if (type == POLY) {
+		if (shapetype == POLY) {
 			RectF oldPBounds = new RectF(0, 0, getBounds().width(), getBounds().height());
 			RectF newPBounds = new RectF(0, 0, getBounds().width() + 2 * dx, getBounds().height() + 2 * dy);
 			Matrix m = new Matrix();
@@ -240,9 +244,33 @@ public class Plot {
 	
 	public float getAngle() { return rotation; }
 	
+	/*public String getBoundsJson() {
+		Rect bounds = getBounds();
+		return "\"" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "\"";
+	}*/
+	
+	public void preUpload() {
+		bounds = getBounds().flattenToString();
+		points = "";
+		for (float f : polyPoints)
+			points += f + " ";
+	}
+	
+	public void postDownload() {
+		Rect rbounds = Rect.unflattenFromString(bounds);
+		if (shapetype != POLY)
+			set(new Plot(name, rbounds, rotation, shapetype));
+		else {
+			ArrayList<Float> pointsList = new ArrayList<Float>();
+			for (String s : points.split(" "))
+				pointsList.add(Float.parseFloat(s));
+			set(new Plot(name, rbounds, rotation, EditScreen.toFloatArray(pointsList)));
+		}
+	}
+	
 	public int getColor() { return color; }
 	
-	public int getID(){ return id; }
+	//public int getID(){ return id; }
 	
 	public String getName() { return name; }
 	
@@ -252,17 +280,21 @@ public class Plot {
 	
 	public float[] getPoints() { return polyPoints; }
 	
-	public int getType() { return type; }
+	public int getServerId() { return serverId; }
+	
+	public int getType() { return shapetype; }
 	
 	public void setAngle(float angle) { this.rotation = angle; }
 	
 	public void setColor(int color) { this.color = color; }
 	
-	public int setID(int i) { return id = i; }
+	//public int setID(int i) { return id = i; }
 	
 	public void setName(String name) { this.name = name; }
 	
 	public void setPoints(float[] points) { polyPoints = points; }
+	
+	public void setServerId(int serverId) { this.serverId = serverId; }
 	
 	/** ShapeDrawable related methods */
 

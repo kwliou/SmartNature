@@ -122,6 +122,31 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			garden.setServerId(gson.fromJson(result, int.class));
 		} catch (Exception e) { success = false; e.printStackTrace(); }
 		
+		
+		success &= garden.getServerId() != 0;
+		if (!success)
+			return false;
+		
+		httppost = new HttpPost(getString(R.string.server_url) + "gardens/" + garden.getServerId() + "/plots.json");
+		// rails server expects "garden" to be key value
+		for (Plot plot : garden.getPlots()) {
+			plot.preUpload();
+			json = "{\"plot\":" + gson.toJson(plot) + "}";
+			System.out.println(json);
+			try {
+				StringEntity entity = new StringEntity(json);
+				entity.setContentType("application/json");
+				httppost.setEntity(entity);
+				HttpResponse response = httpclient.execute(httppost);
+				String result = EntityUtils.toString(response.getEntity());
+				plot.setServerId(gson.fromJson(result, int.class));
+			} catch (Exception e) {
+				e.printStackTrace();
+				success = false;
+				break;
+			}
+			System.out.println("plot.serverId=" + plot.getServerId());
+		}
 		/*
 		boolean success = false;
 		if (postSuccess) {
@@ -137,7 +162,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				success = true;
 			} catch (Exception e) { e.printStackTrace(); }
 		}*/
-		return success && garden.getServerId() > 0;
+		return success;
 	}
 	
 	public boolean uploadImages() {
