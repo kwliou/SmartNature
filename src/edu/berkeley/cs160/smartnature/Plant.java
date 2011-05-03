@@ -7,26 +7,26 @@ public class Plant {
 	
 	@Expose private String name;
 	@Expose private String online_entry;
+	/** database id on server */
 	private int id;
-	private ArrayList<Entry> entries;
-
+	private ArrayList<Entry> entries = new ArrayList<Entry>();
+	
 	Plant(String name) {
 		this.name = name;
-		entries = new ArrayList<Entry>();
 	}
 	
-	public int getID(){
+	public int getServerId() {
 		return id;
 	}
 	
-	public int setID(int i){
-		return id = i;
+	public void setServerId(int serverId) {
+		this.id = serverId;
 	}
 	
 	public String getName() {
 		return name;
 	}
-
+	
 	public void setName(String name) {
 		this.name = name;
 	}

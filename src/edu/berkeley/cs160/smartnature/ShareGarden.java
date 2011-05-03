@@ -84,7 +84,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	
 	@Override
 	public void run() {
-		if (!uploadGarden()) {
+		if (!uploadGarden() || !uploadPlots()) {
 			garden.setServerId(0);
 			makeNote(android.R.drawable.stat_notify_error, "Failed to upload", Notification.FLAG_AUTO_CANCEL, true);
 			return;
@@ -122,31 +122,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			garden.setServerId(gson.fromJson(result, int.class));
 		} catch (Exception e) { success = false; e.printStackTrace(); }
 		
-		
-		success &= garden.getServerId() != 0;
-		if (!success)
-			return false;
-		
-		httppost = new HttpPost(getString(R.string.server_url) + "gardens/" + garden.getServerId() + "/plots.json");
-		// rails server expects "garden" to be key value
-		for (Plot plot : garden.getPlots()) {
-			plot.preUpload();
-			json = "{\"plot\":" + gson.toJson(plot) + "}";
-			System.out.println(json);
-			try {
-				StringEntity entity = new StringEntity(json);
-				entity.setContentType("application/json");
-				httppost.setEntity(entity);
-				HttpResponse response = httpclient.execute(httppost);
-				String result = EntityUtils.toString(response.getEntity());
-				plot.setServerId(gson.fromJson(result, int.class));
-			} catch (Exception e) {
-				e.printStackTrace();
-				success = false;
-				break;
-			}
-			System.out.println("plot.serverId=" + plot.getServerId());
-		}
+		return success && garden.getServerId() != 0;
 		/*
 		boolean success = false;
 		if (postSuccess) {
@@ -162,7 +138,59 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				success = true;
 			} catch (Exception e) { e.printStackTrace(); }
 		}*/
-		return success;
+	}
+	
+	public boolean uploadPlots() {
+		HttpClient httpclient = new DefaultHttpClient();
+		String path = "gardens/" + garden.getServerId() + "/plots.json";
+		HttpPost httppost = new HttpPost(getString(R.string.server_url) + path);
+		for (Plot plot : garden.getPlots()) {
+			plot.preUpload();
+			String json = "{\"plot\":" + gson.toJson(plot) + "}";
+			System.out.println(json);
+			try {
+				StringEntity entity = new StringEntity(json);
+				entity.setContentType("application/json");
+				httppost.setEntity(entity);
+				HttpResponse response = httpclient.execute(httppost);
+				String result = EntityUtils.toString(response.getEntity());
+				plot.setServerId(gson.fromJson(result, int.class));
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+			if (plot.getServerId() == 0 || !uploadPlants(plot))
+				return false;
+			
+			//System.out.println("plot.serverId=" + plot.getServerId());
+		}
+		
+		return true;
+	}
+	
+	public boolean uploadPlants(Plot plot) {
+		HttpClient httpclient = new DefaultHttpClient();
+		String path = "plots/" + plot.getServerId() + "/plants.json";  
+		HttpPost httppost = new HttpPost(getString(R.string.server_url) + path);
+		for (Plant plant : plot.getPlants()) {
+			String json = "{\"plant\":" + gson.toJson(plant) + "}";
+			System.out.println(json);
+			try {
+				StringEntity entity = new StringEntity(json);
+				entity.setContentType("application/json");
+				httppost.setEntity(entity);
+				HttpResponse response = httpclient.execute(httppost);
+				String result = EntityUtils.toString(response.getEntity());
+				plant.setServerId(gson.fromJson(result, int.class));
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+			if (plant.getServerId() == 0)
+				return false;
+		}
+		
+		return true;
 	}
 	
 	public boolean uploadImages() {

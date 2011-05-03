@@ -17,18 +17,18 @@ import com.google.gson.annotations.SerializedName;
 public class Plot {
 	
 	static final int RECT = 1, OVAL = 2, POLY = 3;
+	
+	/** database id on server, equal to -1 during uploading */
+	private int id;
 	private ShapeDrawable shape;
 	@Expose private String name;
 	@Expose private int shapetype;
 	@Expose private int color;
-	@Expose private String bounds; // used in JSON 
+	@Expose private String bounds; // used in JSON
 	@Expose private String points; // used in JSON
 	private float[] polyPoints = {};
 	/** angle of clockwise rotation in degrees */
 	@Expose @SerializedName("angle") private float rotation;
-	
-	private int serverId;
-	//private int id;
 	private ArrayList<Plant> plants = new ArrayList<Plant>();
 	
 	/** creates a copy of a plot except for its plants */
@@ -130,7 +130,7 @@ public class Plot {
 	}
 	
 	public void addPlant(Plant p) {
-		p.setID(plants.size());
+		//p.setID(plants.size());
 		plants.add(p);
 	}
 	
@@ -280,7 +280,7 @@ public class Plot {
 	
 	public float[] getPoints() { return polyPoints; }
 	
-	public int getServerId() { return serverId; }
+	public int getServerId() { return id; }
 	
 	public int getType() { return shapetype; }
 	
@@ -294,7 +294,7 @@ public class Plot {
 	
 	public void setPoints(float[] points) { polyPoints = points; }
 	
-	public void setServerId(int serverId) { this.serverId = serverId; }
+	public void setServerId(int serverId) { this.id = serverId; }
 	
 	/** ShapeDrawable related methods */
 

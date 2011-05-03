@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -142,7 +143,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		} catch (Exception e) { e.printStackTrace(); }
 		
 		Garden garden = gson.fromJson(result, Garden.class);
-		garden.setServerId(Integer.parseInt(serverId));
+		//garden.setServerId(Integer.parseInt(serverId));
 		
 		httpget = new HttpGet(getString(R.string.server_url) + "gardens/" + serverId + "/plots.json");
 		try {
@@ -156,6 +157,17 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		for (Plot plot : plots) {
 			plot.postDownload();
 			garden.addPlot(plot);
+			httpget = new HttpGet(getString(R.string.server_url) + "plots/" + plot.getServerId() + "/plants.json");
+			try {
+				HttpResponse response = httpclient.execute(httpget);
+				HttpEntity entity = response.getEntity();
+				result = EntityUtils.toString(entity);
+			} catch (Exception e) { e.printStackTrace(); }
+			System.out.println("plants_json=" + result);
+			Plant[] plants = gson.fromJson(result, Plant[].class);
+			
+			for (Plant plant : plants)
+				plot.addPlant(plant);
 		}
 		return garden;
 	}

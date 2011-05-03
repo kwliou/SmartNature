@@ -300,7 +300,7 @@ public class DatabaseHelper {
 		if (cursor.moveToFirst()) {
 			do {
 				temp = new Plant(cursor.getString(cursor.getColumnIndex("name")));
-				temp.setID(cursor.getInt(cursor.getColumnIndex("id")));
+				temp.setServerId(cursor.getInt(cursor.getColumnIndex("id")));
 			} while (cursor.moveToNext());
 		}
 		if (cursor != null || !cursor.isClosed())
