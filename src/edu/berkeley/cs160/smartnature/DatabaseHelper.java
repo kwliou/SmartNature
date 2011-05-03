@@ -190,7 +190,7 @@ public class DatabaseHelper {
 
 	public int count_garden() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_GARDEN, null);
-		int temp = -1;
+		int temp = 1;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
@@ -271,7 +271,7 @@ public class DatabaseHelper {
 
 	public int count_plot() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PLOT, null);
-		int temp = -1;
+		int temp = 1;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
@@ -324,7 +324,7 @@ public class DatabaseHelper {
 
 	public int count_plant() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PLANT, null);
-		int temp = -1;
+		int temp = 1;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
@@ -376,7 +376,7 @@ public class DatabaseHelper {
 
 	public int count_entry() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_ENTRY, null);
-		int temp = -1;
+		int temp = 1;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);

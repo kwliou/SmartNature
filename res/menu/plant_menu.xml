@@ -13,5 +13,5 @@
 		android:title="@string/m_searchplant" />
 	<item android:id="@+id/m_renameplant"
 		android:icon="@android:drawable/ic_menu_edit"
-		android:title="@string/m_searchplant" />
+		android:title="@string/m_renameplant" />
 </menu>
