@@ -33,11 +33,13 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	String pName = "";
 	String name = "";
 	EditText search;
+	Bundle prev;
 	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		prev = savedInstanceState;
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
 		setContentView(R.layout.encycl);
 		adapter = new ResultAdapter(this, R.layout.search_list_item, resultList);
@@ -94,6 +96,9 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent result = new Intent(Encyclopedia.this, EncyclopediaResult.class);
+		if(prev != null && prev.containsKey("plotID")){
+			
+		}
 		String plantURL = ((TextView) view.findViewById(R.id.linkURL)).getText().toString();
 		pName = ((TextView) view.findViewById(R.id.name)).getText().toString();
 		result.putExtra("name", pName);
