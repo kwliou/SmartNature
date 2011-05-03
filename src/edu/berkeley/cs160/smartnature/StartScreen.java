@@ -287,7 +287,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		switch (item.getItemId()) {
 			case 0:
 				Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
-				startActivity(intent);
+				startActivityForResult(intent, 0);
 				break;
 			case 1:
 				GardenGnome.removeGarden(info.position);

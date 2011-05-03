@@ -130,8 +130,8 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		httppost = new HttpPost(getString(R.string.server_url) + "gardens/" + garden.getServerId() + "/plots.json");
 		// rails server expects "garden" to be key value
 		for (Plot plot : garden.getPlots()) {
-			json = "{\"bounds\":" + plot.getBoundsJson() + "," + gson.toJson(plot).substring(1);
-			json = "{\"plot\":" + json + "}";
+			plot.preUpload();
+			json = "{\"plot\":" + gson.toJson(plot) + "}";
 			System.out.println(json);
 			try {
 				StringEntity entity = new StringEntity(json);

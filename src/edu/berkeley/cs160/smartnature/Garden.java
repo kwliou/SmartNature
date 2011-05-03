@@ -36,7 +36,7 @@ public class Garden {
 	}
 	
 	public void addPlot(Plot plot) {
-		plot.setID(plots.size());
+		//plot.setID(plots.size());
 		plots.add(plot);
 		// NOTE: do not immediately refresh bounds to preserve viewport
 	}
