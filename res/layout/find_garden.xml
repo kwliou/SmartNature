@@ -7,6 +7,12 @@
 	android:layout_height="fill_parent">
 
 	<LinearLayout
+		android:focusable="true"
+		android:focusableInTouchMode="true"
+		android:layout_width="0px"
+		android:layout_height="0px" />
+
+	<LinearLayout
 		android:orientation="horizontal"
 		android:padding="3dp"
 		android:layout_marginTop="3dp"
@@ -22,7 +28,10 @@
 			<EditText
 				android:id="@+id/search_garden_name"
 				android:hint="Garden name"
+				android:inputType="textCapWords"
 				android:scrollHorizontally="true"
+				android:nextFocusUp="@id/search_garden_name"
+				android:nextFocusLeft="@id/search_garden_name"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content" />
 
@@ -33,6 +42,7 @@
 				<EditText
 					android:id="@+id/search_garden_city"
 					android:hint="City"
+					android:inputType="textCapWords"
 					android:scrollHorizontally="true"
 					android:layout_weight="1"
 					android:layout_width="0px"
@@ -41,6 +51,7 @@
 				<AutoCompleteTextView
 					android:id="@+id/search_garden_state"
 					android:hint="State"
+					android:inputType="textCapWords|textAutoCorrect"
 					android:scrollHorizontally="true"
 					android:textColor="@android:color/primary_text_light"
 					android:layout_weight="1"
@@ -61,9 +72,9 @@
 	</LinearLayout>
 
 	<TextView
-		android:text="Nearby gardens"
-		android:gravity="center_vertical"
+		android:id="@+id/results_label"
 		style="@style/Widget.TextView.ListSeparator"
+		android:gravity="center_vertical"
 		android:layout_width="fill_parent"
 		android:layout_height="25dp" />
 

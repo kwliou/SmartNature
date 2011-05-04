@@ -256,7 +256,7 @@ class GardenGnome extends Application {
 
 public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 
-	GardenAdapter adapter;
+	static GardenAdapter adapter;
 	ArrayList<Garden> gardens = GardenGnome.getGardens();
 	AlertDialog dialog;
 	View textEntryView;

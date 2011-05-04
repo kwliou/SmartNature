@@ -128,7 +128,7 @@ public class DatabaseHelper {
 		Garden temp = null;
 		if (cursor.moveToFirst()) {
 			do {
-				temp = new Garden(Integer.parseInt(cursor.getString(cursor.getColumnIndex("previewId"))), cursor.getString(cursor.getColumnIndex("name")));
+				temp = new Garden(cursor.getString(cursor.getColumnIndex("name")));
 				String[] bound_s = cursor.getString(cursor.getColumnIndex("bounds")).split(",");
 				RectF bound_rf = new RectF(Float.parseFloat(bound_s[0].trim()), Float.parseFloat(bound_s[1].trim()), Float.parseFloat(bound_s[2].trim()), Float.parseFloat(bound_s[3].trim()));
 				temp.setRawBounds(bound_rf);
@@ -158,7 +158,7 @@ public class DatabaseHelper {
 		ArrayList<Garden> temp_l = new ArrayList<Garden>();
 		if (cursor.moveToFirst()) {
 			do {
-				Garden temp_g = new Garden(Integer.parseInt(cursor.getString(cursor.getColumnIndex("previewId"))), cursor.getString(cursor.getColumnIndex("name")));
+				Garden temp_g = new Garden(cursor.getString(cursor.getColumnIndex("name")));
 				String[] bound_s = cursor.getString(cursor.getColumnIndex("bounds")).split(",");
 				RectF bound_rf = new RectF(Float.parseFloat(bound_s[0].trim()), Float.parseFloat(bound_s[1].trim()), Float.parseFloat(bound_s[2].trim()), Float.parseFloat(bound_s[3].trim()));
 				temp_g.setRawBounds(bound_rf);

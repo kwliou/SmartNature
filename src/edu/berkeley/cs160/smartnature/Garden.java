@@ -28,11 +28,9 @@ public class Garden {
 	
 	private int garden_num;
 	
-	Garden() { this(R.drawable.preview, ""); }
+	Garden() { this(""); }
 		
-	Garden(String gardenName) { this(R.drawable.preview, gardenName); }
-	
-	Garden(int resId, String gardenName) {
+	Garden(String gardenName) {
 		bounds = new RectF(0, 0, 800, 480);
 		name = gardenName;
 	}
