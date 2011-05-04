@@ -22,7 +22,7 @@ public class DatabaseHelper {
 	private static final String TABLE_NAME_PLANT = "plant";
 	private static final String TABLE_NAME_ENTRY = "entry";
 	private static final String TABLE_NAME_PHOTO = "photo";
-	
+
 	/* one-to-many Relational Model between garden's foreign key and plot's*/
 	private static final String TABLE_NAME_MAP_GP = "map_garden_plot";
 	/* one-to-many Relational Model between plot's foreign key and plant's*/
@@ -31,11 +31,11 @@ public class DatabaseHelper {
 	private static final String TABLE_NAME_MAP_PE = "map_plant_entry";
 	/* one-to-many Relational Model between garden's foreign key and photo's*/
 	private static final String TABLE_NAME_MAP_GP2 = "map_garden_photo";
-	
+
 	private static final String INSERT_GARDEN = "insert into " + TABLE_NAME_GARDEN + " (g_pk, name, previewId, bounds, city, state, serverId, is_public, images) values (NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String INSERT_PLOT = "insert into " + TABLE_NAME_PLOT + " (po_pk, name, shape, type, color, polyPoints, rotation, id) values (NULL, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String INSERT_PLANT = "insert into " + TABLE_NAME_PLANT + " (pa_pk, name, id) values (NULL, ?, ?)";
-	private static final String INSERT_ENTRY = "insert into " + TABLE_NAME_ENTRY + " (e_pk, name, date) values (NULL, ?, ?)";
+	private static final String INSERT_ENTRY = "insert into " + TABLE_NAME_ENTRY + " (e_pk, name, date, id) values (NULL, ?, ?, ?)";
 	private static final String INSERT_PHOTO = "insert into " + TABLE_NAME_PHOTO + " (ph_pk, serverId, uri, title) values (NULL, ?, ?, ?)";
 	private static final String INSERT_MAP_GP = "insert into " + TABLE_NAME_MAP_GP + " (g_map, po_map) values (?, ?)";
 	private static final String INSERT_MAP_PP = "insert into " + TABLE_NAME_MAP_PP + " (po_map, pa_map) values (?, ?)";
@@ -101,6 +101,14 @@ public class DatabaseHelper {
 		cv.put("city", city);
 		cv.put("state", state);
 
+		String selection = "g_pk = ?";
+		return db.update(TABLE_NAME_GARDEN, cv, selection, new String[] {Integer.toString(g_pk)});
+	}
+	
+	public long update_garden(int g_pk, int serverId) {
+		ContentValues cv = new ContentValues();
+		cv.put("serverId", serverId);
+		
 		String selection = "g_pk = ?";
 		return db.update(TABLE_NAME_GARDEN, cv, selection, new String[] {Integer.toString(g_pk)});
 	}
@@ -186,7 +194,7 @@ public class DatabaseHelper {
 			cursor.close();
 		return list;
 	}
-	
+
 	public int select_garden_pk(String name) {
 		Cursor cursor = this.db.query(TABLE_NAME_GARDEN, null, "name = ?", new String[] {name}, null, null, "g_pk asc");
 		int temp = -1;
@@ -351,10 +359,11 @@ public class DatabaseHelper {
 		this.db.delete(TABLE_NAME_PLANT, selection, new String[] {Integer.toString(pa_pk)});
 	}
 
-	public long insert_entry(String name, String date) {
+	public long insert_entry(String name, String date, int id) {
 		this.insertStmt_entry.clearBindings();
 		this.insertStmt_entry.bindString(1, name);
 		this.insertStmt_entry.bindString(2, date);
+		this.insertStmt_entry.bindLong(3, (long)id);
 		return this.insertStmt_entry.executeInsert();
 	}
 
@@ -363,8 +372,10 @@ public class DatabaseHelper {
 		Cursor cursor = this.db.query(TABLE_NAME_ENTRY, null, selection, null, null, null, null);
 		Entry temp = null;
 		if (cursor.moveToFirst()) {
-			do
+			do {
 				temp = new Entry(cursor.getString(cursor.getColumnIndex("name")), Long.parseLong(cursor.getString(cursor.getColumnIndex("date"))));
+				temp.setServerId(cursor.getInt(cursor.getColumnIndex("id")));
+			}			
 			while (cursor.moveToNext());
 		}
 		if (cursor != null || !cursor.isClosed())
@@ -385,7 +396,7 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
-	
+
 	public long update_entry(int e_pk, String name) {
 		ContentValues cv = new ContentValues();
 		cv.put("name", name);
@@ -393,7 +404,15 @@ public class DatabaseHelper {
 		String selection = "e_pk = ?";
 		return db.update(TABLE_NAME_ENTRY, cv, selection, new String[] {Integer.toString(e_pk)});
 	}
-	
+
+	public long update_entry_id(int e_pk, int id) {
+		ContentValues cv = new ContentValues();
+		cv.put("id", id);
+
+		String selection = "e_pk = ?";
+		return db.update(TABLE_NAME_ENTRY, cv, selection, new String[] {Integer.toString(e_pk)});
+	}
+
 	public int count_entry() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_ENTRY, null);
 		int temp = 1;
@@ -418,7 +437,7 @@ public class DatabaseHelper {
 		this.insertStmt_photo.bindString(3, title);
 		return this.insertStmt_photo.executeInsert();
 	}
-	
+
 	public String select_photo_thumb(int ph_pk) {
 		String selection = "ph_pk = " + ph_pk;
 		Cursor cursor = this.db.query(TABLE_NAME_PHOTO, null, selection, null, null, null, null);
@@ -432,7 +451,7 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
-	
+
 	public int count_photo() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PHOTO, null);
 		int temp = 1;
@@ -465,7 +484,7 @@ public class DatabaseHelper {
 			cursor.close();
 		return list;
 	}
-	
+
 	public List<Integer> select_map_gp_g() {
 		List<Integer> list = new ArrayList<Integer>();
 		Cursor cursor = this.db.rawQuery("SELECT DISTINCT g_map FROM " + TABLE_NAME_MAP_GP, null);
@@ -478,12 +497,12 @@ public class DatabaseHelper {
 			cursor.close();
 		return list;
 	}
-	
+
 	public void delete_map_gp_g(int g_map) {
 		String selection = "g_map = ?";
 		this.db.delete(TABLE_NAME_MAP_GP, selection, new String[] {Integer.toString(g_map)});
 	}
-	
+
 	public void delete_map_gp_p(int po_map) {
 		String selection = "po_map = ?";
 		this.db.delete(TABLE_NAME_MAP_GP, selection, new String[] {Integer.toString(po_map)});
@@ -540,7 +559,7 @@ public class DatabaseHelper {
 		String selection = "e_map = ?";
 		this.db.delete(TABLE_NAME_MAP_PE, selection, new String[] {Integer.toString(e_map)});
 	}
-	
+
 	public long insert_map_gp2(int g_map, int ph_map) {
 		this.insertStmt_map_gp2.clearBindings();
 		this.insertStmt_map_gp2.bindLong(1, (long)g_map);
@@ -558,7 +577,7 @@ public class DatabaseHelper {
 			db.execSQL("CREATE TABLE " + TABLE_NAME_GARDEN + " (g_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, previewId INTEGER, bounds TEXT, city TEXT, state TEXT, serverId INTEGER, is_public INTEGER, images TEXT)");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_PLOT + " (po_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, shape TEXT, type INTEGER, color INTEGER, polyPoints TEXT, rotation REAL, id INTEGER)");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_PLANT + " (pa_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, id INTEGER)");
-			db.execSQL("CREATE TABLE " + TABLE_NAME_ENTRY + " (e_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, date TEXT)");
+			db.execSQL("CREATE TABLE " + TABLE_NAME_ENTRY + " (e_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, date TEXT, id INTEGER)");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_PHOTO + " (ph_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, serverId INTEGER, uri TEXT, title TEXT)");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_GP + " (g_map INTEGER, po_map INTEGER, FOREIGN KEY(g_map) REFERENCES garden(g_pk), FOREIGN KEY(po_map) REFERENCES plot(po_pk))");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PP + " (po_map INTEGER, pa_map INTEGER, FOREIGN KEY(po_map) REFERENCES plot(po_pk), FOREIGN KEY(pa_map) REFERENCES plant(pa_pk))");

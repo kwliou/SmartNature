@@ -12,6 +12,7 @@ public class Entry {
 	Entry(String name, long date) {
 		this.name = name;
 		this.date = date;
+		this.id = 0;
 	}
 	
 	public int getServerId() {

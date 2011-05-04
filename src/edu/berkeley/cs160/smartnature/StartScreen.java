@@ -104,6 +104,8 @@ class GardenGnome extends Application {
 
 	public static void addGarden(Garden garden) {
 		gardens.add(garden);
+		garden.setGardenNum(dh.count_garden());
+		System.out.println("addGarden = " + dh.count_garden());
 		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
 	}
 
@@ -140,6 +142,8 @@ class GardenGnome extends Application {
 		dh.insert_plot(plot.getName(), shape_s, plot.getType(), Color.BLACK, points, 0, 0);
 		dh.insert_map_gp(getGardenPk(garden_id), dh.count_plot());
 		getGarden(garden_id).addPlot(plot);
+		plot.setPlotNum(dh.count_plot());
+		System.out.println("addPlot = " + dh.count_plot());
 	}
 
 	public static void removePlot(int garden_id, int po_pk, Plot plot) {
@@ -190,7 +194,11 @@ class GardenGnome extends Application {
 	}
 
 	public static void addPlant(int po_pk, String name, Plot plot) {
-		plot.addPlant(new Plant(name));
+		Plant temp = new Plant(name);
+		plot.addPlant(temp);
+		plot.setPlotNum(dh.count_plot());
+		System.out.println("addPlot = " + dh.count_plot());
+		
 		dh.insert_plant(name, 0);
 		dh.insert_map_pp(po_pk, dh.count_plant());
 	}
@@ -223,7 +231,7 @@ class GardenGnome extends Application {
 
 	public static void addEntry(int pa_pk, Plant plant, Entry entry) {
 		plant.addEntry(entry);
-		dh.insert_entry(entry.getName(), entry.getDate() + "");
+		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
 		dh.insert_map_pe(pa_pk, dh.count_entry());
 	}
 	

@@ -26,6 +26,8 @@ public class Garden {
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
 	private static Rect paddingPort = new Rect(30, 20, 10, 20);
 	
+	private int garden_num;
+	
 	Garden() { this(R.drawable.preview, ""); }
 		
 	Garden(String gardenName) { this(R.drawable.preview, gardenName); }
@@ -167,5 +169,9 @@ public class Garden {
 	public void addImage(Photo photo) { images.add(photo); }
 	
 	public int numImages() { return images.size(); }
+	
+	public int getGardenNum() { return this.garden_num; }
+	
+	public void setGardenNum(int garden_num) { this.garden_num = garden_num; }
 	
 }
