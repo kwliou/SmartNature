@@ -52,17 +52,19 @@ public class EncyclopediaResult extends Activity implements View.OnClickListener
 	    				Element e = tableValues.get(i);
 	    				String category = e.child(0).text();
 	    				String value = e.child(1).text();
+	    				
 	    				TextView detail = new TextView(EncyclopediaResult.this);
 	    				TextView categ = new TextView(EncyclopediaResult.this);
+	    				
 	    				categ.setText(category);
 	    				categ.setTypeface(Typeface.DEFAULT_BOLD, 0);
-	    				//categ.setTypeface(Typeface.DEFAULT_BOLD);
-	    				detail.setText(value);
 	    				categ.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-	    				//Toast.makeText(Encyclopedia.this, category + " " + value, Toast.LENGTH_SHORT).show();
+	    				categ.setPadding(10, 0, 0, 0);
 	    				details.addView(categ);
+	    				
+	    				detail.setText(value);
+	    				detail.setPadding(20, 0, 0, 0);
 	    				detail.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-	    				//Toast.makeText(Encyclopedia.this, category + " " + value, Toast.LENGTH_SHORT).show();
 	    				details.addView(detail);
 	    			}
 	    		} catch (IOException e) {
