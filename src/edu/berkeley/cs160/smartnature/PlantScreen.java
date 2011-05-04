@@ -175,8 +175,9 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
     if (activities.size() != 0) {
         speakButton.setOnClickListener(this);
     } else {
-        speakButton.setEnabled(false);
-        speakButton.setText("Recognizer not present");
+        //speakButton.setEnabled(false);
+        //speakButton.setText("Recognizer not present");
+        speakButton.setVisibility(View.GONE);
     }
     
     
