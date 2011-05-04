@@ -19,6 +19,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -129,7 +130,7 @@ class GardenGnome extends Application {
 	public static Plot getPlot(int garden_id, int plot_id) {
 		return gardens.get(garden_id).getPlot(plot_id);
 	}
-	
+
 	public static void addPlot(int garden_id, Plot plot) {
 		Rect bounds = plot.getBounds();
 		String shape_s = "" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "," + Color.BLACK;
@@ -229,6 +230,16 @@ class GardenGnome extends Application {
 		plant.getEntries().remove(entry_id);
 		dh.delete_map_pe(e_pk);
 		dh.delete_entry(e_pk);
+	}
+
+	public static void addPhoto(int garden_id, Uri uri, Uri thumb) {
+		gardens.get(garden_id).addImage(uri);
+		dh.insert_photo(0, uri.toString(), "", thumb.toString());
+		dh.insert_map_gp2(GardenGnome.getGardenPk(garden_id), dh.count_photo());
+	}
+
+	public static Uri getPhotoThumb(int garden_id) {
+		return dh.select_map_gp2_thumb(GardenGnome.getGardenPk(garden_id));
 	}
 }
 
@@ -399,14 +410,14 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
-			case 0:
-				Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
-				startActivityForResult(intent, 0);
-				break;
-			case 1:
-				GardenGnome.removeGarden(info.position);
-				adapter.notifyDataSetChanged();
-				break;
+		case 0:
+			Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
+			startActivityForResult(intent, 0);
+			break;
+		case 1:
+			GardenGnome.removeGarden(info.position);
+			adapter.notifyDataSetChanged();
+			break;
 		}
 
 		return super.onContextItemSelected(item);
@@ -432,8 +443,10 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			ImageView image = (ImageView) view.findViewById(R.id.preview_img); 
 			if (garden.getImages().isEmpty())
 				image.setImageResource(R.drawable.preview);
-			else
-				image.setImageURI(garden.getPreview());
+			else {
+				//image.setImageURI(garden.getPreview());
+				image.setImageURI(GardenGnome.getPhotoThumb(position));
+			}
 			return view;
 		}
 	}

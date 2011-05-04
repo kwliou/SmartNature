@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.Uri;
 
 public class DatabaseHelper {
 	private static final String DATABASE_NAME = "garden_gnome.db";
@@ -36,7 +37,7 @@ public class DatabaseHelper {
 	private static final String INSERT_PLOT = "insert into " + TABLE_NAME_PLOT + " (po_pk, name, shape, type, color, polyPoints, rotation, id) values (NULL, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String INSERT_PLANT = "insert into " + TABLE_NAME_PLANT + " (pa_pk, name, id) values (NULL, ?, ?)";
 	private static final String INSERT_ENTRY = "insert into " + TABLE_NAME_ENTRY + " (e_pk, name, date) values (NULL, ?, ?)";
-	private static final String INSERT_PHOTO = "insert into " + TABLE_NAME_PHOTO + " (ph_pk, serverId, uri, title) values (NULL, ?, ?, ?)";
+	private static final String INSERT_PHOTO = "insert into " + TABLE_NAME_PHOTO + " (ph_pk, serverId, uri, title, thumb) values (NULL, ?, ?, ?, ?)";
 	private static final String INSERT_MAP_GP = "insert into " + TABLE_NAME_MAP_GP + " (g_map, po_map) values (?, ?)";
 	private static final String INSERT_MAP_PP = "insert into " + TABLE_NAME_MAP_PP + " (po_map, pa_map) values (?, ?)";
 	private static final String INSERT_MAP_PE = "insert into " + TABLE_NAME_MAP_PE + " (pa_map, e_map) values (?, ?)";
@@ -402,6 +403,41 @@ public class DatabaseHelper {
 		String selection = "e_pk = ?";
 		this.db.delete(TABLE_NAME_ENTRY, selection, new String[] {Integer.toString(e_pk)});
 	}
+	//serverId INTEGER, uri TEXT, title TEXT
+	public long insert_photo(int serverId, String uri, String title, String thumb) {
+		this.insertStmt_photo.clearBindings();
+		this.insertStmt_photo.bindLong(1, (long)serverId);
+		this.insertStmt_photo.bindString(2, uri);
+		this.insertStmt_photo.bindString(3, title);
+		this.insertStmt_photo.bindString(4, thumb);
+		return this.insertStmt_photo.executeInsert();
+	}
+	
+	public String select_photo_thumb(int ph_pk) {
+		String selection = "ph_pk = " + ph_pk;
+		Cursor cursor = this.db.query(TABLE_NAME_PHOTO, null, selection, null, null, null, null);
+		String temp = "";
+		if (cursor.moveToFirst()) {
+			do
+				temp = cursor.getString(cursor.getColumnIndex("thumb"));
+			while (cursor.moveToNext());
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
+	
+	public int count_photo() {
+		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PHOTO, null);
+		int temp = 1;
+		if (cursor.getCount() > 0) {
+			cursor.moveToNext();
+			temp = cursor.getInt(0);
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
 
 	public long insert_map_gp(int g_map, int po_map) {
 		this.insertStmt_map_gp.clearBindings();
@@ -498,6 +534,29 @@ public class DatabaseHelper {
 		String selection = "e_map = ?";
 		this.db.delete(TABLE_NAME_MAP_PE, selection, new String[] {Integer.toString(e_map)});
 	}
+	
+	public Uri select_map_gp2_thumb(int g_map) {
+		Uri temp = null;
+		String selection = "g_map" + " = '" + g_map + "'";
+		Cursor cursor = this.db.query(TABLE_NAME_MAP_GP2, null, selection, null, null, null, null);
+		if (cursor.moveToFirst()) {
+			do {
+				int ph_map = cursor.getInt(cursor.getColumnIndex("ph_map"));
+				temp = Uri.parse(select_photo_thumb(ph_map));
+			}
+			while (cursor.moveToNext());
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
+	
+	public long insert_map_gp2(int g_map, int ph_map) {
+		this.insertStmt_map_gp2.clearBindings();
+		this.insertStmt_map_gp2.bindLong(1, (long)g_map);
+		this.insertStmt_map_gp2.bindLong(2, (long)ph_map);
+		return this.insertStmt_map_gp2.executeInsert();
+	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {
 		OpenHelper(Context context) {
@@ -510,7 +569,7 @@ public class DatabaseHelper {
 			db.execSQL("CREATE TABLE " + TABLE_NAME_PLOT + " (po_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, shape TEXT, type INTEGER, color INTEGER, polyPoints TEXT, rotation REAL, id INTEGER)");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_PLANT + " (pa_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, id INTEGER)");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_ENTRY + " (e_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, date TEXT)");
-			db.execSQL("CREATE TABLE " + TABLE_NAME_PHOTO + " (ph_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, serverId INTEGER, uri TEXT, title TEXT)");
+			db.execSQL("CREATE TABLE " + TABLE_NAME_PHOTO + " (ph_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, serverId INTEGER, uri TEXT, title TEXT, thumb TEXT)");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_GP + " (g_map INTEGER, po_map INTEGER, FOREIGN KEY(g_map) REFERENCES garden(g_pk), FOREIGN KEY(po_map) REFERENCES plot(po_pk))");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PP + " (po_map INTEGER, pa_map INTEGER, FOREIGN KEY(po_map) REFERENCES plot(po_pk), FOREIGN KEY(pa_map) REFERENCES plant(pa_pk))");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PE + " (pa_map INTEGER, e_map INTEGER, FOREIGN KEY(pa_map) REFERENCES plant(pa_pk), FOREIGN KEY(e_map) REFERENCES entry(e_pk))");

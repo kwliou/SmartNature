@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -167,7 +168,16 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 					column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 					cursor.moveToFirst();
 					System.out.println(cursor.getString(column_index));
-					mockGarden.addImage(imageUri);
+					//mockGarden.addImage(imageUri);
+					
+					String[] img = {MediaStore.Images.Thumbnails._ID};
+					Cursor imagecursor = managedQuery(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, img, null, null, MediaStore.Images.Thumbnails.IMAGE_ID + "");
+					imagecursor.moveToLast();
+					int id = imagecursor.getInt(imagecursor.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID));
+					Uri thumb = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, ""+ id); 
+					//Uri thumb = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, uri.getLastPathSegment());
+					System.gc();
+					GardenGnome.addPhoto(gardenId, imageUri, thumb);	
 				}
 				break;
 			case ADD_PLOT: // returning from AddPlot activity
