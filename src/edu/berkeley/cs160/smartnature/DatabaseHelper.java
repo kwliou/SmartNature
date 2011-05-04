@@ -385,7 +385,15 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
+	
+	public long update_entry(int e_pk, String name) {
+		ContentValues cv = new ContentValues();
+		cv.put("name", name);
 
+		String selection = "e_pk = ?";
+		return db.update(TABLE_NAME_ENTRY, cv, selection, new String[] {Integer.toString(e_pk)});
+	}
+	
 	public int count_entry() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_ENTRY, null);
 		int temp = 1;

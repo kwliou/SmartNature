@@ -32,7 +32,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class PlantScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, View.OnTouchListener, AdapterView.OnItemClickListener {
@@ -144,8 +143,8 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	}
 
 	public void initMockData() {
-		//plant.getEntries().clear();
-		//GardenGnome.initEntry(pa_pk, plant);
+		plant.getEntries().clear();
+		GardenGnome.initEntry(pa_pk, plant);
 		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());	
 		setListAdapter(adapter);
 	}
