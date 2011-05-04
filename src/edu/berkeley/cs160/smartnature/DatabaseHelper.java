@@ -402,6 +402,40 @@ public class DatabaseHelper {
 		String selection = "e_pk = ?";
 		this.db.delete(TABLE_NAME_ENTRY, selection, new String[] {Integer.toString(e_pk)});
 	}
+	//serverId INTEGER, uri TEXT, title TEXT
+	public long insert_photo(int serverId, String uri, String title) {
+		this.insertStmt_photo.clearBindings();
+		this.insertStmt_photo.bindLong(1, (long)serverId);
+		this.insertStmt_photo.bindString(2, uri);
+		this.insertStmt_photo.bindString(3, title);
+		return this.insertStmt_photo.executeInsert();
+	}
+	
+	public String select_photo_thumb(int ph_pk) {
+		String selection = "ph_pk = " + ph_pk;
+		Cursor cursor = this.db.query(TABLE_NAME_PHOTO, null, selection, null, null, null, null);
+		String temp = "";
+		if (cursor.moveToFirst()) {
+			do
+				temp = cursor.getString(cursor.getColumnIndex("thumb"));
+			while (cursor.moveToNext());
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
+	
+	public int count_photo() {
+		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PHOTO, null);
+		int temp = 1;
+		if (cursor.getCount() > 0) {
+			cursor.moveToNext();
+			temp = cursor.getInt(0);
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return temp;
+	}
 
 	public long insert_map_gp(int g_map, int po_map) {
 		this.insertStmt_map_gp.clearBindings();
@@ -497,6 +531,13 @@ public class DatabaseHelper {
 	public void delete_map_pe(int e_map) {
 		String selection = "e_map = ?";
 		this.db.delete(TABLE_NAME_MAP_PE, selection, new String[] {Integer.toString(e_map)});
+	}
+	
+	public long insert_map_gp2(int g_map, int ph_map) {
+		this.insertStmt_map_gp2.clearBindings();
+		this.insertStmt_map_gp2.bindLong(1, (long)g_map);
+		this.insertStmt_map_gp2.bindLong(2, (long)ph_map);
+		return this.insertStmt_map_gp2.executeInsert();
 	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {

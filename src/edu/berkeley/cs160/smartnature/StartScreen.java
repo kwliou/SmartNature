@@ -132,7 +132,7 @@ class GardenGnome extends Application {
 	public static Plot getPlot(int garden_id, int plot_id) {
 		return gardens.get(garden_id).getPlot(plot_id);
 	}
-	
+
 	public static void addPlot(int garden_id, Plot plot) {
 		Rect bounds = plot.getBounds();
 		String shape_s = "" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "," + Color.BLACK;
@@ -233,6 +233,13 @@ class GardenGnome extends Application {
 		dh.delete_map_pe(e_pk);
 		dh.delete_entry(e_pk);
 	}
+
+	public static void addPhoto(int garden_id, Uri uri) {
+		gardens.get(garden_id).addImage(uri);
+		dh.insert_photo(0, uri.toString(), "");
+		dh.insert_map_gp2(GardenGnome.getGardenPk(garden_id), dh.count_photo());
+	}
+
 }
 
 public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
@@ -402,14 +409,14 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
-			case 0:
-				Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
-				startActivityForResult(intent, 0);
-				break;
-			case 1:
-				GardenGnome.removeGarden(info.position);
-				adapter.notifyDataSetChanged();
-				break;
+		case 0:
+			Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
+			startActivityForResult(intent, 0);
+			break;
+		case 1:
+			GardenGnome.removeGarden(info.position);
+			adapter.notifyDataSetChanged();
+			break;
 		}
 
 		return super.onContextItemSelected(item);

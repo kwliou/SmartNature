@@ -167,7 +167,9 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 					column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 					cursor.moveToFirst();
 					System.out.println(cursor.getString(column_index));
-					mockGarden.addImage(imageUri);
+					//mockGarden.addImage(imageUri);
+					
+					GardenGnome.addPhoto(gardenId, imageUri);	
 				}
 				break;
 			case ADD_PLOT: // returning from AddPlot activity
