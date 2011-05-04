@@ -364,7 +364,7 @@ public class DatabaseHelper {
 		Entry temp = null;
 		if (cursor.moveToFirst()) {
 			do
-				temp = new Entry(cursor.getString(cursor.getColumnIndex("name")), cursor.getString(cursor.getColumnIndex("date")));
+				temp = new Entry(cursor.getString(cursor.getColumnIndex("name")), Long.parseLong(cursor.getString(cursor.getColumnIndex("date"))));
 			while (cursor.moveToNext());
 		}
 		if (cursor != null || !cursor.isClosed())

@@ -1,5 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +65,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	private ListView mList;
 	private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
 	ArrayList<String> matches = new ArrayList<String>();
+	SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy h:mm a");
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -144,17 +146,16 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			public void onClick(View v) {
 				EditText entry = (EditText) findViewById(R.id.entryText);
 				Date currentDate = new Date();
-				String dateStr = currentDate.toString();
-
+				
 				String entryName = entryText.getText().toString();
 				if (entryName.length() == 0)
 					entryName = "Untitled entry";
 				
 				if (matches.isEmpty()){
-					Entry temp = new Entry(entryName, dateStr);
+					Entry temp = new Entry(entryName, currentDate.getTime());
 					GardenGnome.addEntry(pa_pk, plant, temp);
 				}else{
-					Entry temp = new Entry(matches.get(0).toString(), dateStr);
+					Entry temp = new Entry(matches.get(0).toString(), currentDate.getTime());
 					GardenGnome.addEntry(pa_pk, plant, temp);					
 				
 				}
@@ -247,7 +248,8 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 				v = li.inflate(R.layout.journal_list_item, null);
 			final Entry e = items.get(position);
 			((TextView) v.findViewById(R.id.entry_name)).setText(e.getName());
-			((TextView) v.findViewById(R.id.entry_date)).setText(e.getDate());
+			String dateStr = formatter.format(e.getDate()); // currentDate.toLocaleString();
+			((TextView) v.findViewById(R.id.entry_date)).setText(dateStr);
 
 			/*
 			((Button) v.findViewById(R.id.delete_journal)).setOnClickListener(new OnClickListener() {

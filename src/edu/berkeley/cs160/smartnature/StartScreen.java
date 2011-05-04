@@ -220,7 +220,7 @@ class GardenGnome extends Application {
 
 	public static void addEntry(int pa_pk, Plant plant, Entry entry) {
 		plant.addEntry(entry);
-		dh.insert_entry(entry.getName(), entry.getDate());
+		dh.insert_entry(entry.getName(), entry.getDate() + "");
 		dh.insert_map_pe(pa_pk, dh.count_entry());
 	}
 
