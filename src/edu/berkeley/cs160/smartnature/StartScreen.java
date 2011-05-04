@@ -226,9 +226,13 @@ class GardenGnome extends Application {
 		dh.insert_entry(entry.getName(), entry.getDate() + "");
 		dh.insert_map_pe(pa_pk, dh.count_entry());
 	}
-
+	
+	public static void updateEntry(int e_pk, String name, Entry entry) {
+		entry.setName(name);
+		dh.update_entry(e_pk, name);
+	}
+	
 	public static void removeEntry(int entry_id, int e_pk, Plant plant) {
-		System.err.println(plant.getName() + " " + entry_id + " " + e_pk);
 		plant.getEntries().remove(entry_id);
 		dh.delete_map_pe(e_pk);
 		dh.delete_entry(e_pk);

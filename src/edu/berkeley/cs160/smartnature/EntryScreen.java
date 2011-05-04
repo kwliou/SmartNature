@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -25,7 +24,7 @@ public class EntryScreen extends ListActivity implements View.OnClickListener{
 	Plot plot;
 	Plant plant;
 	Entry entry;
-	int gardenID, plotID, plantID, entryID, pa_pk; 
+	int gardenID, plotID, plantID, entryID, pa_pk, e_pk; 
 
 	TextView entryDate, entryText;
 	Button editEntryButton, deleteEntryButton, speakButton;
@@ -48,6 +47,7 @@ public class EntryScreen extends ListActivity implements View.OnClickListener{
 		entryID = extras.getInt("entry_id");
 		entry = plant.getEntry(entryID);
 		pa_pk = extras.getInt("pa_pk");
+		e_pk = GardenGnome.getEntryPk(pa_pk, entry);
 		
 		setTitle("Edit Entry");
 		setContentView(R.layout.entry);
@@ -67,9 +67,10 @@ public class EntryScreen extends ListActivity implements View.OnClickListener{
 
 				String journalName = newJournalText.getText().toString().trim();
 
-				entry.setName(journalName);
+				
 				//entryText.setText(journalName);
 				//setTitle(journalName);
+				GardenGnome.updateEntry(e_pk, journalName, entry);
 				PlantScreen.adapter.notifyDataSetChanged(); 
 				finish();
       }
@@ -79,7 +80,7 @@ public class EntryScreen extends ListActivity implements View.OnClickListener{
 		deleteEntryButton.setOnClickListener(new OnClickListener() {
 			@Override  
 			public void onClick(View v) {
-				plant.getEntries().remove(entryID);
+				GardenGnome.removeEntry(entryID, e_pk, plant);
 				PlantScreen.adapter.notifyDataSetChanged(); 
 				finish();
       }
@@ -152,7 +153,7 @@ public class EntryScreen extends ListActivity implements View.OnClickListener{
 				break;
 			 */
 		case R.id.m_deleteentry:
-			GardenGnome.removeEntry(entryID, GardenGnome.getEntryPk(pa_pk, entry), plant);
+			GardenGnome.removeEntry(entryID, e_pk, plant);
 			PlantScreen.adapter.notifyDataSetChanged(); 
 			finish();
 
