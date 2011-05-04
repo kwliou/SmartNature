@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/m_showhints"
+		android:icon="@drawable/ic_menu_list"
+		android:title="Hide hints" />
+	<item android:id="@+id/m_home"
+		android:icon="@drawable/ic_menu_home"
+		android:title="@string/m_home" />
+	<item android:id="@+id/m_deleteentry"
+		android:icon="@android:drawable/ic_menu_delete"
+		android:title="@string/m_deleteentry" />
+</menu>
