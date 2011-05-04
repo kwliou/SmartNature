@@ -39,7 +39,7 @@ public class EntryScreen extends ListActivity {
 		entry = plant.getEntry(entryID);
 		pa_pk = extras.getInt("pa_pk");
 		
-		setTitle(entry.getDate());
+		//setTitle(entry.getDate());
 		setContentView(R.layout.entry);
 
 		newJournalText = (EditText) findViewById(R.id.newJournalText);

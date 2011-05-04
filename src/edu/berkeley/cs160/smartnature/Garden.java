@@ -8,6 +8,7 @@ import android.net.Uri;
 import java.util.ArrayList;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 public class Garden {
 
@@ -15,7 +16,7 @@ public class Garden {
 	@Expose private String city;
 	@Expose private String state;
 	/** database id on server, equal to -1 during uploading */
-	private int serverId;
+	private int id;
 	@Expose private boolean is_public;
 	@Expose private String password;  // should we turn this into a SHA-256 hash?
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
@@ -117,7 +118,7 @@ public class Garden {
 	
 	public RectF getRawBounds() { return bounds; }
 	
-	public int getServerId() { return serverId; }
+	public int getServerId() { return id; }
 	
 	public String getState() { return state; }
 	
@@ -133,7 +134,7 @@ public class Garden {
 	
 	public void setRawBounds(RectF bounds) { this.bounds = bounds; }
 	
-	public void setServerId(int serverId) { this.serverId = serverId; }
+	public void setServerId(int serverId) { this.id = serverId; }
 	
 	public void setState(String state) { this.state = state; }
 	

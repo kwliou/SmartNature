@@ -27,21 +27,49 @@
 			android:id="@+id/entry_name"
 			android:text="sample entry"
 			android:textSize="24sp"
-			android:layout_toLeftOf="@+id/delete_journal"
 			android:layout_alignParentLeft="true"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			/>
-		<!--  
+		<EditText
+			android:id="@+id/journal_edittext"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:layout_alignParentLeft="true"
+			android:layout_toLeftOf="@+id/edit_journal"
+			android:text="EditText" 
+			android:visibility="gone"
+			/>		 
 		<Button
+			android:id="@+id/replace_journal"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:layout_toLeftOf="@+id/delete_journal"
+			android:text="Replace" 
+			android:visibility="gone"
+			/>
+		<Button
+			android:id="@+id/delete_journal"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerInParent="true"
 			android:layout_alignParentRight="true"
-			android:id="@+id/delete_journal"
 			android:text="Delete" 
+			android:visibility="gone"
+			/>
+		<!--  
+		<Button
+			android:id="@+id/edit_journal"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:layout_alignParentRight="true"
+			android:text="Edit" 
 			/>
 			-->
+			
 	</RelativeLayout>
 
 </LinearLayout>

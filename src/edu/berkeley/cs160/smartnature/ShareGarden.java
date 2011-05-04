@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -85,8 +86,15 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	@Override
 	public void run() {
 		if (!uploadGarden() || !uploadPlots()) {
+			deleteGarden(garden.getServerId());
 			garden.setServerId(0);
 			makeNote(android.R.drawable.stat_notify_error, "Failed to upload", Notification.FLAG_AUTO_CANCEL, true);
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					shareButton.setEnabled(true);
+					shareButton.setText(R.string.btn_share);
+				}
+			});
 			return;
 		}
 		
@@ -101,6 +109,16 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				shareButton.setText(R.string.btn_shared);
 			}
 		});
+	}
+	
+	public void deleteGarden(int serverId) {
+		if (garden.getServerId() <= 0)
+			return;
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpDelete httpdelete = new HttpDelete(getString(R.string.server_url) + "gardens?id=" + serverId);
+		try {
+			httpclient.execute(httpdelete);
+		} catch (Exception e) { e.printStackTrace(); }
 	}
 	
 	public boolean uploadGarden() {
@@ -186,7 +204,32 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				e.printStackTrace();
 				return false;
 			}
-			if (plant.getServerId() == 0)
+			if (plant.getServerId() == 0  || !uploadEntries(plant))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean uploadEntries(Plant plant) {
+		HttpClient httpclient = new DefaultHttpClient();
+		String path = "plants/" + plant.getServerId() + "/journals.json";  
+		HttpPost httppost = new HttpPost(getString(R.string.server_url) + path);
+		for (Entry entry : plant.getEntries()) {
+			String json = "{\"journal\":" + gson.toJson(entry) + "}";
+			System.out.println(json);
+			try {
+				StringEntity entity = new StringEntity(json);
+				entity.setContentType("application/json");
+				httppost.setEntity(entity);
+				HttpResponse response = httpclient.execute(httppost);
+				String result = EntityUtils.toString(response.getEntity());
+				entry.setServerId(gson.fromJson(result, int.class));
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+			if (entry.getServerId() == 0)
 				return false;
 		}
 		

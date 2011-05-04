@@ -55,19 +55,11 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		plantName = (EditText) findViewById(R.id.new_plant_name);
 		((Button) findViewById(R.id.addPlantButton)).setOnClickListener(this);
 
-		/*
-		backButton = (Button) findViewById(R.id.backButton);
-		backButton.setOnClickListener(new OnClickListener() {
-        public void onClick(View v) {
-        	finish();
-        }
-    });
-		 */
 	}
 
 	public void initMockData() {
-		plot.getPlants().clear();
-		GardenGnome.initPlant(po_pk, plot);
+		//plot.getPlants().clear();
+		//GardenGnome.initPlant(po_pk, plot);
 		adapter = new PlantAdapter(this, R.layout.plant_list_item, plot.getPlants());
 		setListAdapter(adapter);
 	}
@@ -141,37 +133,6 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 				v = li.inflate(R.layout.plant_list_item, null);
 			plant = plants.get(position);
 			((TextView) v.findViewById(R.id.plant_name)).setText(plant.getName());
-			/*
-			v.findViewById(R.id.lookup_plant).setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-	  				Intent intent = new Intent(PlotScreen.this, Encyclopedia.class);
-	  				Bundle bundle = new Bundle(1);
-	  				bundle.putString("name", plant.getName());
-
-
-	  				intent.putExtras(bundle);
-	  				startActivity(intent);
-				}
-			});
-			v.findViewById(R.id.add_journal).setOnClickListener(new OnClickListener() {
-		        public void onClick(View v) {
-		      		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
-		      		Bundle bundle = new Bundle(4);
-		      		bundle.putString("name", garden.getPlot(plotID).getPlants().get(position).getName());
-		      		bundle.putInt("garden_id", gardenID);
-		      		bundle.putInt("plot_id", plotID);
-		      		bundle.putInt("plant_id", position);
-
-		      		intent.putExtras(bundle);
-		      		startActivity(intent);
-		        }
-			});
-			v.findViewById(R.id.delete_plant).setOnClickListener(new OnClickListener() {
-		        public void onClick(View v) {
-		        	remove(plant);
-		        }
-			});
-			 */
 
 			return v;
 		}
