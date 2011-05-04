@@ -234,15 +234,12 @@ class GardenGnome extends Application {
 		dh.delete_entry(e_pk);
 	}
 
-	public static void addPhoto(int garden_id, Uri uri, Uri thumb) {
+	public static void addPhoto(int garden_id, Uri uri) {
 		gardens.get(garden_id).addImage(uri);
-		dh.insert_photo(0, uri.toString(), "", thumb.toString());
+		dh.insert_photo(0, uri.toString(), "");
 		dh.insert_map_gp2(GardenGnome.getGardenPk(garden_id), dh.count_photo());
 	}
 
-	public static Uri getPhotoThumb(int garden_id) {
-		return dh.select_map_gp2_thumb(GardenGnome.getGardenPk(garden_id));
-	}
 }
 
 public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
