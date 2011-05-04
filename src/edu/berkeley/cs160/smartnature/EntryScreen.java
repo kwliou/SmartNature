@@ -1,8 +1,15 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,9 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class EntryScreen extends ListActivity {
-
-
+public class EntryScreen extends ListActivity implements View.OnClickListener{
 
 	Garden garden;
 	Plot plot;
@@ -23,8 +28,13 @@ public class EntryScreen extends ListActivity {
 	int gardenID, plotID, plantID, entryID, pa_pk; 
 
 	TextView entryDate, entryText;
-	Button editEntryButton, deleteEntryButton;
+	Button editEntryButton, deleteEntryButton, speakButton;
 	EditText newJournalText;
+	
+	/** Voice Recognition */
+	private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
+	ArrayList<String> matches = new ArrayList<String>();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,16 +49,16 @@ public class EntryScreen extends ListActivity {
 		entry = plant.getEntry(entryID);
 		pa_pk = extras.getInt("pa_pk");
 		
-		//setTitle(entry.getDate());
+		setTitle("Edit Entry");
 		setContentView(R.layout.entry);
 
 		newJournalText = (EditText) findViewById(R.id.newJournalText);
-		
+		newJournalText.setText(entry.getName());
 		//entryDate = (TextView) findViewById(R.id.entryDate);
 		//entryDate.setText(entry.getDate());
 		
-		entryText = (TextView) findViewById(R.id.entryText);
-		entryText.setText(entry.getName());
+		//entryText = (TextView) findViewById(R.id.entryText);
+		//entryText.setText(entry.getName());
 		
 		editEntryButton = (Button) findViewById(R.id.editEntryButton);
 		editEntryButton.setOnClickListener(new OnClickListener() {
@@ -56,13 +66,12 @@ public class EntryScreen extends ListActivity {
 			public void onClick(View v) {
 
 				String journalName = newJournalText.getText().toString().trim();
-				if (journalName.length() == 0)
-					journalName = "Untitled entry";
+
 				entry.setName(journalName);
-				entryText.setText(journalName);
+				//entryText.setText(journalName);
 				//setTitle(journalName);
 				PlantScreen.adapter.notifyDataSetChanged(); 
-				//removeDialog(0);
+				finish();
       }
     });
 		
@@ -75,11 +84,50 @@ public class EntryScreen extends ListActivity {
 				finish();
       }
     });
-
-
+		
+		/** Voice Recognition **/
+    speakButton = (Button) findViewById(R.id.recordVoiceButton2);
+    
+    PackageManager pm = getPackageManager();
+    List<ResolveInfo> activities = pm.queryIntentActivities(
+            new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+    if (activities.size() != 0) {
+        speakButton.setOnClickListener(this);
+    } else {
+        //speakButton.setEnabled(false);
+        //speakButton.setText("Recognizer not present");
+        speakButton.setVisibility(View.GONE);
+    }
 		
 	}
+	
+  /** Handle the click on the start recognition button. */
+	@Override
+	public void onClick(View v) {
+    if (v.getId() == R.id.recordVoiceButton2) {
+      startVoiceRecognitionActivity();
+    }
+	}
 
+  /** Fire an intent to start the speech recognition activity. */
+  private void startVoiceRecognitionActivity() {
+      Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+      intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+              RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+      intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech recognition demo");
+      startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
+  }
+
+  /** Handle the results from the recognition activity. */
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+      		matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);  
+  				EditText entry = (EditText) findViewById(R.id.entryText);  				
+					entry.setText(entry.getText() + matches.get(0).toString());
+      }
+      super.onActivityResult(requestCode, resultCode, data);
+  }
 
 
 	@Override
