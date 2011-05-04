@@ -142,8 +142,9 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			result = EntityUtils.toString(entity);
 		} catch (Exception e) { e.printStackTrace(); }
 		
+		System.out.println("garden_json=" + result);
 		Garden garden = gson.fromJson(result, Garden.class);
-		//garden.setServerId(Integer.parseInt(serverId));
+		System.out.println("garden_id=" + garden.getServerId());
 		
 		httpget = new HttpGet(getString(R.string.server_url) + "gardens/" + serverId + "/plots.json");
 		try {
@@ -166,8 +167,9 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			System.out.println("plants_json=" + result);
 			Plant[] plants = gson.fromJson(result, Plant[].class);
 			
-			for (Plant plant : plants)
+			for (Plant plant : plants) {
 				plot.addPlant(plant);
+			}
 		}
 		return garden;
 	}
