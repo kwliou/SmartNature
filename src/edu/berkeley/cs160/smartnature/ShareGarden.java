@@ -141,21 +141,6 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		} catch (Exception e) { success = false; e.printStackTrace(); }
 		
 		return success && garden.getServerId() != 0;
-		/*
-		boolean success = false;
-		if (postSuccess) {
-			String query = "http://gardengnome.heroku.com/search";
-			query += "?name=" + Uri.encode(garden.getName());
-			query += "&city=" + Uri.encode(garden.getCity());
-			query += "&state=" + Uri.encode(garden.getState());
-			HttpGet httpget = new HttpGet(query);
-			try {
-				HttpResponse response = httpclient.execute(httpget);
-				String result = EntityUtils.toString(response.getEntity());
-				garden.setServerId(gson.fromJson(result, int.class));
-				success = true;
-			} catch (Exception e) { e.printStackTrace(); }
-		}*/
 	}
 	
 	public boolean uploadPlots() {
@@ -243,7 +228,6 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 		AmazonS3Client s3 = new AmazonS3Client(credentials);
 		String bucketName = "gardengnome";
-		//ObjectListing objlist = s3.listObjects(bucketName);
 		HttpClient httpclient = new DefaultHttpClient();
 		for (Photo photo : garden.getImages()) {
 			// get image id from rails server

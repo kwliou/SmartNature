@@ -13,9 +13,13 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,11 +55,12 @@ import org.apache.http.util.EntityUtils;
 
 public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnKeyListener {
 	
-	static private int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4;
+	static private int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4, PASSWORD = 4;
 	static StubAdapter adapter;
 	ArrayList<String[]> stubs = new ArrayList<String[]>();
 	Gson gson = new Gson();
 	View textEntryView;
+	NotificationManager manager;
 	MessageDigest digester;
 	MediaScannerConnection scanner;
 	/** position of item clicked */
@@ -64,6 +69,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	@Override @SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
 		scanner = new MediaScannerConnection(this, null);
 		scanner.connect();
@@ -326,21 +332,6 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		return imageUri;
 	}
 	
-	private static final char[] HEX = "0123456789abcdef".toCharArray();
-	
-	/** meant for SHA-256 */
-	public String hexCode(String input) {
-		char[] hash = new char[64];
-		digester.update(input.getBytes());
-		byte[] digest = digester.digest();
-		for (int i = 0; i < digest.length; i++) {
-			byte b = digest[i];
-			hash[2 * i] = HEX[(b >> 4) & 0xf];
-			hash[2 * i + 1] = HEX[b & 0xf];
-		}
-		return new String(hash);
-	}
-	
 	@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
 			switch (view.getId()) {
@@ -379,7 +370,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			// automatically show soft keyboard
 			EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 			input.setHint("Enter password");
-			input.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+			input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 			input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
@@ -410,24 +401,78 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		}	
 	};
 	
+	class getGarden implements Runnable {
+		String serverId;
+		getGarden(String serverId) { this.serverId = serverId; }
+		
+		@Override
+		public void run() {
+			Garden garden = getWholeGarden(serverId);
+			GardenGnome.addGarden(garden);
+			int gardenId = GardenGnome.getGardens().indexOf(garden);
+			Intent intent = new Intent(FindGarden.this, GardenScreen.class).putExtra("garden_id", gardenId);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			
+			String[] text = { "Successfully downloaded", garden.getName() };
+			makeNote(Integer.parseInt(serverId), android.R.drawable.stat_sys_download_done, text, Notification.FLAG_AUTO_CANCEL, true, intent);
+		}
+	}; 
+	
 	public void onClick(DialogInterface dialog, int whichButton) {
 		String[] stub = stubs.get(positionClicked);
 		boolean is_public = Boolean.parseBoolean(stub[PUBLIC]);
 		
-		if (is_public) {
-			GardenGnome.addGarden(getWholeGarden(stub[ID]));
-			removeDialog(PUBLIC);
+		String password = "";
+		if (!is_public) {
+			EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
+			password = textEntry.getText().toString();
+		}
+		if (is_public || password.equals(stub[PASSWORD])) {
+			String[] text = {"Now downloading", stub[NAME] };
+			makeNote(Integer.parseInt(stub[ID]), android.R.drawable.stat_sys_download, text, Notification.FLAG_ONGOING_EVENT, false);
+			removeDialog(PUBLIC); removeDialog(0);
+			new Thread(new getGarden(stub[ID])).start();
+			//GardenGnome.addGarden(garden);
 		}
 		else {
-			EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
-			String password = textEntry.getText().toString();
-			Garden garden = getGarden(stub[ID]);
-			if (password.equals(garden.getPassword()))
-				GardenGnome.addGarden(getWholeGarden(stub[ID]));
-			else
-				Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show();
-			removeDialog(0);
+			Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show();
 		}
+	}
+	
+	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate) {
+		makeNote(id, icon, text, flags, vibrate, null);
+	}
+	
+	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate, Intent intent) {
+		manager.cancelAll();
+		Notification notification = new Notification(icon, text[0] + " garden", System.currentTimeMillis());
+		//Intent intent = new Intent(this, ShareGarden.class).putExtra("garden_id", getIntent().getIntExtra("garden_id", 0));
+		//intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		int pendingflags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT; // for Samsung Galaxy S
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, pendingflags);
+		notification.flags |= flags;
+		if (vibrate)
+			notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
+		String title = "GardenGnome";
+		String contentText = text[0] + " " + text[1] + " garden"; 
+		notification.setLatestEventInfo(this, title, contentText, contentIntent);
+		
+		manager.notify(id + 1, notification); // NOTE: HTC does not like an id parameter of 0
+	}
+	
+	private static final char[] HEX = "0123456789abcdef".toCharArray();
+	
+	/** meant for SHA-256 */
+	public String hexCode(String input) {
+		char[] hash = new char[64];
+		digester.update(input.getBytes());
+		byte[] digest = digester.digest();
+		for (int i = 0; i < digest.length; i++) {
+			byte b = digest[i];
+			hash[2 * i] = HEX[(b >> 4) & 0xf];
+			hash[2 * i + 1] = HEX[b & 0xf];
+		}
+		return new String(hash);
 	}
 	
 	class StubAdapter extends ArrayAdapter<String[]> {
