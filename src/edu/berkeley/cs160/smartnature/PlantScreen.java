@@ -151,14 +151,14 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 				if (entryName.length() == 0)
 					entryName = "Untitled entry";
 				
-				if (matches.isEmpty()){
+				//if (matches.isEmpty()){
 					Entry temp = new Entry(entryName, currentDate.getTime());
 					GardenGnome.addEntry(pa_pk, plant, temp);
-				}else{
-					Entry temp = new Entry(matches.get(0).toString(), currentDate.getTime());
-					GardenGnome.addEntry(pa_pk, plant, temp);					
+				//}else{
+					//Entry temp = new Entry(matches.get(0).toString(), currentDate.getTime());
+					//GardenGnome.addEntry(pa_pk, plant, temp);					
 				
-				}
+				//}
 				adapter.notifyDataSetChanged(); // refresh ListView
 				entry.setText("");
 
@@ -175,8 +175,9 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
     if (activities.size() != 0) {
         speakButton.setOnClickListener(this);
     } else {
-        speakButton.setEnabled(false);
-        speakButton.setText("Recognizer not present");
+        //speakButton.setEnabled(false);
+        //speakButton.setText("Recognizer not present");
+        speakButton.setVisibility(View.GONE);
     }
     
     
@@ -222,6 +223,9 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
       		matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);  
       		//ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
           //mList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, matches));
+  				EditText entry = (EditText) findViewById(R.id.entryText);  				
+					entry.setText(matches.get(0).toString());
+
       }
 			
       super.onActivityResult(requestCode, resultCode, data);
