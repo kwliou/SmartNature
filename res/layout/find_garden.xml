@@ -7,6 +7,12 @@
 	android:layout_height="fill_parent">
 
 	<LinearLayout
+		android:focusable="true"
+		android:focusableInTouchMode="true"
+		android:layout_width="0px"
+		android:layout_height="0px" />
+
+	<LinearLayout
 		android:orientation="horizontal"
 		android:padding="3dp"
 		android:layout_marginTop="3dp"
@@ -23,6 +29,8 @@
 				android:id="@+id/search_garden_name"
 				android:hint="Garden name"
 				android:scrollHorizontally="true"
+				android:nextFocusUp="@id/search_garden_name"
+				android:nextFocusLeft="@id/search_garden_name"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content" />
 

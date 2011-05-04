@@ -55,7 +55,7 @@ import org.apache.http.util.EntityUtils;
 
 public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnKeyListener {
 	
-	static private int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4, PASSWORD = 4;
+	static private int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4, PASSWORD = 5;
 	static StubAdapter adapter;
 	ArrayList<String[]> stubs = new ArrayList<String[]>();
 	Gson gson = new Gson();
@@ -69,10 +69,10 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	@Override @SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
 		scanner = new MediaScannerConnection(this, null);
 		scanner.connect();
+		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
 		Object previousData = getLastNonConfigurationInstance(); 
 		if (previousData != null)
 			stubs = (ArrayList<String[]>) previousData;
@@ -327,6 +327,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		} catch (IOException e) { e.printStackTrace(); return null; }
 		getContentResolver().notifyChange(imageUri, null);
 		
+		// notify change
 		scanner.scanFile(resolvedPath, "image/jpeg");
 		
 		return imageUri;
@@ -394,29 +395,15 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	}
 	
 	DialogInterface.OnClickListener cancelled = new DialogInterface.OnClickListener() {
-		@Override public void onClick(DialogInterface dialog, int whichButton) {
+		@Override
+		public void onClick(DialogInterface dialog, int whichButton) {
+			InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+			mgr.hideSoftInputFromWindow(textEntryView.getWindowToken(), 0);
 			dialog.cancel();
 			removeDialog(0);
 			removeDialog(PUBLIC);
 		}	
 	};
-	
-	class getGarden implements Runnable {
-		String serverId;
-		getGarden(String serverId) { this.serverId = serverId; }
-		
-		@Override
-		public void run() {
-			Garden garden = getWholeGarden(serverId);
-			GardenGnome.addGarden(garden);
-			int gardenId = GardenGnome.getGardens().indexOf(garden);
-			Intent intent = new Intent(FindGarden.this, GardenScreen.class).putExtra("garden_id", gardenId);
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			
-			String[] text = { "Successfully downloaded", garden.getName() };
-			makeNote(Integer.parseInt(serverId), android.R.drawable.stat_sys_download_done, text, Notification.FLAG_AUTO_CANCEL, true, intent);
-		}
-	}; 
 	
 	public void onClick(DialogInterface dialog, int whichButton) {
 		String[] stub = stubs.get(positionClicked);
@@ -427,12 +414,12 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
 			password = textEntry.getText().toString();
 		}
+		cancelled.onClick(dialog, whichButton);
 		if (is_public || password.equals(stub[PASSWORD])) {
 			String[] text = {"Now downloading", stub[NAME] };
 			makeNote(Integer.parseInt(stub[ID]), android.R.drawable.stat_sys_download, text, Notification.FLAG_ONGOING_EVENT, false);
-			removeDialog(PUBLIC); removeDialog(0);
-			new Thread(new getGarden(stub[ID])).start();
-			//GardenGnome.addGarden(garden);
+			threadCount++;
+			new Thread(new LoadGarden(stub[ID])).start();
 		}
 		else {
 			Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show();
@@ -446,10 +433,11 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate, Intent intent) {
 		manager.cancelAll();
 		Notification notification = new Notification(icon, text[0] + " garden", System.currentTimeMillis());
-		//Intent intent = new Intent(this, ShareGarden.class).putExtra("garden_id", getIntent().getIntExtra("garden_id", 0));
-		//intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		int pendingflags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT; // for Samsung Galaxy S
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, pendingflags);
+		PendingIntent contentIntent = null;
+		try {
+			contentIntent = PendingIntent.getActivity(this, 0, intent, pendingflags);
+		} catch (Exception e) { contentIntent = PendingIntent.getActivity(this, 0, intent, 0); }
 		notification.flags |= flags;
 		if (vibrate)
 			notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
@@ -474,6 +462,35 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		}
 		return new String(hash);
 	}
+	
+	int threadCount = 0;
+	
+	class LoadGarden implements Runnable {
+		String serverId;
+		LoadGarden(String serverId) {
+			this.serverId = serverId;
+		}
+		
+		@Override
+		public void run() {
+			Garden garden = getWholeGarden(serverId);
+			GardenGnome.addGarden(garden);
+			System.out.println("threadCount=" + threadCount);
+			runOnUiThread(new Runnable() {
+				@Override public void run() { if (--threadCount == 0) scanner.disconnect(); }
+			});
+			int gardenId = GardenGnome.getGardens().indexOf(garden);
+			Intent intent = new Intent(FindGarden.this, GardenScreen.class).putExtra("garden_id", gardenId);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			
+			String[] text = { "Successfully downloaded", garden.getName() };
+			makeNote(Integer.parseInt(serverId), android.R.drawable.stat_sys_download_done, text, Notification.FLAG_AUTO_CANCEL, true, intent);
+			runOnUiThread(new Runnable() {
+				@Override public void run() { StartScreen.adapter.notifyDataSetChanged(); }
+			});
+		}
+
+	}; 
 	
 	class StubAdapter extends ArrayAdapter<String[]> {
 		

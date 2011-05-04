@@ -2,11 +2,12 @@ package edu.berkeley.cs160.smartnature;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
-public class GardenAttr extends Activity {
+public class GardenAttr extends Activity implements View.OnClickListener {
 
 	static String[] ABBR = new String[] { "AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DE", "DC",
 											"FM", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS",
@@ -41,6 +42,19 @@ public class GardenAttr extends Activity {
 		state.setText(garden.getState());
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, STATES);
 		state.setAdapter(adapter);
+		findViewById(R.id.attr_confirm).setOnClickListener(this);
+		findViewById(R.id.attr_cancel).setOnClickListener(this);
+	}
+	
+	@Override
+	public void onClick(View view) {
+		if (view.getId() == R.id.attr_confirm)
+			onBackPressed();
+		else {
+			name.setText(garden.getName());
+			city.setText(garden.getCity());
+			state.setText(garden.getState());
+		}
 	}
 	
 	@Override
