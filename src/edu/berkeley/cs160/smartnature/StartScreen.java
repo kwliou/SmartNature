@@ -8,9 +8,11 @@ import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.location.Address;
@@ -19,6 +21,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -432,8 +435,24 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			ImageView image = (ImageView) view.findViewById(R.id.preview_img); 
 			if (garden.getImages().isEmpty())
 				image.setImageResource(R.drawable.preview);
-			else
-				image.setImageURI(garden.getPreview());
+			else {
+				Uri preview = garden.getPreview();
+				if (preview.getScheme().equals(ContentResolver.SCHEME_CONTENT))
+					image.setImageURI(preview);
+				else {
+					System.out.println("BITMAP FACTORY");
+					System.out.println(preview.getPath());
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					//options.inSampleSize = 2;
+					DisplayMetrics metrics = new DisplayMetrics();
+					getWindowManager().getDefaultDisplay().getMetrics(metrics);
+					options.inTargetDensity = metrics.densityDpi;
+					options.outWidth = 75;
+					options.outHeight = 50;
+					
+					image.setImageBitmap(BitmapFactory.decodeFile(preview.toString().replace("file://", ""), options));
+				}
+			}
 			return view;
 		}
 	}
