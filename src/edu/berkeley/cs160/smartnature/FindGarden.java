@@ -16,13 +16,13 @@ import android.app.ListActivity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,8 +32,10 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -56,6 +58,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	View textEntryView;
 	MessageDigest digester;
 	MediaScannerConnection scanner;
+	/** position of item clicked */
+	int positionClicked;
 	
 	@Override @SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
@@ -70,7 +74,15 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		adapter = new StubAdapter(this, R.layout.findgarden_list_item, stubs);
 		setListAdapter(adapter);
 		getListView().setOnItemClickListener(this);
-
+		customFocus();
+		
+		if (previousData == null) {
+			setProgressBarIndeterminateVisibility(true);
+			new Thread(getStubs).start();
+		}
+	}
+	
+	public void customFocus() {
 		findViewById(R.id.search_garden_name).setOnKeyListener(new View.OnKeyListener() {
 			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -90,8 +102,10 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 				return false;
 			}
 		});
-
-		findViewById(R.id.search_garden_state).setOnKeyListener(new View.OnKeyListener() {
+		
+		AutoCompleteTextView searchState = (AutoCompleteTextView) findViewById(R.id.search_garden_state); 
+		
+		searchState.setOnKeyListener(new View.OnKeyListener() {
 			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
 					InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -102,10 +116,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			}
 		});
 		
-		if (previousData == null) {
-			setProgressBarIndeterminateVisibility(true);
-			new Thread(getStubs).start();
-		}
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, GardenAttr.STATES);
+		searchState.setAdapter(adapter);
 	}
 	
 	@Override
@@ -158,6 +170,11 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		
 		System.out.println("garden_json=" + result);
 		Garden garden = gson.fromJson(result, Garden.class);
+		return garden;
+	}
+	
+	public Garden getWholeGarden(String serverId) {
+		Garden garden = getGarden(serverId);
 		getPlots(garden);
 		getImages(garden);
 		return garden;
@@ -335,36 +352,43 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		String[] stub = stubs.get(position);
-		GardenGnome.addGarden(getGarden(stub[ID]));
-		/*if (Boolean.parseBoolean(stub[PUBLIC]))
-			startActivityForResult(new Intent(this, GardenAttr.class), 0);
-		else {
-			showDialog(0);
-		}*/
+		positionClicked = position;
+		String[] stub = stubs.get(positionClicked);
+		boolean is_public = Boolean.parseBoolean(stub[PUBLIC]);
+		showDialog(is_public ? PUBLIC : 0);
 	}
 	
 	@Override
 	public Dialog onCreateDialog(int id) {
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(textEntryView);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		String[] stub = stubs.get(positionClicked);
+		boolean is_public = Boolean.parseBoolean(stub[PUBLIC]);
 		
-		final Dialog dialog = builder.setTitle("Enter garden password")
-		.setPositiveButton(R.string.alert_dialog_ok, this)
-		.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
+		if (!is_public)
+			builder.setView(textEntryView);
+		else
+			builder.setMessage("Confirm you want to download");
+		
+		final Dialog dialog = builder.setTitle("Download garden")
+		.setPositiveButton(R.string.alert_dialog_confirm, this)
+		.setNegativeButton(R.string.alert_dialog_cancel, cancelled) // this means cancel was pressed
 		.create();
 		
-		// automatically show soft keyboard
-		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if (hasFocus)
-					dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			}
-		});
-		
-		input.setOnKeyListener(new View.OnKeyListener() {
+		if (!is_public) {
+			// automatically show soft keyboard
+			EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+			input.setHint("Enter password");
+			input.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+			input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if (hasFocus)
+						dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+				}
+			});
+		}
+		/*input.setOnKeyListener(new View.OnKeyListener() {
 			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
 					InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -373,16 +397,37 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 				}
 				return false;
 			}
-		});
+		});*/
 		
 		return dialog;
 	}
 	
+	DialogInterface.OnClickListener cancelled = new DialogInterface.OnClickListener() {
+		@Override public void onClick(DialogInterface dialog, int whichButton) {
+			dialog.cancel();
+			removeDialog(0);
+			removeDialog(PUBLIC);
+		}	
+	};
+	
 	public void onClick(DialogInterface dialog, int whichButton) {
-		EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
-		//String password = textEntry.getText().toString();
-		//Intent intent = new Intent(this, GardenAttr.class);
-		removeDialog(0);
+		String[] stub = stubs.get(positionClicked);
+		boolean is_public = Boolean.parseBoolean(stub[PUBLIC]);
+		
+		if (is_public) {
+			GardenGnome.addGarden(getWholeGarden(stub[ID]));
+			removeDialog(PUBLIC);
+		}
+		else {
+			EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
+			String password = textEntry.getText().toString();
+			Garden garden = getGarden(stub[ID]);
+			if (password.equals(garden.getPassword()))
+				GardenGnome.addGarden(getWholeGarden(stub[ID]));
+			else
+				Toast.makeText(this, "Incorrect password", Toast.LENGTH_SHORT).show();
+			removeDialog(0);
+		}
 	}
 	
 	class StubAdapter extends ArrayAdapter<String[]> {

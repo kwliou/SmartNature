@@ -37,13 +37,16 @@
 					android:layout_weight="1"
 					android:layout_width="0px"
 					android:layout_height="wrap_content" />
-				<EditText
+
+				<AutoCompleteTextView
 					android:id="@+id/search_garden_state"
 					android:hint="State"
 					android:scrollHorizontally="true"
+					android:textColor="@android:color/primary_text_light"
 					android:layout_weight="1"
 					android:layout_width="0px"
 					android:layout_height="wrap_content" />
+
 			</LinearLayout>
 
 		</LinearLayout>
