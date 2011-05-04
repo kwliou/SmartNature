@@ -26,11 +26,9 @@ public class Garden {
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
 	private static Rect paddingPort = new Rect(30, 20, 10, 20);
 	
-	Garden() { this(R.drawable.preview, ""); }
+	Garden() { this(""); }
 		
-	Garden(String gardenName) { this(R.drawable.preview, gardenName); }
-	
-	Garden(int resId, String gardenName) {
+	Garden(String gardenName) {
 		bounds = new RectF(0, 0, 800, 480);
 		name = gardenName;
 	}

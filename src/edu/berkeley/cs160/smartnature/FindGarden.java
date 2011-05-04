@@ -9,6 +9,9 @@ import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -20,6 +23,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -53,18 +60,23 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnKeyListener {
+public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnClickListener, View.OnKeyListener {
 	
 	static private int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4, PASSWORD = 5;
 	static StubAdapter adapter;
 	ArrayList<String[]> stubs = new ArrayList<String[]>();
-	Gson gson = new Gson();
 	View textEntryView;
+	TextView resultsLabel;
+	LocationManager lm;
+	Geocoder geocoder;
+	/** position of item clicked */
+	int positionClicked;
+	String[] params = {null, "", "", ""};
+	
+	Gson gson = new Gson();
 	NotificationManager manager;
 	MessageDigest digester;
 	MediaScannerConnection scanner;
-	/** position of item clicked */
-	int positionClicked;
 	
 	@Override @SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,15 +89,21 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		if (previousData != null)
 			stubs = (ArrayList<String[]>) previousData;
 		setContentView(R.layout.find_garden);
+		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		geocoder = new Geocoder(this, Locale.getDefault());
 		adapter = new StubAdapter(this, R.layout.findgarden_list_item, stubs);
 		setListAdapter(adapter);
 		getListView().setOnItemClickListener(this);
 		customFocus();
+		resultsLabel = (TextView) findViewById(R.id.results_label);
 		
 		if (previousData == null) {
 			setProgressBarIndeterminateVisibility(true);
-			new Thread(getStubs).start();
-		}
+			new Thread(getLocation).start();
+		} else
+			resultsLabel.setText("Search results");
+		
+		findViewById(R.id.btn_find_garden).setOnClickListener(this);
 	}
 	
 	public void customFocus() {
@@ -131,11 +149,55 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		return stubs.isEmpty() ? null : stubs;
 	}
 	
+	Runnable getLocation = new Runnable() {
+		@Override
+		public void run() {
+			List<String> providers = lm.getProviders(false);
+			if (!providers.isEmpty()) {
+				Location loc = lm.getLastKnownLocation(providers.get(0));
+				List<Address> addresses = new ArrayList<Address>();
+				try {
+					addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+				} catch (Exception e) { e.printStackTrace(); }
+				if (addresses.isEmpty()) {
+					runOnUiThread(new Runnable() {
+						@Override public void run() { setProgressBarIndeterminateVisibility(false); }
+					});
+					return;
+				}
+				Address addr = addresses.get(0);
+				System.out.println(addr.getLocality() + "," + addr.getAdminArea() + "," + addr.getCountryCode());
+				params[CITY] = addr.getLocality();
+				if (addr.getAdminArea() != null)
+					params[STATE] = addr.getAdminArea();
+				else
+					params[STATE] = addr.getCountryCode();
+				
+				runOnUiThread(new Runnable() {
+					@Override public void run() {
+						int index = Arrays.binarySearch(GardenAttr.STATES, params[STATE]);
+						String state = index >= 0 ? GardenAttr.ABBR[index] : params[STATE];							
+						resultsLabel.setText("Nearby gardens (" + params[CITY] + ", " + state + ")");
+					}
+				});
+				getStubs.run();
+			}
+		}
+	};
+
 	Runnable getStubs = new Runnable() {
 		@Override
 		public void run() {
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpGet httpget = new HttpGet(getString(R.string.server_url) + "stubs");
+			String query = "";
+			if (params[NAME].length() > 0)
+				query += "&name=" + params[NAME];
+			if (params[CITY].length() > 0)
+				query += "&city=" + params[CITY];
+			if (params[STATE].length() > 0)
+				query += "&state=" + params[STATE];
+			
+			HttpGet httpget = new HttpGet(getString(R.string.server_url) + "find.json?" + query.substring(1));
 			boolean success = true;
 			String[][] results = null;
 			try {
@@ -146,7 +208,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			} catch (Exception e) { success = false; e.printStackTrace(); }
 			
 			if (success) {
-				stubs.addAll(new ArrayList<String[]>(java.util.Arrays.asList(results)));
+				stubs.clear();
+				stubs.addAll(new ArrayList<String[]>(Arrays.asList(results)));
 				runOnUiThread(new Runnable() {
 					@Override public void run() { adapter.notifyDataSetChanged(); }
 				});
@@ -331,6 +394,22 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		scanner.scanFile(resolvedPath, "image/jpeg");
 		
 		return imageUri;
+	}
+	
+	@Override
+	public void onClick(View view) {
+		String name = ((EditText)findViewById(R.id.search_garden_name)).getText().toString().trim();
+		String city = ((EditText)findViewById(R.id.search_garden_city)).getText().toString().trim();
+		String state = ((EditText)findViewById(R.id.search_garden_state)).getText().toString().trim();
+		boolean empty = name.length() == 0 && city.length() == 0 && state.length() == 0;
+		params[NAME] = name;
+		params[CITY] = city;
+		params[STATE] = state;
+		if (!empty) {
+			setProgressBarIndeterminateVisibility(true);
+			resultsLabel.setText("Search results");
+			new Thread(getStubs).start();
+		}
 	}
 	
 	@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
