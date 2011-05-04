@@ -256,10 +256,11 @@ public class Plot {
 		if (shapetype != POLY)
 			set(new Plot(name, rbounds, rotation, shapetype));
 		else {
-			ArrayList<Float> pointsList = new ArrayList<Float>();
-			for (String s : points.split(" "))
-				pointsList.add(Float.parseFloat(s));
-			set(new Plot(name, rbounds, rotation, EditScreen.toFloatArray(pointsList)));
+			String[] list = points.split(" ");
+			float[] pointsList = new float[list.length];
+			for (int i = 0; i < list.length; i++)
+				pointsList[i] = Float.parseFloat(list[i]);
+			set(new Plot(name, rbounds, rotation, pointsList));
 		}
 	}
 	
