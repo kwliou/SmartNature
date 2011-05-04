@@ -183,8 +183,8 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	}
 
 	public void initMockData() {
-		plant.getEntries().clear();
-		GardenGnome.initEntry(pa_pk, plant);
+		//plant.getEntries().clear();
+		//GardenGnome.initEntry(pa_pk, plant);
 		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());	
 		setListAdapter(adapter);
 	}

@@ -34,7 +34,11 @@ public class Plant {
 	public ArrayList<Entry> getEntries() {
 		return entries;
 	}
-
+	
+	public void setEntries(ArrayList<Entry> entries) {
+		this.entries = entries;
+	}
+	
 	public void addEntry(Entry entry) {
 		entries.add(entry);
 	}

@@ -129,11 +129,6 @@ public class Plot {
 		paint.setStrokeJoin(Paint.Join.ROUND);
 	}
 	
-	public void addPlant(Plant p) {
-		//p.setID(plants.size());
-		plants.add(p);
-	}
-	
 	public boolean contains(float x, float y) {
 		if (shapetype == OVAL)
 			return ovalContains(x, y);
@@ -266,6 +261,11 @@ public class Plot {
 				pointsList.add(Float.parseFloat(s));
 			set(new Plot(name, rbounds, rotation, EditScreen.toFloatArray(pointsList)));
 		}
+	}
+	
+	public void addPlant(Plant p) {
+		//p.setID(plants.size());
+		plants.add(p);
 	}
 	
 	public int getColor() { return color; }
