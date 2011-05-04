@@ -14,8 +14,6 @@ import android.widget.TextView;
 
 public class EntryScreen extends ListActivity {
 
-
-
 	Garden garden;
 	Plot plot;
 	Plant plant;
@@ -39,16 +37,16 @@ public class EntryScreen extends ListActivity {
 		entry = plant.getEntry(entryID);
 		pa_pk = extras.getInt("pa_pk");
 		
-		//setTitle(entry.getDate());
+		setTitle("Edit Entry");
 		setContentView(R.layout.entry);
 
 		newJournalText = (EditText) findViewById(R.id.newJournalText);
-		
+		newJournalText.setText(entry.getName());
 		//entryDate = (TextView) findViewById(R.id.entryDate);
 		//entryDate.setText(entry.getDate());
 		
-		entryText = (TextView) findViewById(R.id.entryText);
-		entryText.setText(entry.getName());
+		//entryText = (TextView) findViewById(R.id.entryText);
+		//entryText.setText(entry.getName());
 		
 		editEntryButton = (Button) findViewById(R.id.editEntryButton);
 		editEntryButton.setOnClickListener(new OnClickListener() {
@@ -56,13 +54,12 @@ public class EntryScreen extends ListActivity {
 			public void onClick(View v) {
 
 				String journalName = newJournalText.getText().toString().trim();
-				if (journalName.length() == 0)
-					journalName = "Untitled entry";
+
 				entry.setName(journalName);
-				entryText.setText(journalName);
+				//entryText.setText(journalName);
 				//setTitle(journalName);
 				PlantScreen.adapter.notifyDataSetChanged(); 
-				//removeDialog(0);
+				finish();
       }
     });
 		
@@ -75,11 +72,8 @@ public class EntryScreen extends ListActivity {
 				finish();
       }
     });
-
-
 		
 	}
-
 
 
 	@Override

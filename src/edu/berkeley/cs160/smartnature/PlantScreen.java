@@ -280,7 +280,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		/*
+		
 		Intent intent = new Intent(PlantScreen.this, EntryScreen.class);
 		intent.putExtra("name", name);
 		intent.putExtra("garden_id", gardenID);
@@ -289,9 +289,9 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		intent.putExtra("entry_id", position);
 		intent.putExtra("pa_pk", pa_pk);
 		startActivity(intent);
-		*/
 		
 		
+		/*
 		replaceJournalButton = (Button)view.findViewById(R.id.replace_journal);
 		deleteJournalButton = (Button)view.findViewById(R.id.delete_journal);
 		editEntryText = (EditText)view.findViewById(R.id.journal_edittext);
@@ -303,7 +303,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		entryName.setVisibility(View.GONE);
 		
 		editEntryText.setText(entryName.getText().toString());
-		/*
+		
 		final int entryID = position;
 		editJournalButton.setOnClickListener(new OnClickListener() {
 			@Override
