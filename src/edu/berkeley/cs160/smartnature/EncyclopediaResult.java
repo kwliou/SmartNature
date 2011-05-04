@@ -88,6 +88,7 @@ public class EncyclopediaResult extends Activity implements View.OnClickListener
 			gardenId = (Integer) data.getExtras().get("gardenId");
 			int po_pk = GardenGnome.getPlotPk(gardenId, GardenGnome.getPlot(gardenId, plotId));
 			GardenGnome.addPlant(po_pk, pName, GardenGnome.getGardens().get(gardenId).getPlot(plotId));
+			PlotScreen.adapter.notifyDataSetChanged();
 		}
 	}
 
