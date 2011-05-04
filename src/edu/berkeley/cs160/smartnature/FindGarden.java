@@ -145,8 +145,15 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		System.out.println("garden_json=" + result);
 		Garden garden = gson.fromJson(result, Garden.class);
 		System.out.println("garden_id=" + garden.getServerId());
+		getPlots(garden);
 		
-		httpget = new HttpGet(getString(R.string.server_url) + "gardens/" + serverId + "/plots.json");
+		return garden;
+	}
+	
+	public void getPlots(Garden garden) {
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(getString(R.string.server_url) + "gardens/" + garden.getServerId() + "/plots.json");
+		String result = "";
 		try {
 			HttpResponse response = httpclient.execute(httpget);
 			HttpEntity entity = response.getEntity();
@@ -158,20 +165,48 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		for (Plot plot : plots) {
 			plot.postDownload();
 			garden.addPlot(plot);
-			httpget = new HttpGet(getString(R.string.server_url) + "plots/" + plot.getServerId() + "/plants.json");
-			try {
-				HttpResponse response = httpclient.execute(httpget);
-				HttpEntity entity = response.getEntity();
-				result = EntityUtils.toString(entity);
-			} catch (Exception e) { e.printStackTrace(); }
-			System.out.println("plants_json=" + result);
-			Plant[] plants = gson.fromJson(result, Plant[].class);
-			
-			for (Plant plant : plants) {
-				plot.addPlant(plant);
-			}
+			getPlants(plot);
 		}
-		return garden;
+	}
+	
+	public void getPlants(Plot plot) {
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(getString(R.string.server_url) + "plots/" + plot.getServerId() + "/plants.json");
+		String result = "";
+		try {
+			HttpResponse response = httpclient.execute(httpget);
+			HttpEntity entity = response.getEntity();
+			result = EntityUtils.toString(entity);
+		} catch (Exception e) { e.printStackTrace(); }
+		System.out.println("plants_json=" + result);
+		Plant[] plants = gson.fromJson(result, Plant[].class);
+		
+		for (Plant plant : plants) {
+			plot.addPlant(plant);
+			getEntries(plant);
+		}
+	}
+	
+	public void getEntries(Plant plant) {
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(getString(R.string.server_url) + "plants/" + plant.getServerId() + "/journals.json");
+		String result = "";
+		try {
+			HttpResponse response = httpclient.execute(httpget);
+			HttpEntity entity = response.getEntity();
+			result = EntityUtils.toString(entity);
+		} catch (Exception e) { e.printStackTrace(); }
+		System.out.println("journals_json=" + result);
+		Entry[] entries = gson.fromJson(result, Entry[].class);
+		plant.setEntries(new ArrayList<Entry>());
+		System.out.println("plant_entries?=" + Boolean.toString(plant.getEntries() != null));
+		System.out.println("plant_entries_size=" + plant.getEntries().size());
+		System.out.println("entries_size=" + entries.length);
+		System.out.println("entry=" + entries[0].getServerId() + "," + entries[0].getName() + "," + entries[0].getDate());
+		
+		for (Entry entry : entries) {
+			plant.addEntry(entry);
+		}
 	}
 	
 	@Override public boolean onKey(View view, int keyCode, KeyEvent event) {

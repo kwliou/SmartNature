@@ -129,11 +129,6 @@ public class Plot {
 		paint.setStrokeJoin(Paint.Join.ROUND);
 	}
 	
-	public void addPlant(Plant p) {
-		//p.setID(plants.size());
-		plants.add(p);
-	}
-	
 	public boolean contains(float x, float y) {
 		if (shapetype == OVAL)
 			return ovalContains(x, y);
@@ -261,11 +256,17 @@ public class Plot {
 		if (shapetype != POLY)
 			set(new Plot(name, rbounds, rotation, shapetype));
 		else {
-			ArrayList<Float> pointsList = new ArrayList<Float>();
-			for (String s : points.split(" "))
-				pointsList.add(Float.parseFloat(s));
-			set(new Plot(name, rbounds, rotation, EditScreen.toFloatArray(pointsList)));
+			String[] list = points.split(" ");
+			float[] pointsList = new float[list.length];
+			for (int i = 0; i < list.length; i++)
+				pointsList[i] = Float.parseFloat(list[i]);
+			set(new Plot(name, rbounds, rotation, pointsList));
 		}
+	}
+	
+	public void addPlant(Plant p) {
+		//p.setID(plants.size());
+		plants.add(p);
 	}
 	
 	public int getColor() { return color; }

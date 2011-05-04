@@ -58,8 +58,8 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	}
 
 	public void initMockData() {
-		plot.getPlants().clear();
-		GardenGnome.initPlant(po_pk, plot);
+		//plot.getPlants().clear();
+		//GardenGnome.initPlant(po_pk, plot);
 		adapter = new PlantAdapter(this, R.layout.plant_list_item, plot.getPlants());
 		setListAdapter(adapter);
 	}
