@@ -17,6 +17,7 @@
 		
 
 		<TextView
+			android:id="@+id/choosePrompt"
 			android:text="Choose garden"
 			android:paddingLeft="4dp"
 			android:textSize="15sp"
@@ -48,14 +49,15 @@
 		android:paddingRight="1dp"
 		android:layout_marginTop="2dp"
 		android:layout_weight="1"
-		android:layout_width="wrap_content"
+		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
-
+		
 		<Button
 			android:id="@+id/next"
 			android:text="Next"
 			android:layout_weight="1"
 			android:layout_width="fill_parent"
+			android:minWidth="70dp"
 			android:layout_height="wrap_content" />
 
 		<Button
@@ -63,6 +65,7 @@
 			android:layout_weight="1"
 			android:text="@string/alert_dialog_cancel"
 			android:layout_width="fill_parent"
+			android:minWidth="70dp"
 			android:layout_height="wrap_content" />
 
 	</LinearLayout>

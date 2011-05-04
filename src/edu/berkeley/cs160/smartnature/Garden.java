@@ -165,6 +165,8 @@ public class Garden {
 	
 	public void addImage(Uri uri) { images.add(new Photo(uri)); }
 	
+	public void addImage(Photo photo) { images.add(photo); }
+	
 	public int numImages() { return images.size(); }
 	
 }

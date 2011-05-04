@@ -54,6 +54,8 @@ public class AddPlant extends Activity implements View.OnClickListener{
 		plotList = gardenList.get(gardenId).getPlots();
 		Button next = (Button)findViewById(R.id.next);
 		next.setText("Create");
+		TextView prompt = (TextView)findViewById(R.id.choosePrompt);
+		prompt.setText("Choose plot");
 		
 		RadioGroup options = (RadioGroup)findViewById(R.id.rg_gardens);
 		options.removeAllViews();

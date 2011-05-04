@@ -6,7 +6,7 @@ import android.net.Uri;
 
 public class Photo {
 	
-	private int serverId;
+	private int id;
 	/** uri is a string for json convenience */
 	private String uri;
 	@Expose private String title;
@@ -15,13 +15,13 @@ public class Photo {
 		this.uri = uri.toString();
 	}
 	
-	public int getServerId() { return serverId; }
+	public int getServerId() { return id; }
 	
 	public String getTitle() { return title; }
 	
 	public Uri getUri() { return Uri.parse(uri); }
 	
-	public void setServerId(int serverId) { this.serverId = serverId; }
+	public void setServerId(int serverId) { this.id = serverId; }
 	
 	public void setTitle(String title) { this.title = title; }
 	
