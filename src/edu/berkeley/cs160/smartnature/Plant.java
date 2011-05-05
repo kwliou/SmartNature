@@ -10,6 +10,8 @@ public class Plant {
 	/** database id on server */
 	private int id;
 	private ArrayList<Entry> entries = new ArrayList<Entry>();
+		
+	private int plant_num;
 	
 	Plant(String name) {
 		this.name = name;
@@ -46,5 +48,9 @@ public class Plant {
 	public Entry getEntry(int index) { 
 		return entries.get(index); 
 	}
+	
+	public int getPlantNum() { return this.plant_num; }
+
+	public void setPlantNum(int plant_num) { this.plant_num = plant_num; }
 	
 }

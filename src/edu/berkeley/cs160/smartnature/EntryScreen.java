@@ -124,7 +124,7 @@ public class EntryScreen extends ListActivity implements View.OnClickListener{
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
       		matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);  
-  				EditText entry = (EditText) findViewById(R.id.entryText);  				
+  				EditText entry = (EditText) findViewById(R.id.newJournalText);  				
 					entry.setText(entry.getText() + matches.get(0).toString());
       }
       super.onActivityResult(requestCode, resultCode, data);

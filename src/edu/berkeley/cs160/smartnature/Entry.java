@@ -9,6 +9,8 @@ public class Entry {
 	@Expose @SerializedName("created_at") private long date;
 	private int id;
 	
+	private int entry_num;
+	
 	Entry(String name, long date) {
 		this.name = name;
 		this.date = date;
@@ -39,5 +41,8 @@ public class Entry {
 		this.date = date;
 	}
 
+	public int getEntryNum() { return this.entry_num; }
+
+	public void setEntryNum(int entry_num) { this.entry_num = entry_num; }
 	
 }

@@ -11,6 +11,8 @@ public class Photo {
 	private String uri;
 	@Expose private String title;
 	
+	private int photo_num;
+	
 	Photo(Uri uri) {
 		this.uri = uri.toString();
 	}
@@ -26,5 +28,9 @@ public class Photo {
 	public void setTitle(String title) { this.title = title; }
 	
 	public void setUri(Uri uri) { this.uri = uri.toString(); }
+	
+	public int getPhotoNum() { return this.photo_num; }
+
+	public void setPhotoNum(int photo_num) { this.photo_num = photo_num; }
 	
 }

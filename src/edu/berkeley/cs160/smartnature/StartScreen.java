@@ -54,10 +54,17 @@ class GardenGnome extends Application {
 		gardens.clear();
 		List<Integer> existing_garden = dh.select_all_garden_pk();
 		for(int i = 0; i < existing_garden.size(); i++) {
-			gardens.add(dh.select_garden(existing_garden.get(i)));
+			Garden temp1 = dh.select_garden(existing_garden.get(i));
+			temp1.setGardenNum(existing_garden.get(i));
+			System.out.println("garden = " + existing_garden.get(i));
+			gardens.add(temp1);
 			List<Integer> existing_plot = dh.select_map_gp_po(existing_garden.get(i));
-			for(int j = 0; j < existing_plot.size(); j++)
-				gardens.get(i).addPlot(dh.select_plot(existing_plot.get(j)));
+			for(int j = 0; j < existing_plot.size(); j++) {
+				Plot temp2 = dh.select_plot(existing_plot.get(j));
+				temp2.setPlotNum(existing_plot.get(j));
+				gardens.get(i).addPlot(temp2);
+				System.out.println("plot = " + existing_plot.get(j));
+			}
 		}
 	}
 
@@ -196,8 +203,8 @@ class GardenGnome extends Application {
 	public static void addPlant(int po_pk, String name, Plot plot) {
 		Plant temp = new Plant(name);
 		plot.addPlant(temp);
-		plot.setPlotNum(dh.count_plot());
-		System.out.println("addPlot = " + dh.count_plot());
+		temp.setPlantNum(dh.count_plant());
+		System.out.println("addPlant = " + dh.count_plant());
 		
 		dh.insert_plant(name, 0);
 		dh.insert_map_pp(po_pk, dh.count_plant());
@@ -231,6 +238,8 @@ class GardenGnome extends Application {
 
 	public static void addEntry(int pa_pk, Plant plant, Entry entry) {
 		plant.addEntry(entry);
+		entry.setEntryNum(dh.count_entry());
+		System.out.println("addEntry = " + dh.count_entry());
 		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
 		dh.insert_map_pe(pa_pk, dh.count_entry());
 	}
@@ -247,7 +256,10 @@ class GardenGnome extends Application {
 	}
 
 	public static void addPhoto(int garden_id, Uri uri) {
-		gardens.get(garden_id).addImage(uri);
+		Photo temp = new Photo(uri);
+		gardens.get(garden_id).addImage(temp);
+		temp.setPhotoNum(dh.count_photo());
+		System.out.println("addPhoto = " + dh.count_photo());
 		dh.insert_photo(0, uri.toString(), "");
 		dh.insert_map_gp2(GardenGnome.getGardenPk(garden_id), dh.count_photo());
 	}
