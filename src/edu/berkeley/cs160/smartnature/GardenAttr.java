@@ -59,10 +59,7 @@ public class GardenAttr extends Activity implements View.OnClickListener {
 	
 	@Override
 	public void onBackPressed() {
-		String gardenName = name.getText().toString().trim();
-		if (gardenName.length() == 0)
-			gardenName = "Untitled Garden"; 
-		garden.setName(gardenName);
+		garden.setName(name.getText().toString());
 		garden.setCity(city.getText().toString());
 		garden.setState(state.getText().toString());
 		//StartScreen.dh.update_garden(g_pk, garden.getName(), garden.getCity(), garden.getState());

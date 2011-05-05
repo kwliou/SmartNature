@@ -40,8 +40,6 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	Paint textPaint, whitePaint, boundPaint, arrowPaint, resizePaint, rotatePaint;
 	Paint polyPaint, pointPaint, focPolyPaint, lastPointPaint;
 	float downX, downY, prevX, prevY, x, y;
-	/** used in pinch to zoom */
-	float dist, prevDist;
 	float textSize;
 	float zoomClamp = 1, zoomScale = 1;
 	boolean portraitMode;
@@ -49,8 +47,8 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	/** index of focused point in create polygon mode */
 	int focPoint = -1;
 	
-	private final static int IDLE = 0, DRAG_SCREEN = 1, PINCH_ZOOM = 2, DRAG_SHAPE = 3, ROTATE_SHAPE = 4, RESIZE_SHAPE = 5;
-	private final static int TOUCH_POINT = 6, DRAG_POINT = 7, HOLD_POINT = 8;
+	private final static int IDLE = 0, DRAG_SCREEN = 1, DRAG_SHAPE = 2, ROTATE_SHAPE = 3, RESIZE_SHAPE = 4;
+	private final static int TOUCH_POINT = 5, DRAG_POINT = 6, HOLD_POINT = 7;
 	private int mode;
 	
 	public EditView(Context context, AttributeSet attrs) {
@@ -300,8 +298,6 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		return false;
 	}
 	
-	MotionEvent motionEvent;
-	
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 		gestureScanner.onTouchEvent(event);
@@ -311,26 +307,15 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		y = event.getY();
 		if (context.createPoly)
 			handlePoly(event);
-		else switch (event.getAction() & MotionEvent.ACTION_MASK) {
+		else switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				handleDown();
 				break;
 			case MotionEvent.ACTION_MOVE:
-				motionEvent = event;
 				handleMove();
 				break;
 			case MotionEvent.ACTION_UP:
 				handleUp();
-				break;
-			case MotionEvent.ACTION_POINTER_DOWN:
-				float diffX = event.getX(0) - event.getX(1);
-				float diffY = event.getY(0) - event.getY(1);
-				dist = diffX * diffX + diffY * diffY;
-				if (dist > 10)
-					mode = PINCH_ZOOM;
-				break;
-			case MotionEvent.ACTION_POINTER_UP:
-				mode = IDLE;
 				break;
 		}	
 		prevX = x;
@@ -442,17 +427,6 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	}
 	
 	public void handleMove() {
-		if (mode == PINCH_ZOOM) {
-			prevDist = dist;
-			float diffX = x - motionEvent.getX(1);
-			float diffY = y - motionEvent.getY(1);
-			dist = diffX * diffX + diffY * diffY;
-			zoomScale = (zoomScale * (dist/prevDist + 1))/2; // less "sensitive"
-			
-			onAnimationEnd();
-			return;
-		}
-		
 		float[] dxy = { prevX, prevY, x, y };
 		
 		if (mode == DRAG_SCREEN) {
