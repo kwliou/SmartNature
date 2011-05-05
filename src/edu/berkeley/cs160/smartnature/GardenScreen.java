@@ -46,6 +46,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
+		if (!getIntent().hasExtra("garden_id")) {
+			finish();
+			return;
+		}
 		gardenId = getIntent().getIntExtra("garden_id", 0);
 		mockGarden = GardenGnome.getGarden(gardenId);
 		setTitle(mockGarden.getName());

@@ -39,10 +39,14 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Bundle extras = getIntent().getExtras();
-		gardenID = extras.getInt("garden_id");
+		Intent intent = getIntent();
+		if (!intent.hasExtra("garden_id")) {
+			finish();
+			return;
+		}
+		gardenID = intent.getIntExtra("garden_id", 0);
 		garden = GardenGnome.getGarden(gardenID);
-		plotID = extras.getInt("plot_id");
+		plotID = intent.getIntExtra("plot_id", 0);
 		plot = garden.getPlot(plotID);
 		setTitle(plot.getName());
 

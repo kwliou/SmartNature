@@ -15,19 +15,6 @@
 
 	<LinearLayout
 		android:orientation="horizontal"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
-
-		<Button
-			android:id="@+id/lookup_plant"
-			android:text="Encyclopedia entry"
-			android:layout_width="0px"
-			android:layout_height="0px" />
-	</LinearLayout>
-
-	<LinearLayout
-		android:orientation="horizontal"
-		android:gravity="center_vertical"
 		android:layout_margin="3dp"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
@@ -35,6 +22,7 @@
 		<EditText
 			android:id="@+id/entryText"
 			android:hint="Add journal entry"
+			android:inputType="textCapSentences"
 			android:maxLength="255"
 			android:gravity="top"
 			android:layout_weight="1"
@@ -54,12 +42,11 @@
 		android:layout_height="wrap_content" />
 	<TextView
 		android:text="List of entries"
-		style="@style/Widget.TextView.ListSeparator"
-		android:layout_width="fill_parent"
-		android:layout_height="25dp" />
+		style="@style/Widget.TextView.ListSeparator" />
 
 	<ListView
 		android:id="@+id/android:list"
+		android:layout_weight="1"
 		android:layout_height="wrap_content"
 		android:layout_width="fill_parent" />
 
