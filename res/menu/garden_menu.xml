@@ -1,7 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/m_showlabels"
-		android:icon="@drawable/ic_menu_list"
-		android:title="@string/m_hidelabels" />
+	<item android:icon="@drawable/ic_menu_list"
+		android:id="@+id/m_gallery" android:title="View Photos"/>
 	<item android:id="@+id/m_gardenoptions"
 		android:icon="@android:drawable/ic_menu_manage"
 		android:title="@string/m_gardenoptions" />
