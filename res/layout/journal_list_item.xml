@@ -1,75 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:padding="5dp"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:orientation="vertical">
+	android:layout_height="wrap_content">
 
 	<TextView
 		android:id="@+id/entry_date"
 		android:text="sample date"
 		android:textSize="16sp"
-		android:layout_marginLeft="10dp"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentTop="true"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
-		
-	<RelativeLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="horizontal"
-		android:id="@+id/layout1"
-		android:padding="5dp"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent">
-		
-		<TextView
-			android:id="@+id/entry_name"
-			android:text="sample entry"
-			android:textSize="24sp"
-			android:layout_alignParentLeft="true"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			/>
-		<EditText
-			android:id="@+id/journal_edittext"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:layout_alignParentLeft="true"
-			android:layout_toLeftOf="@+id/edit_journal"
-			android:text="EditText" 
-			android:visibility="gone"
-			/>		 
-		<Button
-			android:id="@+id/replace_journal"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:layout_toLeftOf="@+id/delete_journal"
-			android:text="Replace" 
-			android:visibility="gone"
-			/>
-		<Button
-			android:id="@+id/delete_journal"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:layout_alignParentRight="true"
-			android:text="Delete" 
-			android:visibility="gone"
-			/>
-		<!--  
-		<Button
-			android:id="@+id/edit_journal"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:layout_alignParentRight="true"
-			android:text="Edit" 
-			/>
-			-->
-			
-	</RelativeLayout>
 
-</LinearLayout>
+	<TextView
+		android:id="@+id/entry_name"
+		android:text="sample entry"
+		android:textSize="20sp"
+		android:layout_alignParentLeft="true"
+		android:layout_below="@id/entry_date"
+		android:visibility="visible"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+	<Button
+		android:id="@+id/replace_journal"
+		android:text="Save"
+		android:visibility="gone"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentTop="true"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+	<EditText
+		android:id="@+id/journal_edittext"
+		android:hint="Edit journal entry"
+		android:textSize="20sp"
+		android:minLines="2"
+		android:gravity="top"
+		android:visibility="gone"
+		android:layout_alignParentLeft="true"
+		android:layout_below="@id/replace_journal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+	<Button
+		android:id="@+id/delete_journal"
+		android:text="Delete"
+		android:visibility="gone"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentTop="true"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+
+</RelativeLayout>
