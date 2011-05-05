@@ -24,7 +24,7 @@ import android.widget.ZoomControls;
 public class GardenScreen extends Activity implements View.OnClickListener, View.OnFocusChangeListener, View.OnTouchListener {
 	
 	/** request codes used in intents */
-	final static int EDIT_GARDEN = 1, SHARE_GARDEN = 2, USE_CAMERA = 3, ADD_PLOT = 4, EDIT_PLOT = 5, VIEW_PLOT = 6;
+	final static int EDIT_GARDEN = 1, SHARE_GARDEN = 2, USE_CAMERA = 3, ADD_PLOT = 4, EDIT_PLOT = 5, VIEW_PLOT = 6, VIEW_PHOTOS=7;
 	
 	Garden mockGarden;
 	int gardenId;
@@ -229,10 +229,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				intent.putExtra("garden_id", gardenId);
 				startActivityForResult(intent, SHARE_GARDEN);
 				break;
-			case R.id.m_showlabels:
-				showLabels = !showLabels;
-				item.setTitle(showLabels ? "Hide labels" : "Show labels");
-				gardenView.invalidate();
+			case R.id.m_gallery:
+				intent = new Intent(this, GardenGallery.class);
+				intent.putExtra("garden_id", gardenId);
+				startActivityForResult(intent, VIEW_PHOTOS);
 				break;
 			case R.id.m_takephoto:
 				intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

@@ -238,6 +238,9 @@ class GardenGnome extends Application {
 		dh.delete_entry(e_pk);
 	}
 
+	public static Photo getPhoto(int garden_id, int image_index) {
+		return gardens.get(garden_id).getImage(image_index);
+	}
 	public static void addPhoto(int garden_id, Uri uri) {
 		gardens.get(garden_id).addImage(uri);
 		dh.insert_photo(0, uri.toString(), "");
