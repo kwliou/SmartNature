@@ -231,10 +231,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			TextView hint = (TextView) findViewById(R.id.edit_hint);
 			hint.setText(R.string.hint_editscreen);
 		}
-		String polyPoints_s = "";
-		for(int i = 0; i < pts.length; i++)
-			polyPoints_s += pts[i];
-
+		
 		createPoly = false;
 		editView.invalidate();
 	}
