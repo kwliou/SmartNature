@@ -60,7 +60,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnClickListener, View.OnKeyListener {
+public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnClickListener {
 	
 	static private int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4, PASSWORD = 5;
 	static StubAdapter adapter;
@@ -71,12 +71,15 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	Geocoder geocoder;
 	/** position of item clicked */
 	int positionClicked;
+	/** HTTP GET query parameters for searching gardens */
 	String[] params = {null, "", "", ""};
 	
 	Gson gson = new Gson();
 	NotificationManager manager;
 	MessageDigest digester;
 	MediaScannerConnection scanner;
+	/** number of gardens being downloaded simultaneously */
+	int threadCount = 0;
 	
 	@Override @SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
@@ -132,6 +135,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		searchState.setOnKeyListener(new View.OnKeyListener() {
 			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					findViewById(R.id.btn_find_garden).requestFocus();
+					findViewById(R.id.btn_find_garden).requestFocusFromTouch();
 					InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 					mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
 					return true;
@@ -153,38 +158,36 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		@Override
 		public void run() {
 			List<String> providers = lm.getProviders(false);
-			if (!providers.isEmpty()) {
-				Location loc = lm.getLastKnownLocation(providers.get(0));
-				List<Address> addresses = new ArrayList<Address>();
-				try {
-					addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-				} catch (Exception e) { e.printStackTrace(); }
-				if (addresses.isEmpty()) {
-					runOnUiThread(new Runnable() {
-						@Override public void run() { setProgressBarIndeterminateVisibility(false); }
-					});
-					return;
-				}
-				Address addr = addresses.get(0);
-				System.out.println(addr.getLocality() + "," + addr.getAdminArea() + "," + addr.getCountryCode());
-				params[CITY] = addr.getLocality();
-				if (addr.getAdminArea() != null)
-					params[STATE] = addr.getAdminArea();
-				else
-					params[STATE] = addr.getCountryCode();
-				
-				runOnUiThread(new Runnable() {
-					@Override public void run() {
-						int index = Arrays.binarySearch(GardenAttr.STATES, params[STATE]);
-						String state = index >= 0 ? GardenAttr.ABBR[index] : params[STATE];							
-						resultsLabel.setText("Nearby gardens (" + params[CITY] + ", " + state + ")");
-					}
-				});
-				getStubs.run();
+			if (providers.isEmpty()) {
+				onSearchDone();
+				return;
 			}
+			Location loc = lm.getLastKnownLocation(providers.get(0));
+			List<Address> addresses = new ArrayList<Address>();
+			try {
+				addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+			} catch (Exception e) { onSearchDone(); return; }
+			if (addresses.isEmpty()) {
+				onSearchDone();
+				return;
+			}
+			Address addr = addresses.get(0);
+			System.out.println(addr.getLocality() + "," + addr.getAdminArea() + "," + addr.getCountryCode());
+			params[CITY] = addr.getLocality();
+			params[STATE] = addr.getAdminArea() == null ? addr.getCountryCode() : addr.getAdminArea();
+			
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					int index = Arrays.binarySearch(GardenAttr.STATES, params[STATE]);
+					String state = index >= 0 ? GardenAttr.ABBR[index] : params[STATE];							
+					resultsLabel.setText("Nearby gardens (" + params[CITY] + ", " + state + ")");
+				}
+			});
+			getStubs.run();
 		}
+		
 	};
-
+	
 	Runnable getStubs = new Runnable() {
 		@Override
 		public void run() {
@@ -209,9 +212,12 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			
 			if (success) {
 				stubs.clear();
-				stubs.addAll(new ArrayList<String[]>(Arrays.asList(results)));
+				stubs.addAll(Arrays.asList(results));
 				runOnUiThread(new Runnable() {
-					@Override public void run() { adapter.notifyDataSetChanged(); }
+					@Override public void run() {
+						findViewById(R.id.find_garden_msg).setVisibility(View.GONE);
+						adapter.notifyDataSetChanged();
+					}
 				});
 			} else {
 				runOnUiThread(new Runnable() {
@@ -221,11 +227,18 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 				});
 			}
 			
-			runOnUiThread(new Runnable() {
-				@Override public void run() { setProgressBarIndeterminateVisibility(false); }
-			});
+			onSearchDone();
 		}
 	};
+	
+	public void onSearchDone() {
+		runOnUiThread(new Runnable() {
+			@Override public void run() {
+				setProgressBarIndeterminateVisibility(false);
+				resultsLabel.setText("Search results");
+			}
+		});
+	}
 	
 	public Garden getGarden(String serverId) {
 		HttpClient httpclient = new DefaultHttpClient();
@@ -235,15 +248,10 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			HttpResponse response = httpclient.execute(httpget);
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { e.printStackTrace(); return null; }
 		
 		System.out.println("garden_json=" + result);
 		Garden garden = gson.fromJson(result, Garden.class);
-		return garden;
-	}
-	
-	public Garden getWholeGarden(String serverId) {
-		Garden garden = getGarden(serverId);
 		getPlots(garden);
 		getImages(garden);
 		return garden;
@@ -257,7 +265,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			HttpResponse response = httpclient.execute(httpget);
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { e.printStackTrace(); return; }
 		System.out.println("plots_json=" + result);
 		Plot[] plots = gson.fromJson(result, Plot[].class);
 		
@@ -276,7 +284,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			HttpResponse response = httpclient.execute(httpget);
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { e.printStackTrace(); return; }
 		System.out.println("plants_json=" + result);
 		Plant[] plants = gson.fromJson(result, Plant[].class);
 		
@@ -294,7 +302,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			HttpResponse response = httpclient.execute(httpget);
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { e.printStackTrace(); return; }
 		System.out.println("journals_json=" + result);
 		Entry[] entries = gson.fromJson(result, Entry[].class);
 		System.out.println("plant_entries.nil?=" + Boolean.toString(plant.getEntries() == null));
@@ -311,11 +319,11 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			HttpResponse response = httpclient.execute(httpget);
 			HttpEntity entity = response.getEntity();
 			result = EntityUtils.toString(entity);
-		} catch (Exception e) { e.printStackTrace(); }
+		} catch (Exception e) { e.printStackTrace(); return; }
 		System.out.println("photos_json=" + result);
 		Photo[] photos = gson.fromJson(result, Photo[].class);
 		
-	 	try {
+		try {
 			digester = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) { return; }
 	 	String accessKey = "AKIAIPOGJD62WOASLQYA";
@@ -323,11 +331,10 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 		AmazonS3Client s3 = new AmazonS3Client(credentials);
 		String bucketName = "gardengnome";
-		//ObjectListing objlist = s3.listObjects(bucketName);
 		for (Photo photo : photos) {
 			// download image from s3
-			String code = garden.getCity() + "|" + garden.getState() + "|" + garden.getPassword() + "|" + photo.getServerId();
-			String fileName = garden.getName() + hexCode(code) + ".jpg";
+			String code = garden.getServerId() + "|" + photo.getServerId() + "|" + accessKey;
+			String fileName = hexCode(code) + ".jpg";
 			InputStream input = s3.getObject(bucketName, fileName).getObjectContent();
 			
 			Uri imageUri = writeBitmap2(fileName, input);
@@ -407,18 +414,9 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		params[STATE] = state;
 		if (!empty) {
 			setProgressBarIndeterminateVisibility(true);
-			resultsLabel.setText("Search results");
+			resultsLabel.setText("Searching...");
 			new Thread(getStubs).start();
 		}
-	}
-	
-	@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
-			switch (view.getId()) {
-				//case R.id.search_garden_name
-			}
-		}
-		return false;
 	}
 	
 	@Override
@@ -498,6 +496,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			String[] text = {"Now downloading", stub[NAME] };
 			makeNote(Integer.parseInt(stub[ID]), android.R.drawable.stat_sys_download, text, Notification.FLAG_ONGOING_EVENT, false);
 			threadCount++;
+			if (!scanner.isConnected())
+				scanner.connect();
 			new Thread(new LoadGarden(stub[ID])).start();
 		}
 		else {
@@ -509,8 +509,9 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		makeNote(id, icon, text, flags, vibrate, null);
 	}
 	
+	/** text = { tickerText, contentTitle } */
 	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate, Intent intent) {
-		manager.cancelAll();
+		manager.cancel(id);
 		Notification notification = new Notification(icon, text[0] + " garden", System.currentTimeMillis());
 		int pendingflags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT; // for Samsung Galaxy S
 		PendingIntent contentIntent = null;
@@ -542,19 +543,14 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		return new String(hash);
 	}
 	
-	int threadCount = 0;
-	
 	class LoadGarden implements Runnable {
 		String serverId;
-		LoadGarden(String serverId) {
-			this.serverId = serverId;
-		}
+		LoadGarden(String serverId) { this.serverId = serverId; }
 		
 		@Override
 		public void run() {
-			Garden garden = getWholeGarden(serverId);
+			Garden garden = getGarden(serverId);
 			GardenGnome.addGarden(garden);
-			System.out.println("threadCount=" + threadCount);
 			runOnUiThread(new Runnable() {
 				@Override public void run() { if (--threadCount == 0) scanner.disconnect(); }
 			});
@@ -568,8 +564,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 				@Override public void run() { StartScreen.adapter.notifyDataSetChanged(); }
 			});
 		}
-
-	}; 
+		
+	};
 	
 	class StubAdapter extends ArrayAdapter<String[]> {
 		
