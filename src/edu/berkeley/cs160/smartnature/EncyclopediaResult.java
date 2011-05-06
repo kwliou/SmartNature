@@ -63,7 +63,8 @@ public class EncyclopediaResult extends Activity implements View.OnClickListener
 	    				details.addView(categ);
 	    				
 	    				detail.setText(value);
-	    				detail.setPadding(20, 0, 0, 0);
+	    				detail.setTextSize(15);
+	    				detail.setPadding(20, 0, 5, 0);
 	    				detail.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 	    				details.addView(detail);
 	    			}
