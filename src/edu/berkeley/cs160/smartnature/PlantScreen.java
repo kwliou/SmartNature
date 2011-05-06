@@ -244,12 +244,10 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
 		builder = new AlertDialog.Builder(this).setView(textEntryView);
 		
-		dialog = builder.setTitle("Enter new plant name").setPositiveButton("Rename", this).setNegativeButton(R.string.alert_dialog_cancel, null) // this
-																																					// means
-																																					// cancel
-																																					// was
-																																					// pressed
-		.create();
+		dialog = builder.setTitle("Enter new plant name")
+			.setPositiveButton("Rename", this)
+			.setNegativeButton(R.string.alert_dialog_cancel, null)
+			.create();
 		
 		// automatically show soft keyboard
 		input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
