@@ -186,6 +186,7 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addPlot(Garden garden, Plot plot) {
+		Log.w("debug", "addPlot " + garden.getName() + " " + plot.getName());
 		Rect bounds = plot.getBounds();
 		String shape_s = "" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "," + Color.BLACK;
 		String points = plot.getType() == Plot.POLY ? "0,0" : ""; 
@@ -260,6 +261,7 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addPlant(Plot plot, Plant plant) {
+		Log.w("debug", "addPlant " + plot.getName() + " " + plant.getName());
 		dh.insert_plant(plant.getName(), plant.getServerId());
 		dh.insert_map_pp(plot.getPlotNum(), dh.count_plant());
 		plant.setPlantNum(dh.count_plant());
@@ -309,6 +311,7 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addEntry(Plant plant, Entry entry) {
+		Log.w("debug", "addEntry " + plant.getName() + " " + entry.getName());
 		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
 		dh.insert_map_pe(plant.getPlantNum(), dh.count_entry());
 		entry.setEntryNum(dh.count_entry());
@@ -345,6 +348,7 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addPhoto(Garden garden, Photo photo) {
+		Log.w("debug", "addPhoto " + garden.getName() + " " + photo.getTitle());
 		dh.insert_photo(photo.getServerId(), photo.getUri().toString(), photo.getTitle());
 		dh.insert_map_gp2(garden.getGardenNum(), dh.count_photo());
 		garden.addImage(photo);
