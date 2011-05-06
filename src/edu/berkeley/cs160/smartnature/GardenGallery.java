@@ -1,22 +1,26 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.io.InputStream;
+
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class GardenGallery extends Activity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
 	int gardenID, numPhotos;
-	
+	Garden garden;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -27,9 +31,9 @@ public class GardenGallery extends Activity implements View.OnClickListener, Ada
 			return;
 		}
 		gardenID = intent.getIntExtra("garden_id", 0);
-		numPhotos = GardenGnome.getGarden(gardenID).numImages();
-		Toast.makeText(GardenGallery.this, "" + numPhotos, Toast.LENGTH_SHORT).show();
-
+		garden = GardenGnome.getGarden(gardenID);
+		numPhotos = garden.numImages();
+		//Toast.makeText(GardenGallery.this, "" + numPhotos, Toast.LENGTH_SHORT).show();
 	    
 	    setContentView(R.layout.gallery);
 
@@ -59,15 +63,47 @@ public class GardenGallery extends Activity implements View.OnClickListener, Ada
 
 	    public View getView(int position, View convertView, ViewGroup parent) {
 	        ImageView i = new ImageView(mContext);
-
-	        i.setImageURI(GardenGnome.getGarden(gardenID).getImage(position).getUri());
-	        i.setLayoutParams(new Gallery.LayoutParams(100, 100));
+	        Uri imageUri = garden.getImage(position).getUri();
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			DisplayMetrics metrics = new DisplayMetrics();
+			getWindowManager().getDefaultDisplay().getMetrics(metrics);
+			options.inSampleSize = (int) getSampleSize(imageUri);
+			options.inTargetDensity = metrics.densityDpi;
+			
+			try {
+				InputStream stream = getContentResolver().openInputStream(imageUri);
+				i.setImageBitmap(BitmapFactory.decodeStream(stream, null, options));
+				stream.close();
+			} catch (Exception e) { e.printStackTrace(); }
+		
+			i.setLayoutParams(new Gallery.LayoutParams(100, 100));
 	        i.setScaleType(ImageView.ScaleType.FIT_XY);
 
 	        return i;
 	    }
 	}
 
+	
+	/** @see http://stackoverflow.com/questions/477572/android-strange-out-of-memory-issue */
+	public double getSampleSize(Uri uri) {
+		BitmapFactory.Options o = new BitmapFactory.Options();
+		o.inJustDecodeBounds = true;
+		if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+			try {
+				InputStream stream = getContentResolver().openInputStream(uri);
+				BitmapFactory.decodeStream(stream, null, o);
+				stream.close();
+			} catch (Exception e) { e.printStackTrace(); }
+		}
+		else
+			BitmapFactory.decodeFile(uri.toString().replace("file://", ""), o);
+		double scale = 1;
+        if (o.outWidth > 75 || o.outHeight > 50)
+            scale = Math.pow(2, (int) Math.round(Math.log(75 / (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+        
+		return scale;
+	}
+	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 		// TODO Auto-generated method stub

@@ -1,5 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -599,6 +600,26 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		}
 		return super.onContextItemSelected(item);
 	}
+	
+	/** @see http://stackoverflow.com/questions/477572/android-strange-out-of-memory-issue */
+	public double getSampleSize(Uri uri) {
+		BitmapFactory.Options o = new BitmapFactory.Options();
+		o.inJustDecodeBounds = true;
+		if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+			try {
+				InputStream stream = getContentResolver().openInputStream(uri);
+				BitmapFactory.decodeStream(stream, null, o);
+				stream.close();
+			} catch (Exception e) { e.printStackTrace(); }
+		}
+		else
+			BitmapFactory.decodeFile(uri.toString().replace("file://", ""), o);
+		double scale = 1;
+        if (o.outWidth > 75 || o.outHeight > 50)
+            scale = Math.pow(2, (int) Math.round(Math.log(75 / (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+        
+		return scale;
+	}
 
 	class GardenAdapter extends ArrayAdapter<Garden> {
 		private ArrayList<Garden> gardens;
@@ -622,19 +643,24 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 				image.setImageResource(R.drawable.preview);
 			else {
 				Uri preview = garden.getPreview();
-				if (preview.getScheme().equals(ContentResolver.SCHEME_CONTENT))
-					image.setImageURI(preview);
+				
+				BitmapFactory.Options options = new BitmapFactory.Options();
+				DisplayMetrics metrics = new DisplayMetrics();
+				getWindowManager().getDefaultDisplay().getMetrics(metrics);
+				options.inSampleSize = (int) getSampleSize(preview);
+				options.inTargetDensity = metrics.densityDpi;
+				options.outWidth = 75;
+				options.outHeight = 50;
+				
+				if (preview.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+					try {
+						InputStream stream = getContentResolver().openInputStream(preview);
+						image.setImageBitmap(BitmapFactory.decodeStream(stream, null, options));
+						stream.close();
+					} catch (Exception e) { e.printStackTrace(); }
+				}
 				else {
-					System.out.println("BITMAP FACTORY");
 					System.out.println(preview.getPath());
-					BitmapFactory.Options options = new BitmapFactory.Options();
-					//options.inSampleSize = 2;
-					DisplayMetrics metrics = new DisplayMetrics();
-					getWindowManager().getDefaultDisplay().getMetrics(metrics);
-					options.inTargetDensity = metrics.densityDpi;
-					options.outWidth = 75;
-					options.outHeight = 50;
-
 					image.setImageBitmap(BitmapFactory.decodeFile(preview.toString().replace("file://", ""), options));
 				}
 			}
