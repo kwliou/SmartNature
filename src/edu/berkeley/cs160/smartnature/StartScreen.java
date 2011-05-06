@@ -518,7 +518,6 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		case R.id.m_globaloptions:
 			startActivity(new Intent(this, GlobalSettings.class));
 			break;
-		case R.id.m_help:
 		}
 		return super.onOptionsItemSelected(item);
 	}
