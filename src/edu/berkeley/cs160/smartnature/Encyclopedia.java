@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,21 +34,34 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	String pName = "";
 	String name = "";
 	EditText search;
-	Bundle prev;
 	
 	/** Called when the activity is first created. */
-	@Override
+	@Override @SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		prev = savedInstanceState;
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
 		setContentView(R.layout.encycl);
+		
+		Object previousData = getLastNonConfigurationInstance();
+		if (previousData != null)
+			resultList = (ArrayList<SearchResult>) previousData;
+		
 		adapter = new ResultAdapter(this, R.layout.search_list_item, resultList);
-		setListAdapter(adapter);
+		getListView().setAdapter(adapter);
 		getListView().setOnItemClickListener(this);
-		((Button) findViewById(R.id.searchButton)).setOnClickListener(this);
+		Button searchBtn = (Button) findViewById(R.id.searchButton);
+		searchBtn.setOnClickListener(this);
 		search = (EditText) findViewById(R.id.searchText);
-		search.setText(name);
+		if (previousData == null && getIntent().hasExtra("name")) {
+			name = getIntent().getStringExtra("name");
+			search.setText(name);
+			searchBtn.performClick();
+		}
+	}
+	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return resultList.isEmpty() ? null : resultList;
 	}
 	
 	@Override
@@ -95,23 +109,20 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Intent result = new Intent(Encyclopedia.this, EncyclopediaResult.class);
-		if(prev != null && prev.containsKey("plotID")){
-			
-		}
-		String plantURL = ((TextView) view.findViewById(R.id.linkURL)).getText().toString();
-		pName = ((TextView) view.findViewById(R.id.name)).getText().toString();
-		result.putExtra("name", pName);
-		result.putExtra("linkURL", plantURL);
-		startActivity(result);
+		SearchResult result = resultList.get(position);
+		Intent intent = new Intent(this, EncyclopediaResult.class);
+		intent.putExtra("name", result.getName());
+		intent.putExtra("linkURL", result.getLinkURL());
+		startActivity(intent);
 	}
 	
 	@Override
 	public void onClick(View view) {
-		String searchText = ((EditText) findViewById(R.id.searchText)).getText().toString().trim();
+		String searchText = search.getText().toString().trim();
 		if (searchText.equals(""))
 			Toast.makeText(this, "Please enter the plant you are looking for.", Toast.LENGTH_SHORT).show();
 		else {
+			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(search.getWindowToken(), 0);
 			resultList.clear();
 			findViewById(R.id.encycl_msg).setVisibility(View.GONE);
 			setProgressBarIndeterminateVisibility(true);

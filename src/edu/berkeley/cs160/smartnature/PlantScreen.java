@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,12 +24,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class PlantScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
@@ -37,9 +40,6 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	static EntryAdapter adapter;
 	
 	int gardenID, plotID, plantID;
-	
-	// TextView dateText;
-	// TextView text;
 	
 	String name;
 	EditText entryText;
@@ -81,6 +81,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		setContentView(R.layout.plant);
 		initMockData();
 		getListView().setOnItemClickListener(PlantScreen.this);
+		registerForContextMenu(getListView());
 		
 		entryText = (EditText) findViewById(R.id.entryText);
 		addEntryButton = (Button) findViewById(R.id.addEntryButton);
@@ -193,11 +194,23 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		adapter.notifyDataSetChanged();
 	}
 	
-	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		plant.getEntries().remove(position);
-		PlantScreen.adapter.notifyDataSetChanged();
-		// finish();
-		return false;
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, view, menuInfo);
+		menu.setHeaderTitle("Entry options");
+		menu.add(Menu.NONE, 0, Menu.NONE, "Delete");
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+			case 0:
+				plant.getEntries().remove(info.position);
+				adapter.notifyDataSetChanged();
+				break;
+		}
+		return super.onContextItemSelected(item);
 	}
 	
 	@Override
@@ -244,28 +257,22 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
 		builder = new AlertDialog.Builder(this).setView(textEntryView);
 		
-		dialog = builder.setTitle("Enter new plant name").setPositiveButton("Rename", this).setNegativeButton(R.string.alert_dialog_cancel, null) // this
-																																					// means
-																																					// cancel
-																																					// was
-																																					// pressed
-		.create();
+		dialog = builder.setTitle("Enter new plant name")
+			.setPositiveButton("Rename", this)
+			.setNegativeButton(R.string.alert_dialog_cancel, null)
+			.create();
 		
 		// automatically show soft keyboard
 		input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
+			@Override public void onFocusChange(View v, boolean hasFocus) {
 				if (hasFocus)
 					dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 			}
 		});
 		
 		input.setOnKeyListener(new View.OnKeyListener() {
-			
-			@Override
-			public boolean onKey(View view, int keyCode, KeyEvent event) {
+			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
 					InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 					mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);

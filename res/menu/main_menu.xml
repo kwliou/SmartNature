@@ -3,7 +3,7 @@
 		android:icon="@android:drawable/ic_menu_send"
 		android:title="@string/m_contact" />
 	<item android:id="@+id/m_globaloptions"
-		android:icon="@android:drawable/ic_menu_mapmode"
+		android:icon="@android:drawable/ic_menu_preferences"
 		android:title="@string/m_globaloptions" />
 	<!--
 	<item android:id="@+id/m_help"
