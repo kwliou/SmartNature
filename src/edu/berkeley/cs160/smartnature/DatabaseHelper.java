@@ -220,7 +220,7 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
-
+	
 	public long insert_plot(String name, String shape, int type, int color, String polyPoints, float rotation, int id) {
 		this.insertStmt_plot.clearBindings();
 		this.insertStmt_plot.bindString(1, name);
@@ -242,7 +242,15 @@ public class DatabaseHelper {
 		String selection = "po_pk = ?";
 		return db.update(TABLE_NAME_PLOT, cv, selection, new String[] {Integer.toString(po_pk)});
 	}
-
+	
+	public long update_plot(int po_pk, int id) {
+		ContentValues cv = new ContentValues();
+		cv.put("id", id);
+		
+		String selection = "po_pk = ?";
+		return db.update(TABLE_NAME_PLOT, cv, selection, new String[] {Integer.toString(po_pk)});
+	}
+	
 	public Plot select_plot(int po_pk) {
 		String selection = "po_pk = " + po_pk;
 		Cursor cursor = this.db.query(TABLE_NAME_PLOT, null, selection, null, null, null, null);
@@ -313,7 +321,15 @@ public class DatabaseHelper {
 		this.insertStmt_plant.bindLong(2, (long)id);
 		return this.insertStmt_plant.executeInsert();
 	}
-
+	
+	public long update_plant(int pa_pk, int id) {
+		ContentValues cv = new ContentValues();
+		cv.put("id", id);
+		
+		String selection = "pa_pk = ?";
+		return db.update(TABLE_NAME_PLANT, cv, selection, new String[] {Integer.toString(pa_pk)});
+	}
+	
 	public Plant select_plant(int pa_pk) {
 		String selection = "pa_pk = " + pa_pk + " AND name IS NOT NULL";
 		Cursor cursor = this.db.query(TABLE_NAME_PLANT, null, selection, null, null, null, null);
@@ -367,7 +383,15 @@ public class DatabaseHelper {
 		this.insertStmt_entry.bindLong(3, (long)id);
 		return this.insertStmt_entry.executeInsert();
 	}
-
+	
+	public long update_entry(int e_pk, int id) {
+		ContentValues cv = new ContentValues();
+		cv.put("id", id);
+		
+		String selection = "e_pk = ?";
+		return db.update(TABLE_NAME_ENTRY, cv, selection, new String[] {Integer.toString(e_pk)});
+	}
+	
 	public Entry select_entry(int e_pk) {
 		String selection = "e_pk = " + e_pk + " AND name IS NOT NULL";
 		Cursor cursor = this.db.query(TABLE_NAME_ENTRY, null, selection, null, null, null, null);
@@ -455,7 +479,15 @@ public class DatabaseHelper {
 			cursor.close();
 		return temp;
 	}
-
+	
+	public long update_photo(int ph_pk, int serverId) {
+		ContentValues cv = new ContentValues();
+		cv.put("serverId", serverId);
+		
+		String selection = "ph_pk = ?";
+		return db.update(TABLE_NAME_PHOTO, cv, selection, new String[] {Integer.toString(ph_pk)});
+	}
+	
 	public int count_photo() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PHOTO, null);
 		int temp = 1;

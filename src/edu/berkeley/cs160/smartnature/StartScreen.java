@@ -147,7 +147,11 @@ class GardenGnome extends Application {
 	public static void tmpupdateGarden(int garden_id, String bounds) {
 		dh.update_garden(getGardenPk(garden_id), bounds);
 	}
-
+	
+	public static void setGardenId(int g_pk, int serverId) {
+		dh.update_garden(g_pk, serverId);
+	}
+	
 	public static int getPlotPk(int garden_id, Plot plot) {
 		List<Integer> temp = dh.select_map_gp_po(getGardenPk(garden_id));
 		int po_pk = -1;
@@ -166,7 +170,14 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addPlot(Garden garden, Plot plot) {
-		addPlot(garden.getId(), plot);
+		Rect bounds = plot.getBounds();
+		String shape_s = "" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "," + Color.BLACK;
+		String points = plot.getType() == Plot.POLY ? "0,0" : ""; 
+		dh.insert_plot(plot.getName(), shape_s, plot.getType(), Color.BLACK, points, 0, 0);
+		dh.insert_map_gp(garden.getGardenNum(), dh.count_plot());
+		garden.addPlot(plot);
+		plot.setPlotNum(dh.count_plot());
+		System.out.println("addPlot = " + dh.count_plot());
 	}
 
 	public static void addPlot(int garden_id, Plot plot) {
@@ -206,7 +217,11 @@ class GardenGnome extends Application {
 		}				
 		dh.update_plot(po_pk, shape_s, plot.getColor(), polyPoints_s, plot.getAngle());
 	}
-
+	
+	public static void setPlotId(int po_pk, int id) {
+		dh.update_plot(po_pk, id);
+	}
+	
 	public static void initPlant(int po_pk, Plot plot) {
 		List<Integer> existing_plant = dh.select_map_pp_pa(po_pk);
 		if(plot.getPlants().size() != existing_plant.size()) {
@@ -230,6 +245,11 @@ class GardenGnome extends Application {
 	/** FIXME */
 	public static void addPlant(Plot plot, Plant plant) {
 		plot.addPlant(plant);
+		plant.setPlantNum(dh.count_plant());
+		System.out.println("addPlant = " + dh.count_plant());
+
+		dh.insert_plant(plant.getName(), 0);
+		dh.insert_map_pp(plot.getPlotNum(), dh.count_plant());
 	}
 
 	public static void addPlant(int po_pk, String name, Plot plot) {
@@ -247,7 +267,11 @@ class GardenGnome extends Application {
 		dh.delete_plant(pa_pk);
 		dh.delete_map_pp(pa_pk);
 	}
-
+	
+	public static void setPlantId(int pa_pk, int id) {
+		dh.update_plant(pa_pk, id);
+	}
+	
 	public static void initEntry(int pa_pk, Plant plant) {
 		List<Integer> existing_entry = dh.select_map_pe_e(pa_pk);
 		if(plant.getEntries().size() != existing_entry.size()) {
@@ -272,6 +296,10 @@ class GardenGnome extends Application {
 	/** FIXME */
 	public static void addEntry(Plant plant, Entry entry) {
 		plant.addEntry(entry);
+		entry.setEntryNum(dh.count_entry());
+		System.out.println("addEntry = " + dh.count_entry());
+		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
+		dh.insert_map_pe(plant.getPlantNum(), dh.count_entry());
 	}
 
 	public static void addEntry(int pa_pk, Plant plant, Entry entry) {
@@ -286,7 +314,11 @@ class GardenGnome extends Application {
 		entry.setName(name);
 		dh.update_entry(e_pk, name);
 	}
-
+	
+	public static void setEntryId(int e_pk, int id) {
+		dh.update_entry(e_pk, id);
+	}
+	
 	public static void removeEntry(int entry_id, int e_pk, Plant plant) {
 		plant.getEntries().remove(entry_id);
 		dh.delete_map_pe(e_pk);
@@ -300,9 +332,17 @@ class GardenGnome extends Application {
 	/** FIXME */
 	public static void addPhoto(Garden garden, Photo photo) {
 		garden.addImage(photo);
+		photo.setPhotoNum(dh.count_photo());
+		System.out.println("addPhoto = " + dh.count_photo());
+		dh.insert_photo(0, photo.getUri().toString(), "");
+		dh.insert_map_gp2(garden.getGardenNum(), dh.count_photo());
 	}
-
-	// unused?
+	
+	public static void setPhotoId(int ph_pk, int serverId) {
+		dh.update_photo(ph_pk, serverId);
+	}
+	
+	// unused? unimplemented
 	public static void addPhoto(int garden_id, Uri uri) {
 		Photo temp = new Photo(uri);
 		gardens.get(garden_id).addImage(temp);

@@ -74,6 +74,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	public void onClick(View view) {
 		if (view.getId() == R.id.share_confirm && garden.getServerId() == 0) {
 			garden.setServerId(-1);
+			GardenGnome.setGardenId(garden.getGardenNum(), -1);
 			shareButton.setEnabled(false);
 			shareButton.setText(R.string.btn_sharing);
 			makeNote(android.R.drawable.stat_sys_upload, "Now uploading", Notification.FLAG_ONGOING_EVENT, false);
@@ -88,6 +89,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		if (!uploadGarden() || !uploadPlots()) {
 			deleteGarden(garden.getServerId());
 			garden.setServerId(0);
+			GardenGnome.setGardenId(garden.getGardenNum(), 0);
 			makeNote(android.R.drawable.stat_notify_error, "Failed to upload", Notification.FLAG_AUTO_CANCEL, true);
 			runOnUiThread(new Runnable() {
 				@Override public void run() {
@@ -138,6 +140,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 			HttpResponse response = httpclient.execute(httppost);
 			String result = EntityUtils.toString(response.getEntity());
 			garden.setServerId(gson.fromJson(result, int.class));
+			GardenGnome.setGardenId(garden.getGardenNum(), gson.fromJson(result, int.class));
 		} catch (Exception e) { success = false; e.printStackTrace(); }
 		
 		return success && garden.getServerId() != 0;
@@ -158,6 +161,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				HttpResponse response = httpclient.execute(httppost);
 				String result = EntityUtils.toString(response.getEntity());
 				plot.setServerId(gson.fromJson(result, int.class));
+				GardenGnome.setPlotId(plot.getPlotNum(), gson.fromJson(result, int.class));
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
@@ -185,6 +189,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				HttpResponse response = httpclient.execute(httppost);
 				String result = EntityUtils.toString(response.getEntity());
 				plant.setServerId(gson.fromJson(result, int.class));
+				GardenGnome.setPlantId(plant.getPlantNum(), gson.fromJson(result, int.class));
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
@@ -210,6 +215,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				HttpResponse response = httpclient.execute(httppost);
 				String result = EntityUtils.toString(response.getEntity());
 				entry.setServerId(gson.fromJson(result, int.class));
+				GardenGnome.setEntryId(entry.getEntryNum(), gson.fromJson(result, int.class));
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
@@ -240,6 +246,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				HttpResponse response = httpclient.execute(httppost);
 				String result = EntityUtils.toString(response.getEntity());
 				photo.setServerId(gson.fromJson(result, int.class));
+				GardenGnome.setPhotoId(photo.getPhotoNum(), gson.fromJson(result, int.class));
 			} catch (Exception e) { success = false; e.printStackTrace(); }
 			
 			if (!success || photo.getServerId() == 0)
