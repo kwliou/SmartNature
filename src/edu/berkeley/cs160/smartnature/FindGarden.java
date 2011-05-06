@@ -181,7 +181,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 				@Override public void run() {
 					int index = Arrays.binarySearch(GardenAttr.STATES, params[STATE]);
 					String state = index >= 0 ? GardenAttr.ABBR[index] : params[STATE];							
-					resultsLabel.setText("Nearby gardens (" + params[CITY] + ", " + state + ")");
+					resultsLabel.setText("Finding gardens in " + params[CITY] + ", " + state);
 				}
 			});
 			getStubs.run();
@@ -528,7 +528,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		if (vibrate)
 			notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
 		String title = "GardenGnome";
-		String contentText = text[0] + " " + text[1] + " garden"; 
+		String contentText = text[0] + " " + text[1]; 
 		notification.setLatestEventInfo(this, title, contentText, contentIntent);
 		
 		manager.notify(id + 1, notification); // NOTE: HTC does not like an id parameter of 0

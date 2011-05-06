@@ -161,7 +161,7 @@ class GardenGnome extends Application {
 	}
 
 	public static Plot getPlot(int garden_id, int plot_id) {
-		return gardens.get(garden_id).getPlot(plot_id);
+		return getGarden(garden_id).getPlot(plot_id);
 	}
 
 	/** FIXME */
