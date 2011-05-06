@@ -27,6 +27,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	Drawable bg;
 	Paint textPaint;
 	float x, y, prevX, prevY, downX, downY;
+	/** used in pinch to zoom */
 	float dist, prevDist;
 	float zoomScale = 1;
 	float textSize;
@@ -43,18 +44,14 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		initPaint();
 		bg = getResources().getDrawable(R.drawable.tile);	
 		initPaint();
-		initMockData();	
+		garden = this.context.garden;
+		float defaultStroke = getResources().getDimension(R.dimen.strokesize_default);
+		for (Plot plot : garden.getPlots())
+			plot.getPaint().setStrokeWidth(defaultStroke);
+		
 		setOnClickListener(this);
 		setOnTouchListener(this);
 		setOnLongClickListener(this);
-	}
-	
-	public void initMockData() {
-		garden = context.mockGarden;
-		for (Plot plot : garden.getPlots()) {
-			Paint p = plot.getPaint();
-			p.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-		}
 	}
 	
 	public void initPaint() {
@@ -210,8 +207,8 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		case MotionEvent.ACTION_MOVE:
 			if (mode == PINCH_ZOOM) {
 				prevDist = dist;
-				diffX = event.getX(0) - event.getX(1);
-				diffY = event.getY(0) - event.getY(1);
+				diffX = x - event.getX(1);
+				diffY = y - event.getY(1);
 				dist = diffX * diffX + diffY * diffY;
 				//zoomScale *= dist/prevDist;
 				zoomScale = (zoomScale * (dist/prevDist + 1))/2; // less "sensitive"

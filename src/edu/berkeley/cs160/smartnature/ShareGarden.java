@@ -246,8 +246,8 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 				return false;
 			
 			// upload image to s3
-			String code = garden.getCity() + "|" + garden.getState() + "|" + garden.getPassword() + "|" + photo.getServerId();
-			String fileName = garden.getName() + hexCode(code) + ".jpg";
+			String code = garden.getServerId() + "|" + photo.getServerId() + "|" + accessKey;
+			String fileName = hexCode(code) + ".jpg";
 			Uri imageUri = photo.getUri();
 			try {
 				InputStream stream = getContentResolver().openInputStream(imageUri);

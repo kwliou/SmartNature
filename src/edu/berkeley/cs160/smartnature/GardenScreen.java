@@ -26,7 +26,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	/** request codes used in intents */
 	final static int EDIT_GARDEN = 1, SHARE_GARDEN = 2, USE_CAMERA = 3, ADD_PLOT = 4, EDIT_PLOT = 5, VIEW_PLOT = 6, VIEW_PHOTOS=7;
 	
-	Garden mockGarden;
+	Garden garden;
 	int gardenId;
 	GardenView gardenView;
 	View textEntryView;
@@ -51,10 +51,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			return;
 		}
 		gardenId = getIntent().getIntExtra("garden_id", 0);
-		mockGarden = GardenGnome.getGarden(gardenId);
-		setTitle(mockGarden.getName());
+		garden = GardenGnome.getGarden(gardenId);
+		setTitle(garden.getName());
 		if (savedInstanceState == null) // first init
-			mockGarden.refreshBounds();
+			garden.refreshBounds();
 		
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
@@ -143,7 +143,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case R.id.zoomfit_btn:
 				gardenView.zoomScale = 1;
-				mockGarden.refreshBounds();
+				garden.refreshBounds();
 				gardenView.reset();
 				break;
 		}
@@ -154,7 +154,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
 			case EDIT_GARDEN: // returning from GardenAttr activity
-				setTitle(mockGarden.getName());
+				setTitle(garden.getName());
 				break;
 			case USE_CAMERA: // returning from Camera activity
 				if (resultCode == RESULT_OK) {
@@ -171,9 +171,9 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 					column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 					cursor.moveToFirst();
 					System.out.println(cursor.getString(column_index));
-					//mockGarden.addImage(imageUri);
+					//garden.addImage(imageUri);
 					
-					GardenGnome.addPhoto(gardenId, imageUri);	
+					GardenGnome.addPhoto(garden, new Photo(imageUri));	
 				}
 				break;
 			case ADD_PLOT: // returning from AddPlot activity
@@ -236,7 +236,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case R.id.m_takephoto:
 				intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				String fileName = "GardenGnome_" + mockGarden.getName() + mockGarden.numImages() + ".jpg";
+				String fileName = "GardenGnome_" + garden.getName() + garden.numImages() + ".jpg";
 				
 				// HTC camera app ignores EXTRA_OUTPUT
 				ContentValues values = new ContentValues();

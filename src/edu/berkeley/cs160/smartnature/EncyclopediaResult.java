@@ -84,10 +84,12 @@ public class EncyclopediaResult extends Activity implements View.OnClickListener
 		
 		if (data != null){
 			int plotId, gardenId;
-			plotId = (Integer) data.getExtras().get("plotId");
-			gardenId = (Integer) data.getExtras().get("gardenId");
-			int po_pk = GardenGnome.getPlotPk(gardenId, GardenGnome.getPlot(gardenId, plotId));
-			GardenGnome.addPlant(po_pk, pName, GardenGnome.getGardens().get(gardenId).getPlot(plotId));
+			gardenId = data.getIntExtra("gardenId", 0);
+			plotId = data.getIntExtra("plotId", 0);
+			//int po_pk = GardenGnome.getPlotPk(gardenId, GardenGnome.getPlot(gardenId, plotId));
+			Plot plot = GardenGnome.getGarden(gardenId).getPlot(plotId);
+			Plant plant = new Plant(pName);
+			GardenGnome.addPlant(plot, plant); //GardenGnome.addPlant(po_pk, pName, GardenGnome.getGardens().get(gardenId).getPlot(plotId));
 			PlotScreen.adapter.notifyDataSetChanged();
 		}
 	}
