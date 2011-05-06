@@ -349,6 +349,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			Uri imageUri = writeBitmap2(fileName);
 			photo.setUri(imageUri);
 			garden.addImage(photo);
+			//GardenGnome.addPhoto(garden, photo);
 		}
 	}
 	

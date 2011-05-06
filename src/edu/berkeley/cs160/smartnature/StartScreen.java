@@ -83,7 +83,6 @@ class GardenGnome extends Application {
 			temp1.setGardenNum(existing_garden.get(i));
 			System.out.println("garden = " + existing_garden.get(i));
 			gardens.add(temp1);
-			/*
 			List<Integer> existing_photo = dh.select_map_gp2_ph(existing_garden.get(i));
 			for(int m = 0; m < existing_photo.size(); m++) {
 				Photo temp2 = dh.select_photo(existing_photo.get(m));
@@ -91,7 +90,6 @@ class GardenGnome extends Application {
 				gardens.get(i).addImage(temp2);
 				System.out.println("photo = " + existing_photo.get(m));
 			}
-			 */
 			List<Integer> existing_plot = dh.select_map_gp_po(existing_garden.get(i));
 			for(int j = 0; j < existing_plot.size(); j++) {
 				Plot temp2 = dh.select_plot(existing_plot.get(j));
@@ -399,12 +397,11 @@ class GardenGnome extends Application {
 	/** FIXME */
 	public static void addPhoto(Garden garden, Photo photo) {
 		dh.update_counter_photo(1, photo_id);
-		//Log.w("debug", "addPhoto " + garden.getName() + " " + photo.getTitle());
-		//dh.insert_photo(photo.getServerId(), photo.getUri().toString(), photo.getTitle());
-		//dh.insert_map_gp2(garden.getGardenNum(), dh.count_photo());
+		dh.insert_photo(photo.getServerId(), photo.getUri().toString(), photo.getTitle());
+		dh.insert_map_gp2(garden.getGardenNum(), photo_id);
 		garden.addImage(photo);
-		//photo.setPhotoNum(dh.count_photo());
-		//System.out.println("addPhoto = " + dh.count_photo());
+		photo.setPhotoNum(photo_id);
+		System.out.println("addPhoto = " + photo_id);
 		photo_id++;
 	}
 

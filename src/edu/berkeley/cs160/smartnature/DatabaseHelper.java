@@ -540,6 +540,8 @@ public class DatabaseHelper {
 		this.insertStmt_photo.clearBindings();
 		this.insertStmt_photo.bindLong(1, (long)serverId);
 		this.insertStmt_photo.bindString(2, uri);
+		if(title == null)
+			title = "";
 		this.insertStmt_photo.bindString(3, title);
 		return this.insertStmt_photo.executeInsert();
 	}
@@ -552,7 +554,7 @@ public class DatabaseHelper {
 			do {
 				temp = new Photo(Uri.parse(cursor.getString(cursor.getColumnIndex("uri"))));
 				temp.setTitle(cursor.getString(cursor.getColumnIndex("title")));
-				temp.setServerId(cursor.getInt(cursor.getColumnIndex("id")));
+				temp.setServerId(cursor.getInt(cursor.getColumnIndex("serverId")));
 			}
 			while (cursor.moveToNext());
 		}
