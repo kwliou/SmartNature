@@ -55,7 +55,6 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		setTitle(garden.getName());
 		if (savedInstanceState == null) // first init
 			garden.refreshBounds();
-		
 		setContentView(R.layout.garden);
 		gardenView = (GardenView) findViewById(R.id.garden_view);
 		
@@ -151,7 +150,6 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
 			case EDIT_GARDEN: // returning from GardenAttr activity
 				setTitle(garden.getName());
@@ -185,14 +183,15 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 					gardenView.bgDragMatrix.getValues(bgvalues);
 					data.putExtra("drag_matrix", values);
 					data.putExtra("bgdrag_matrix", bgvalues);
-					startActivityForResult(data, 0);
+					startActivityForResult(data, EDIT_PLOT);
 					overridePendingTransition(0, 0);
 				}
 				break;
 			case EDIT_PLOT: // returning from EditScreen activity
-				gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1); //extras.getFloat("zoom_scale");
+				gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1);
 				gardenView.dragMatrix.setValues(data.getFloatArrayExtra("drag_matrix"));
 				gardenView.bgDragMatrix.setValues(data.getFloatArrayExtra("bgdrag_matrix"));
+				System.out.println("garden_screen=" + garden.getBounds().toString());
 				gardenView.onAnimationEnd();
 				if (zoomAutoHidden)
 					zoomControls.setVisibility(View.GONE); // need to manually hide

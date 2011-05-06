@@ -73,6 +73,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	int positionClicked;
 	/** HTTP GET query parameters for searching gardens */
 	String[] params = {null, "", "", ""};
+	InputMethodManager inputMgr;
 	
 	Gson gson = new Gson();
 	static AmazonS3Client s3;
@@ -88,6 +89,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		scanner = new MediaScannerConnection(getApplicationContext(), null);
 		scanner.connect();
 		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		inputMgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
 		Object previousData = getLastNonConfigurationInstance(); 
 		if (previousData != null)
@@ -138,8 +140,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
 					findViewById(R.id.btn_find_garden).requestFocus();
 					findViewById(R.id.btn_find_garden).requestFocusFromTouch();
-					InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-					mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
+					inputMgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
 					return true;
 				}
 				return false;
@@ -316,6 +317,10 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	}
 	
 	public void getImages(Garden garden) {
+		String state = Environment.getExternalStorageState();
+		System.out.println("sd_state=" + state);
+		if (!state.equals(Environment.MEDIA_MOUNTED))
+			return; // storage is missing or read-only
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(getString(R.string.server_url) + "gardens/" + garden.getServerId() + "/photos.json");
 		String result = "";
@@ -419,6 +424,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		params[CITY] = city;
 		params[STATE] = state;
 		if (!empty) {
+			inputMgr.hideSoftInputFromWindow(findViewById(R.id.search_garden_state).getWindowToken(), 0);
 			setProgressBarIndeterminateVisibility(true);
 			resultsLabel.setText("Searching...");
 			new Thread(getStubs).start();
@@ -466,8 +472,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		/*input.setOnKeyListener(new View.OnKeyListener() {
 			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
-					InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-					mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
+					inputMgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
 					return true;
 				}
 				return false;
@@ -480,8 +485,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	DialogInterface.OnClickListener cancelled = new DialogInterface.OnClickListener() {
 		@Override
 		public void onClick(DialogInterface dialog, int whichButton) {
-			InputMethodManager mgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-			mgr.hideSoftInputFromWindow(textEntryView.getWindowToken(), 0);
+			inputMgr.hideSoftInputFromWindow(textEntryView.getWindowToken(), 0);
 			dialog.cancel();
 			removeDialog(0);
 			removeDialog(PUBLIC);

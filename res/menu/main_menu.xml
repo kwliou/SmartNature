@@ -1,11 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/m_contact"
-          android:icon="@android:drawable/ic_menu_send"
-          android:title="@string/m_contact" />
+		android:icon="@android:drawable/ic_menu_send"
+		android:title="@string/m_contact" />
 	<item android:id="@+id/m_globaloptions"
-          android:icon="@android:drawable/ic_menu_preferences"
-          android:title="@string/m_globaloptions" />
+		android:icon="@android:drawable/ic_menu_mapmode"
+		android:title="@string/m_globaloptions" />
+	<!--
 	<item android:id="@+id/m_help"
-          android:icon="@android:drawable/ic_menu_help"
-          android:title="@string/m_help" />
+		android:icon="@android:drawable/ic_menu_help"
+		android:title="@string/m_help" />
+	-->
 </menu>

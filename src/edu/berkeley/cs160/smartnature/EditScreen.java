@@ -132,9 +132,11 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			plot = new Plot(name, bounds, type);
 		
 		GardenGnome.addPlot(garden, plot);
-		garden.refreshBounds();
-		String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
-		GardenGnome.tmpupdateGarden(extras.getInt("garden_id"), bounds_s);
+		if (garden.getPlots().size() == 1) {
+			garden.refreshBounds();
+			String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
+			GardenGnome.tmpupdateGarden(extras.getInt("garden_id"), bounds_s);
+		}
 	}
 	
 	public void loadPlot() {
@@ -206,7 +208,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		
 		if (createPoly)
 			garden.remove(plot);
-		
+		System.out.println("edit_screen=" + garden.getBounds().toString());
 		garden.remove(oldPlot);
 		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 		Intent intent = new Intent().putExtra("zoom_scale", editView.zoomScale);
@@ -231,10 +233,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 			TextView hint = (TextView) findViewById(R.id.edit_hint);
 			hint.setText(R.string.hint_editscreen);
 		}
-		String polyPoints_s = "";
-		for(int i = 0; i < pts.length; i++)
-			polyPoints_s += pts[i];
-
+		
 		createPoly = false;
 		editView.invalidate();
 	}
