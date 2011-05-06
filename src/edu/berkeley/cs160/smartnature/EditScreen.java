@@ -131,7 +131,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		else
 			plot = new Plot(name, bounds, type);
 		
-		GardenGnome.addPlot(extras.getInt("garden_id"), plot);
+		GardenGnome.addPlot(garden, plot);
 		garden.refreshBounds();
 		String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
 		GardenGnome.tmpupdateGarden(extras.getInt("garden_id"), bounds_s);

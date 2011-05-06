@@ -102,6 +102,7 @@ class GardenGnome extends Application {
 		return gardens.get(garden_id);
 	}
 
+	/** TODO: should manually set the id of the garden */
 	public static void addGarden(Garden garden) {
 		gardens.add(garden);
 		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
@@ -131,6 +132,11 @@ class GardenGnome extends Application {
 
 	public static Plot getPlot(int garden_id, int plot_id) {
 		return gardens.get(garden_id).getPlot(plot_id);
+	}
+
+	/** FIXME */
+	public static void addPlot(Garden garden, Plot plot) {
+		addPlot(garden.getId(), plot);
 	}
 
 	public static void addPlot(int garden_id, Plot plot) {
@@ -189,6 +195,11 @@ class GardenGnome extends Application {
 		return pa_pk;
 	}
 
+	/** FIXME */
+	public static void addPlant(Plot plot, Plant plant) {
+		plot.addPlant(plant);
+	}
+
 	public static void addPlant(int po_pk, String name, Plot plot) {
 		plot.addPlant(new Plant(name));
 		dh.insert_plant(name, 0);
@@ -221,6 +232,11 @@ class GardenGnome extends Application {
 		return e_pk;
 	}
 
+	/** FIXME */
+	public static void addEntry(Plant plant, Entry entry) {
+		plant.addEntry(entry);
+	}
+	
 	public static void addEntry(int pa_pk, Plant plant, Entry entry) {
 		plant.addEntry(entry);
 		dh.insert_entry(entry.getName(), entry.getDate() + "");
@@ -241,6 +257,13 @@ class GardenGnome extends Application {
 	public static Photo getPhoto(int garden_id, int image_index) {
 		return gardens.get(garden_id).getImage(image_index);
 	}
+	
+	/** FIXME */
+	public static void addPhoto(Garden garden, Photo photo) {
+		garden.addImage(photo);
+	}
+	
+	// unused?
 	public static void addPhoto(int garden_id, Uri uri) {
 		gardens.get(garden_id).addImage(uri);
 		dh.insert_photo(0, uri.toString(), "");
@@ -381,7 +404,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
-		intent.putExtra("garden_id", position);
+		intent.putExtra("garden_id", gardens.get(position).getId());
 		startActivityForResult(intent, 0);
 	}
 

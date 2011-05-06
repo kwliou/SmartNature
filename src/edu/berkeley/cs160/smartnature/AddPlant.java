@@ -95,8 +95,9 @@ public class AddPlant extends Activity implements View.OnClickListener{
 				if (plotList.get(i).getName().equals(plotName))
 					plotId = i;
 			}
+			
 			bundle.putInt("plotId", plotId);
-			bundle.putInt("gardenId", gardenId);
+			bundle.putInt("gardenId", GardenGnome.getGarden(gardenId).getId());
 			intent.putExtras(bundle);
 			setResult(RESULT_OK, intent);
 			finish();

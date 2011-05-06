@@ -242,6 +242,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		});
 	}
 	
+	/** downloads entire garden and adds it to the local database */
 	public Garden getGarden(String serverId) {
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(getString(R.string.server_url) + "gardens/" + serverId + ".json");
@@ -254,6 +255,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		
 		System.out.println("garden_json=" + result);
 		Garden garden = gson.fromJson(result, Garden.class);
+		GardenGnome.addGarden(garden);
 		getPlots(garden);
 		getImages(garden);
 		return garden;
@@ -273,7 +275,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		
 		for (Plot plot : plots) {
 			plot.postDownload();
-			garden.addPlot(plot);
+			GardenGnome.addPlot(garden, plot); //garden.addPlot(plot);
 			getPlants(plot);
 		}
 	}
@@ -291,7 +293,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		Plant[] plants = gson.fromJson(result, Plant[].class);
 		
 		for (Plant plant : plants) {
-			plot.addPlant(plant);
+			GardenGnome.addPlant(plot, plant); //plot.addPlant(plant);
 			getEntries(plant);
 		}
 	}
@@ -310,7 +312,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		System.out.println("plant_entries.nil?=" + Boolean.toString(plant.getEntries() == null));
 		plant.setEntries(new ArrayList<Entry>());
 		for (Entry entry : entries)
-			plant.addEntry(entry);
+			GardenGnome.addEntry(plant, entry); //plant.addEntry(entry);
 	}
 	
 	public void getImages(Garden garden) {
@@ -554,11 +556,11 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		@Override
 		public void run() {
 			Garden garden = getGarden(serverId);
-			GardenGnome.addGarden(garden);
+			//GardenGnome.addGarden(garden);
 			runOnUiThread(new Runnable() {
 				@Override public void run() { if (--threadCount == 0) scanner.disconnect(); }
 			});
-			int gardenId = GardenGnome.getGardens().indexOf(garden);
+			int gardenId = garden.getId();
 			Intent intent = new Intent(FindGarden.this, GardenScreen.class).putExtra("garden_id", gardenId);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			

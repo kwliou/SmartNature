@@ -114,7 +114,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		if (plantString.length() == 0)
 			plantString = "Untitled plant";
 		
-		GardenGnome.addPlant(po_pk, plantString, plot);
+		GardenGnome.addPlant(plot, new Plant(plantString)); //GardenGnome.addPlant(po_pk, plantString, plot);
 		plantName.setText("");
 		adapter.notifyDataSetChanged(); //refresh ListView
 	}

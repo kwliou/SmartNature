@@ -107,6 +107,8 @@ public class Garden {
 	
 	public String getCity() { return city; }
 		
+	public int getId() { return GardenGnome.getGardens().indexOf(this); }
+	
 	public String getName() { return name; }
 	
 	public String getPassword() { return password; }

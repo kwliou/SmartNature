@@ -44,18 +44,14 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		initPaint();
 		bg = getResources().getDrawable(R.drawable.tile);	
 		initPaint();
-		initMockData();	
+		garden = this.context.garden;
+		float defaultStroke = getResources().getDimension(R.dimen.strokesize_default);
+		for (Plot plot : garden.getPlots())
+			plot.getPaint().setStrokeWidth(defaultStroke);
+		
 		setOnClickListener(this);
 		setOnTouchListener(this);
 		setOnLongClickListener(this);
-	}
-	
-	public void initMockData() {
-		garden = context.mockGarden;
-		for (Plot plot : garden.getPlots()) {
-			Paint p = plot.getPaint();
-			p.setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
-		}
 	}
 	
 	public void initPaint() {

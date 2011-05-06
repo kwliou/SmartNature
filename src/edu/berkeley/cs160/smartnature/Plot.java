@@ -18,7 +18,7 @@ public class Plot {
 	
 	static final int RECT = 1, OVAL = 2, POLY = 3;
 	
-	/** database id on server, equal to -1 during uploading */
+	/** database id on server */
 	private int id;
 	private ShapeDrawable shape;
 	@Expose private String name;
