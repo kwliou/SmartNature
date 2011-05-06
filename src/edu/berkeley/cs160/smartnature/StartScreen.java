@@ -189,7 +189,7 @@ class GardenGnome extends Application {
 		Rect bounds = plot.getBounds();
 		String shape_s = "" + bounds.left + "," + bounds.top + "," + bounds.right + "," + bounds.bottom + "," + Color.BLACK;
 		String points = plot.getType() == Plot.POLY ? "0,0" : ""; 
-		dh.insert_plot(plot.getName(), shape_s, plot.getType(), Color.BLACK, points, 0, 0);
+		dh.insert_plot(plot.getName(), shape_s, plot.getType(), plot.getPaint().getColor(), points, plot.getAngle(), plot.getServerId());
 		dh.insert_map_gp(garden.getGardenNum(), dh.count_plot());
 		plot.setPlotNum(dh.count_plot());
 		garden.addPlot(plot);
@@ -260,7 +260,7 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addPlant(Plot plot, Plant plant) {
-		dh.insert_plant(plant.getName(), 0);
+		dh.insert_plant(plant.getName(), plant.getServerId());
 		dh.insert_map_pp(plot.getPlotNum(), dh.count_plant());
 		plant.setPlantNum(dh.count_plant());
 		plot.addPlant(plant);
