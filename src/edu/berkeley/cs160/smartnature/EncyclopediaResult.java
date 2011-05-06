@@ -94,7 +94,8 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 			Plant plant = new Plant(pName);
 			GardenGnome.addPlant(plot, plant);
 			//GardenGnome.addPlant(po_pk, pName, GardenGnome.getGardens().get(gardenId).getPlot(plotId));
-			PlotScreen.adapter.notifyDataSetChanged();
+			if (PlotScreen.adapter != null)
+				PlotScreen.adapter.notifyDataSetChanged();
 		}
 	}
 	

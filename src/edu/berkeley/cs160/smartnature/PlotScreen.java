@@ -62,8 +62,8 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	}
 
 	public void initMockData() {
-		plot.getPlants().clear();
-		GardenGnome.initPlant(po_pk, plot);
+		//plot.getPlants().clear();
+		//GardenGnome.initPlant(po_pk, plot);
 		adapter = new PlantAdapter(this, R.layout.plant_list_item, plot.getPlants());
 		setListAdapter(adapter);
 	}
@@ -136,7 +136,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 			View v = convertView;
 			if (v == null)
 				v = li.inflate(R.layout.plant_list_item, null);
-			plant = plants.get(position);
+			plant = plot.getPlant(position);
 			((TextView) v.findViewById(R.id.plant_name)).setText(plant.getName());
 
 			return v;
