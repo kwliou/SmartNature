@@ -132,10 +132,23 @@ class GardenGnome extends Application {
 
 	/** TODO: should manually set the id of the garden */
 	public static void addGarden(Garden garden) {
-		gardens.add(garden);
-		garden.setGardenNum(dh.count_garden());
-		System.out.println("addGarden = " + dh.count_garden());
 		dh.insert_garden(garden.getName(), R.drawable.preview, "0,0,800,480", "", "", 0, -1, "");
+		garden.setGardenNum(dh.count_garden());
+		gardens.add(garden);
+		System.out.println("addGarden = " + dh.count_garden());
+	}
+	
+	public static void addGardenServer(Garden garden) {
+		String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
+		int is_public = -1;
+		if(garden.isPublic())
+			is_public = 1;
+		else
+			is_public = 0;
+		dh.insert_garden(garden.getName(), R.drawable.preview, bounds_s, garden.getCity(), garden.getState(), garden.getServerId(), is_public, "");
+		garden.setGardenNum(dh.count_garden());
+		gardens.add(garden);
+		System.out.println("addGarden = " + dh.count_garden());
 	}
 
 	public static void removeGarden(int garden_id) {
@@ -175,8 +188,8 @@ class GardenGnome extends Application {
 		String points = plot.getType() == Plot.POLY ? "0,0" : ""; 
 		dh.insert_plot(plot.getName(), shape_s, plot.getType(), Color.BLACK, points, 0, 0);
 		dh.insert_map_gp(garden.getGardenNum(), dh.count_plot());
-		garden.addPlot(plot);
 		plot.setPlotNum(dh.count_plot());
+		garden.addPlot(plot);
 		System.out.println("addPlot = " + dh.count_plot());
 	}
 
@@ -244,22 +257,20 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addPlant(Plot plot, Plant plant) {
-		plot.addPlant(plant);
-		plant.setPlantNum(dh.count_plant());
-		System.out.println("addPlant = " + dh.count_plant());
-
 		dh.insert_plant(plant.getName(), 0);
 		dh.insert_map_pp(plot.getPlotNum(), dh.count_plant());
+		plant.setPlantNum(dh.count_plant());
+		plot.addPlant(plant);
+		System.out.println("addPlant = " + dh.count_plant());
 	}
 
 	public static void addPlant(int po_pk, String name, Plot plot) {
-		Plant temp = new Plant(name);
-		plot.addPlant(temp);
-		temp.setPlantNum(dh.count_plant());
-		System.out.println("addPlant = " + dh.count_plant());
-
 		dh.insert_plant(name, 0);
 		dh.insert_map_pp(po_pk, dh.count_plant());
+		Plant temp = new Plant(name);
+		temp.setPlantNum(dh.count_plant());
+		plot.addPlant(temp);
+		System.out.println("addPlant = " + dh.count_plant());
 	}
 
 	public static void removePlant(int plant_id, int pa_pk, Plot plot) {
@@ -295,19 +306,19 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addEntry(Plant plant, Entry entry) {
-		plant.addEntry(entry);
-		entry.setEntryNum(dh.count_entry());
-		System.out.println("addEntry = " + dh.count_entry());
 		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
 		dh.insert_map_pe(plant.getPlantNum(), dh.count_entry());
+		entry.setEntryNum(dh.count_entry());
+		plant.addEntry(entry);
+		System.out.println("addEntry = " + dh.count_entry());
 	}
 
 	public static void addEntry(int pa_pk, Plant plant, Entry entry) {
-		plant.addEntry(entry);
-		entry.setEntryNum(dh.count_entry());
-		System.out.println("addEntry = " + dh.count_entry());
 		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
 		dh.insert_map_pe(pa_pk, dh.count_entry());
+		entry.setEntryNum(dh.count_entry());
+		plant.addEntry(entry);
+		System.out.println("addEntry = " + dh.count_entry());
 	}
 
 	public static void updateEntry(int e_pk, String name, Entry entry) {
@@ -331,11 +342,11 @@ class GardenGnome extends Application {
 
 	/** FIXME */
 	public static void addPhoto(Garden garden, Photo photo) {
+		dh.insert_photo(photo.getServerId(), photo.getUri().toString(), photo.getTitle());
+		dh.insert_map_gp2(garden.getGardenNum(), dh.count_photo());
 		garden.addImage(photo);
 		photo.setPhotoNum(dh.count_photo());
 		System.out.println("addPhoto = " + dh.count_photo());
-		dh.insert_photo(0, photo.getUri().toString(), "");
-		dh.insert_map_gp2(garden.getGardenNum(), dh.count_photo());
 	}
 	
 	public static void setPhotoId(int ph_pk, int serverId) {
@@ -438,7 +449,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		Intent intent = new Intent(this, GardenScreen.class);
 		intent.putExtra("garden_id", gardens.size());
 		Garden garden = new Garden(gardenName);
-		GardenGnome.addGarden(garden);
+		GardenGnome.addGardenServer(garden);
 		adapter.notifyDataSetChanged();
 		startActivityForResult(intent, 0);
 		new Thread(setLocation).start();
