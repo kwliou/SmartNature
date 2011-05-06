@@ -109,12 +109,11 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Intent result = new Intent(Encyclopedia.this, EncyclopediaResult.class);
-		String plantURL = ((TextView) view.findViewById(R.id.linkURL)).getText().toString();
-		pName = ((TextView) view.findViewById(R.id.name)).getText().toString();
-		result.putExtra("name", pName);
-		result.putExtra("linkURL", plantURL);
-		startActivity(result);
+		SearchResult result = resultList.get(position);
+		Intent intent = new Intent(this, EncyclopediaResult.class);
+		intent.putExtra("name", result.getName());
+		intent.putExtra("linkURL", result.getLinkURL());
+		startActivity(intent);
 	}
 	
 	@Override

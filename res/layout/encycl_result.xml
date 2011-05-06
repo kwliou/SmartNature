@@ -7,19 +7,21 @@
 	<LinearLayout
 		android:id="@+id/titleAndButton"
 		android:layout_marginTop="4dp"
-		android:gravity="center"
+		android:gravity="center_vertical"
 		android:orientation="horizontal"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 		<TextView
 			android:id="@+id/searchName"
-			android:text="plant"
+			android:text="planni hu iuhnuihnuih oi oi t"
+			android:scrollHorizontally="true"
 			android:textSize="20sp"
-			android:ellipsize="marquee"
+			android:gravity="fill_horizontal"
+			android:ellipsize="end"
 			android:layout_marginLeft="10dp"
 			android:layout_weight="1"
 			android:layout_width="wrap_content"
-			android:layout_height="fill_parent" />
+			android:layout_height="wrap_content" />
 		<Button
 			android:id="@+id/addToPlot"
 			android:text="Add To Plot"
@@ -27,7 +29,36 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" />
 	</LinearLayout>
+	
+	<RelativeLayout
+		android:id="@+id/search_result_msg"
+		android:visibility="gone"
+		android:padding="5dp"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
 
+		<TextView
+			android:id="@+id/search_result_msg_title"
+			android:text="Sorry!"
+			android:ellipsize="marquee"
+			android:textSize="24sp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
+		<TextView
+			android:text="Encyclopedia entry was not found."
+			android:ellipsize="marquee"
+			android:textSize="16sp"
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="5dp"
+			android:layout_below="@id/search_result_msg_title"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content" />
+
+	</RelativeLayout>
+	
 	<ScrollView
 		android:id="@+id/descriptionContent"
 		android:orientation="vertical"
