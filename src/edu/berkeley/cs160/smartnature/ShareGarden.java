@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
@@ -125,10 +124,10 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	}
 	
 	public boolean uploadGarden() {
-		CheckBox permiss = (CheckBox) findViewById(R.id.garden_permissions);
-		EditText password = (EditText) findViewById(R.id.garden_password);
-		garden.setPublic(permiss.isChecked());
-		garden.setPassword(password.getText().toString());
+		String password = ((EditText) findViewById(R.id.garden_password)).getText().toString().trim();
+		if (password.length() == 0)
+			garden.setPublic(true);
+		garden.setPassword(password);
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost(getString(R.string.server_url) + "gardens.json");
 		// rails server expects "garden" to be key value
