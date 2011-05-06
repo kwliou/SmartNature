@@ -169,12 +169,6 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 			Intent intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			break;
-		case R.id.m_showhints:
-			/*
-				StartScreen.showHints = !StartScreen.showHints;
-				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");			
-				break;
-			 */
 		case R.id.m_deleteplot:
 			GardenGnome.removePlot(gardenID, po_pk, plot);
 			finish();

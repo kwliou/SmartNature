@@ -350,15 +350,6 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			intent = new Intent(PlantScreen.this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 			break;
-		case R.id.m_showhints:
-			/*StartScreen.showHints = !StartScreen.showHints;
-				if (StartScreen.showHints){
-					plantHint.setVisibility(View.VISIBLE);
-				}else{
-					plantHint.setVisibility(View.GONE);
-				}
-				item.setTitle(StartScreen.showHints ? "Hide Hints" : "Show Hints");		
-			 */
 		case R.id.m_deleteplant:
 			GardenGnome.removePlant(plantID, pa_pk, plot);
 			PlotScreen.adapter.notifyDataSetChanged(); 
