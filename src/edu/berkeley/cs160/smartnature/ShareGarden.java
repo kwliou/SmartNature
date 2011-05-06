@@ -11,6 +11,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -228,6 +229,10 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	}
 	
 	public boolean uploadImages() {
+		String state = Environment.getExternalStorageState();
+		System.out.println("sd_state=" + state);
+		if (!state.equals(Environment.MEDIA_MOUNTED) && !state.equals(Environment.MEDIA_MOUNTED_READ_ONLY))
+			return false; // storage can not be read
 		boolean success = true;
 		String accessKey = "AKIAIPOGJD62WOASLQYA";
 		String secretKey = "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";

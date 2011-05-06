@@ -1,6 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -70,6 +71,8 @@ class GardenGnome extends Application {
 				Plot temp2 = dh.select_plot(existing_plot.get(j));
 				temp2.setPlotNum(existing_plot.get(j));
 				gardens.get(i).addPlot(temp2);
+				System.out.println("garden_index=" + i);
+				System.out.println(temp2.getName() + "," + temp2.getType() + "," + temp2.getBounds().toString() + "," + Arrays.toString(temp2.getPoints()));
 				System.out.println("plot = " + existing_plot.get(j));
 				List<Integer> existing_plant = dh.select_map_pp_pa(existing_plot.get(j));
 				for(int k = 0; k < existing_plant.size(); k++) {
@@ -486,6 +489,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
+		System.out.println("clicked garden_index=" + gardens.get(position).getId());
 		intent.putExtra("garden_id", gardens.get(position).getId());
 		startActivityForResult(intent, 0);
 	}

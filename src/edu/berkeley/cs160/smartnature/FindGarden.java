@@ -316,6 +316,10 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	}
 	
 	public void getImages(Garden garden) {
+		String state = Environment.getExternalStorageState();
+		System.out.println("sd_state=" + state);
+		if (!state.equals(Environment.MEDIA_MOUNTED))
+			return; // storage is missing or read-only
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(getString(R.string.server_url) + "gardens/" + garden.getServerId() + "/photos.json");
 		String result = "";
