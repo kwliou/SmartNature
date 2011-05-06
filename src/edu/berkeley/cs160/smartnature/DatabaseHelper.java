@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.Uri;
 
 public class DatabaseHelper {
 	private static final String DATABASE_NAME = "garden_gnome.db";
@@ -438,13 +439,16 @@ public class DatabaseHelper {
 		return this.insertStmt_photo.executeInsert();
 	}
 
-	public String select_photo_thumb(int ph_pk) {
+	public Photo select_photo(int ph_pk) {
 		String selection = "ph_pk = " + ph_pk;
 		Cursor cursor = this.db.query(TABLE_NAME_PHOTO, null, selection, null, null, null, null);
-		String temp = "";
+		Photo temp = null;
 		if (cursor.moveToFirst()) {
-			do
-				temp = cursor.getString(cursor.getColumnIndex("thumb"));
+			do {
+				temp = new Photo(Uri.parse(cursor.getString(cursor.getColumnIndex("uri"))));
+				temp.setTitle(cursor.getString(cursor.getColumnIndex("title")));
+				temp.setServerId(cursor.getInt(cursor.getColumnIndex("id")));
+			}
 			while (cursor.moveToNext());
 		}
 		if (cursor != null || !cursor.isClosed())
@@ -565,6 +569,20 @@ public class DatabaseHelper {
 		this.insertStmt_map_gp2.bindLong(1, (long)g_map);
 		this.insertStmt_map_gp2.bindLong(2, (long)ph_map);
 		return this.insertStmt_map_gp2.executeInsert();
+	}
+	
+	public List<Integer> select_map_gp2_ph(int g_map) {
+		List<Integer> list = new ArrayList<Integer>();
+		String selection = "g_map" + " = '" + g_map + "'";
+		Cursor cursor = this.db.query(TABLE_NAME_MAP_GP2, null, selection, null, null, null, null);
+		if (cursor.moveToFirst()) {
+			do
+				list.add(cursor.getInt(cursor.getColumnIndex("ph_map")));
+			while (cursor.moveToNext());
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return list;
 	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {

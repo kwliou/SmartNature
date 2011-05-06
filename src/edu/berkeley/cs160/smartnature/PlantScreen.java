@@ -119,7 +119,8 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 					entryName = "Untitled entry";
 				}
 				Entry entry = new Entry(entryName, currentDate.getTime());
-				GardenGnome.addEntry(plant, entry); //GardenGnome.addEntry(pa_pk, plant, temp);
+				//GardenGnome.addEntry(plant, entry);
+				GardenGnome.addEntry(pa_pk, plant, entry);
 				adapter.notifyDataSetChanged(); // refresh ListView
 				entryText.setText("");
 			}

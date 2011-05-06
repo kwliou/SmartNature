@@ -58,12 +58,33 @@ class GardenGnome extends Application {
 			temp1.setGardenNum(existing_garden.get(i));
 			System.out.println("garden = " + existing_garden.get(i));
 			gardens.add(temp1);
+			List<Integer> existing_photo = dh.select_map_gp2_ph(existing_garden.get(i));
+			for(int m = 0; m < existing_photo.size(); m++) {
+				Photo temp2 = dh.select_photo(existing_photo.get(m));
+				temp2.setPhotoNum(existing_photo.get(m));
+				gardens.get(i).addImage(temp2);
+				System.out.println("photo = " + existing_photo.get(m));
+			}
 			List<Integer> existing_plot = dh.select_map_gp_po(existing_garden.get(i));
 			for(int j = 0; j < existing_plot.size(); j++) {
 				Plot temp2 = dh.select_plot(existing_plot.get(j));
 				temp2.setPlotNum(existing_plot.get(j));
 				gardens.get(i).addPlot(temp2);
 				System.out.println("plot = " + existing_plot.get(j));
+				List<Integer> existing_plant = dh.select_map_pp_pa(existing_plot.get(j));
+				for(int k = 0; k < existing_plant.size(); k++) {
+					Plant temp3 = dh.select_plant(existing_plant.get(k));
+					temp3.setPlantNum(existing_plant.get(k));
+					gardens.get(i).getPlot(j).addPlant(temp3);
+					System.out.println("plant = " + existing_plant.get(k));
+					List<Integer> existing_entry = dh.select_map_pe_e(existing_plant.get(k));
+					for(int l = 0; l < existing_entry.size(); l++) {
+						Entry temp4 = dh.select_entry(existing_entry.get(l));
+						temp4.setEntryNum(existing_entry.get(l));
+						gardens.get(i).getPlot(j).getPlant(k).addEntry(temp4);
+						System.out.println("entry = " + existing_entry.get(l));
+					}
+				}
 			}
 		}
 	}
@@ -187,10 +208,10 @@ class GardenGnome extends Application {
 	}
 
 	public static void initPlant(int po_pk, Plot plot) {
-		List<Integer> temp = dh.select_map_pp_pa(po_pk);
-		if(plot.getPlants().size() != temp.size()) {
-			for(int i = 0; i < temp.size(); i++)
-				plot.addPlant(dh.select_plant(temp.get(i)));
+		List<Integer> existing_plant = dh.select_map_pp_pa(po_pk);
+		if(plot.getPlants().size() != existing_plant.size()) {
+			for(int i = 0; i < existing_plant.size(); i++)
+				plot.addPlant(dh.select_plant(existing_plant.get(i)));
 		}
 	}
 
@@ -216,7 +237,7 @@ class GardenGnome extends Application {
 		plot.addPlant(temp);
 		temp.setPlantNum(dh.count_plant());
 		System.out.println("addPlant = " + dh.count_plant());
-		
+
 		dh.insert_plant(name, 0);
 		dh.insert_map_pp(po_pk, dh.count_plant());
 	}
@@ -228,10 +249,11 @@ class GardenGnome extends Application {
 	}
 
 	public static void initEntry(int pa_pk, Plant plant) {
-		List<Integer> temp = dh.select_map_pe_e(pa_pk);
-		if(plant.getEntries().size() != temp.size()) {
-			for(int i = 0; i < temp.size(); i++)
-				plant.addEntry(dh.select_entry(temp.get(i)));
+		List<Integer> existing_entry = dh.select_map_pe_e(pa_pk);
+		if(plant.getEntries().size() != existing_entry.size()) {
+			for(int i = 0; i < existing_entry.size(); i++) {
+				plant.addEntry(dh.select_entry(existing_entry.get(i)));
+			}
 		}
 	}
 
@@ -251,7 +273,7 @@ class GardenGnome extends Application {
 	public static void addEntry(Plant plant, Entry entry) {
 		plant.addEntry(entry);
 	}
-	
+
 	public static void addEntry(int pa_pk, Plant plant, Entry entry) {
 		plant.addEntry(entry);
 		entry.setEntryNum(dh.count_entry());
@@ -259,12 +281,12 @@ class GardenGnome extends Application {
 		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
 		dh.insert_map_pe(pa_pk, dh.count_entry());
 	}
-	
+
 	public static void updateEntry(int e_pk, String name, Entry entry) {
 		entry.setName(name);
 		dh.update_entry(e_pk, name);
 	}
-	
+
 	public static void removeEntry(int entry_id, int e_pk, Plant plant) {
 		plant.getEntries().remove(entry_id);
 		dh.delete_map_pe(e_pk);
@@ -274,12 +296,12 @@ class GardenGnome extends Application {
 	public static Photo getPhoto(int garden_id, int image_index) {
 		return gardens.get(garden_id).getImage(image_index);
 	}
-	
+
 	/** FIXME */
 	public static void addPhoto(Garden garden, Photo photo) {
 		garden.addImage(photo);
 	}
-	
+
 	// unused?
 	public static void addPhoto(int garden_id, Uri uri) {
 		Photo temp = new Photo(uri);
@@ -506,7 +528,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 					options.inTargetDensity = metrics.densityDpi;
 					options.outWidth = 75;
 					options.outHeight = 50;
-					
+
 					image.setImageBitmap(BitmapFactory.decodeFile(preview.toString().replace("file://", ""), options));
 				}
 			}
