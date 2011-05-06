@@ -255,7 +255,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		
 		System.out.println("garden_json=" + result);
 		Garden garden = gson.fromJson(result, Garden.class);
-		GardenGnome.addGarden(garden);
+		GardenGnome.addGardenServer(garden);
 		getPlots(garden);
 		getImages(garden);
 		return garden;

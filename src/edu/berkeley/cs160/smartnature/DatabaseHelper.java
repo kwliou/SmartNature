@@ -67,6 +67,10 @@ public class DatabaseHelper {
 		this.insertStmt_garden.bindString(1, name);
 		this.insertStmt_garden.bindLong(2, (long) previewId);
 		this.insertStmt_garden.bindString(3, bounds);
+		if(city == null)
+			city = "";
+		if(state == null)
+			state = "";
 		this.insertStmt_garden.bindString(4, city);
 		this.insertStmt_garden.bindString(5, state);
 		this.insertStmt_garden.bindLong(6, (long) serverId);
