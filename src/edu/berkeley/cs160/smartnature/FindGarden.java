@@ -75,6 +75,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	String[] params = {null, "", "", ""};
 	
 	Gson gson = new Gson();
+	AmazonS3Client s3;
 	NotificationManager manager;
 	MessageDigest digester;
 	MediaScannerConnection scanner;
@@ -235,7 +236,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		runOnUiThread(new Runnable() {
 			@Override public void run() {
 				setProgressBarIndeterminateVisibility(false);
-				resultsLabel.setText("Search results");
+				if (resultsLabel.getText().toString().equals("Searching..."))
+					resultsLabel.setText("Search results");
 			}
 		});
 	}
@@ -328,16 +330,16 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		} catch (NoSuchAlgorithmException e) { return; }
 	 	String accessKey = "AKIAIPOGJD62WOASLQYA";
 		String secretKey = "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";
-		BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-		AmazonS3Client s3 = new AmazonS3Client(credentials);
-		String bucketName = "gardengnome";
+		if (s3 == null) {
+			BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+			s3 = new AmazonS3Client(credentials);
+		}
 		for (Photo photo : photos) {
 			// download image from s3
 			String code = garden.getServerId() + "|" + photo.getServerId() + "|" + accessKey;
 			String fileName = hexCode(code) + ".jpg";
-			InputStream input = s3.getObject(bucketName, fileName).getObjectContent();
 			
-			Uri imageUri = writeBitmap2(fileName, input);
+			Uri imageUri = writeBitmap2(fileName);
 			photo.setUri(imageUri);
 			garden.addImage(photo);
 		}
@@ -373,7 +375,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	
 	/** writes to device's "external image storage" ex. /sdcard/DCIM/camera
 	 	and shows up under "Camera images" in the Gallery app */
-	public Uri writeBitmap2(String fileName, InputStream input) {
+	public Uri writeBitmap2(String fileName) {
 		ContentValues values = new ContentValues();
 		values.put(Images.Media.TITLE, fileName); //values.put(Images.Media.DESCRIPTION, "Image capture by camera");
 		Uri imageUri = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
@@ -388,6 +390,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		try {
 			output = getContentResolver().openOutputStream(imageUri);
 		} catch (FileNotFoundException e) { e.printStackTrace(); return null; }
+		String bucketName = "gardengnome";
+		InputStream input = s3.getObject(bucketName, fileName).getObjectContent();
 		int buffer = 0;
 		try {
 			while ((buffer = input.read()) != -1)
@@ -511,7 +515,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	
 	/** text = { tickerText, contentTitle } */
 	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate, Intent intent) {
-		manager.cancel(id);
+		manager.cancel(id + 1);
 		Notification notification = new Notification(icon, text[0] + " garden", System.currentTimeMillis());
 		int pendingflags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT; // for Samsung Galaxy S
 		PendingIntent contentIntent = null;
