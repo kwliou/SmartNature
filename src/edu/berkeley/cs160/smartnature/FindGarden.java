@@ -75,7 +75,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	String[] params = {null, "", "", ""};
 	
 	Gson gson = new Gson();
-	AmazonS3Client s3;
+	static AmazonS3Client s3;
 	NotificationManager manager;
 	MessageDigest digester;
 	MediaScannerConnection scanner;
@@ -85,7 +85,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	@Override @SuppressWarnings("unchecked")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		scanner = new MediaScannerConnection(this, null);
+		scanner = new MediaScannerConnection(getApplicationContext(), null);
 		scanner.connect();
 		manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // Window.FEATURE_PROGRESS
@@ -328,7 +328,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		try {
 			digester = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) { return; }
-	 	String accessKey = "AKIAIPOGJD62WOASLQYA";
+		String accessKey = "AKIAIPOGJD62WOASLQYA";
 		String secretKey = "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";
 		if (s3 == null) {
 			BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -383,7 +383,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		android.database.Cursor cursor = managedQuery(imageUri, new String[] {MediaStore.Images.Media.DATA}, null, null, null);
 		int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 		cursor.moveToFirst();
-		String resolvedPath = cursor.getString(column_index);
+		final String resolvedPath = cursor.getString(column_index);
 		System.out.println(resolvedPath);
 		
 		OutputStream output = null;
