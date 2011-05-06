@@ -33,6 +33,8 @@ public class DatabaseHelper {
 	/* one-to-many Relational Model between garden's foreign key and photo's*/
 	private static final String TABLE_NAME_MAP_GP2 = "map_garden_photo";
 
+	private static final String TABLE_NAME_COUNTER = "counter";
+	
 	private static final String INSERT_GARDEN = "insert into " + TABLE_NAME_GARDEN + " (g_pk, name, previewId, bounds, city, state, serverId, is_public, images) values (NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String INSERT_PLOT = "insert into " + TABLE_NAME_PLOT + " (po_pk, name, shape, type, color, polyPoints, rotation, id) values (NULL, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String INSERT_PLANT = "insert into " + TABLE_NAME_PLANT + " (pa_pk, name, id) values (NULL, ?, ?)";
@@ -42,10 +44,11 @@ public class DatabaseHelper {
 	private static final String INSERT_MAP_PP = "insert into " + TABLE_NAME_MAP_PP + " (po_map, pa_map) values (?, ?)";
 	private static final String INSERT_MAP_PE = "insert into " + TABLE_NAME_MAP_PE + " (pa_map, e_map) values (?, ?)";
 	private static final String INSERT_MAP_GP2 = "insert into " + TABLE_NAME_MAP_GP2 + " (g_map, ph_map) values (?, ?)";
+	private static final String INSERT_COUNTER = "insert into " + TABLE_NAME_COUNTER + " (c_pk, garden_id, plot_id, plant_id, entry_id, photo_id) values (NULL, ?, ?, ?, ?, ?)";
 
 	private Context context;
 	private SQLiteDatabase db;
-	private SQLiteStatement insertStmt_garden, insertStmt_plot, insertStmt_plant, insertStmt_entry, insertStmt_photo, insertStmt_map_gp, insertStmt_map_pp, insertStmt_map_pe, insertStmt_map_gp2;
+	private SQLiteStatement insertStmt_garden, insertStmt_plot, insertStmt_plant, insertStmt_entry, insertStmt_photo, insertStmt_map_gp, insertStmt_map_pp, insertStmt_map_pe, insertStmt_map_gp2, insertStmt_counter;
 
 	public DatabaseHelper(Context context) {
 		this.context = context;
@@ -60,8 +63,82 @@ public class DatabaseHelper {
 		this.insertStmt_map_pp = this.db.compileStatement(INSERT_MAP_PP);
 		this.insertStmt_map_pe = this.db.compileStatement(INSERT_MAP_PE);
 		this.insertStmt_map_gp2 = this.db.compileStatement(INSERT_MAP_GP2);
+		this.insertStmt_counter = this.db.compileStatement(INSERT_COUNTER);
 	}
 
+	public long insert_counter(int garden_id, int plot_id, int plant_id, int entry_id, int photo_id) {
+		this.insertStmt_counter.clearBindings();
+		this.insertStmt_counter.bindLong(1, garden_id);
+		this.insertStmt_counter.bindLong(2, plot_id);
+		this.insertStmt_counter.bindLong(3, plant_id);
+		this.insertStmt_counter.bindLong(4, entry_id);
+		this.insertStmt_counter.bindLong(5, photo_id);
+		return this.insertStmt_counter.executeInsert();
+	}
+	
+	public List<Integer> select_counter() {
+		Cursor cursor = this.db.query(TABLE_NAME_COUNTER, null, null, null, null, null, null);
+		ArrayList<Integer> temp_l = new ArrayList<Integer>();
+		if (cursor.moveToFirst()) {
+			do {
+				temp_l.add(cursor.getInt(cursor.getColumnIndex("garden_id")));
+				temp_l.add(cursor.getInt(cursor.getColumnIndex("plot_id")));
+				temp_l.add(cursor.getInt(cursor.getColumnIndex("plant_id")));
+				temp_l.add(cursor.getInt(cursor.getColumnIndex("entry_id")));
+				temp_l.add(cursor.getInt(cursor.getColumnIndex("photo_id")));
+			} while (cursor.moveToNext());
+		}
+		if (cursor != null || !cursor.isClosed())
+			cursor.close();
+		return temp_l;
+	}
+	
+	public long update_counter(int c_pk, int garden_id, int plot_id, int plant_id, int entry_id, int photo_id) {
+		ContentValues cv = new ContentValues();
+		cv.put("garden_id", garden_id);
+		cv.put("plot_id", plot_id);
+		cv.put("plant_id", plant_id);
+		cv.put("entry_id", entry_id);
+		cv.put("photo_id", photo_id);
+		String selection = "c_pk = ?";
+		return db.update(TABLE_NAME_COUNTER, cv, selection, new String[] {Integer.toString(c_pk)});
+	}
+	
+	public long update_counter_garden(int c_pk, int garden_id) {
+		ContentValues cv = new ContentValues();
+		cv.put("garden_id", garden_id);
+		String selection = "c_pk = ?";
+		return db.update(TABLE_NAME_COUNTER, cv, selection, new String[] {Integer.toString(c_pk)});
+	}
+	
+	public long update_counter_plot(int c_pk, int plot_id) {
+		ContentValues cv = new ContentValues();
+		cv.put("plot_id", plot_id);
+		String selection = "c_pk = ?";
+		return db.update(TABLE_NAME_COUNTER, cv, selection, new String[] {Integer.toString(c_pk)});
+	}
+	
+	public long update_counter_plant(int c_pk, int plant_id) {
+		ContentValues cv = new ContentValues();
+		cv.put("plant_id", plant_id);
+		String selection = "c_pk = ?";
+		return db.update(TABLE_NAME_COUNTER, cv, selection, new String[] {Integer.toString(c_pk)});
+	}
+	
+	public long update_counter_entry(int c_pk, int entry_id) {
+		ContentValues cv = new ContentValues();
+		cv.put("entry_id", entry_id);
+		String selection = "c_pk = ?";
+		return db.update(TABLE_NAME_COUNTER, cv, selection, new String[] {Integer.toString(c_pk)});
+	}
+	
+	public long update_counter_photo(int c_pk, int photo_id) {
+		ContentValues cv = new ContentValues();
+		cv.put("photo_id", photo_id);
+		String selection = "c_pk = ?";
+		return db.update(TABLE_NAME_COUNTER, cv, selection, new String[] {Integer.toString(c_pk)});
+	}
+	
 	public long insert_garden(String name, int previewId, String bounds, String city, String state, int serverId, int is_public, String images) {
 		this.insertStmt_garden.clearBindings();
 		this.insertStmt_garden.bindString(1, name);
@@ -215,7 +292,7 @@ public class DatabaseHelper {
 
 	public int count_garden() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_GARDEN, null);
-		int temp = 1;
+		int temp = 0;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
@@ -304,7 +381,7 @@ public class DatabaseHelper {
 
 	public int count_plot() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PLOT, null);
-		int temp = -1;
+		int temp = 0;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
@@ -365,7 +442,7 @@ public class DatabaseHelper {
 
 	public int count_plant() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PLANT, null);
-		int temp = 1;
+		int temp = 0;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
@@ -444,7 +521,7 @@ public class DatabaseHelper {
 
 	public int count_entry() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_ENTRY, null);
-		int temp = 1;
+		int temp = 0;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
@@ -494,7 +571,7 @@ public class DatabaseHelper {
 	
 	public int count_photo() {
 		Cursor cursor = db.rawQuery("SELECT last_insert_rowid() FROM " + TABLE_NAME_PHOTO, null);
-		int temp = 1;
+		int temp = 0;
 		if (cursor.getCount() > 0) {
 			cursor.moveToNext();
 			temp = cursor.getInt(0);
@@ -637,6 +714,7 @@ public class DatabaseHelper {
 			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PP + " (po_map INTEGER, pa_map INTEGER, FOREIGN KEY(po_map) REFERENCES plot(po_pk), FOREIGN KEY(pa_map) REFERENCES plant(pa_pk))");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_PE + " (pa_map INTEGER, e_map INTEGER, FOREIGN KEY(pa_map) REFERENCES plant(pa_pk), FOREIGN KEY(e_map) REFERENCES entry(e_pk))");
 			db.execSQL("CREATE TABLE " + TABLE_NAME_MAP_GP2 + " (g_map INTEGER, ph_map INTEGER, FOREIGN KEY(g_map) REFERENCES plot(g_pk), FOREIGN KEY(ph_map) REFERENCES photo(ph_pk))");
+			db.execSQL("CREATE TABLE " + TABLE_NAME_COUNTER + " (c_pk INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, garden_id INTEGER, plot_id INTEGER, plant_id INTEGER, entry_id INTEGER, photo_id INTEGER)");
 		}
 
 		@Override
@@ -650,6 +728,7 @@ public class DatabaseHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MAP_PP);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MAP_PE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MAP_GP2);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_COUNTER);
 			onCreate(db);
 		}
 	}
