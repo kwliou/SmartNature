@@ -5,16 +5,15 @@ import com.google.gson.annotations.SerializedName;
 
 public class Entry {
 	
-	@Expose @SerializedName("body") private String name;
+	@Expose private String body;
 	@Expose @SerializedName("created_at") private long date;
 	private int id;
 	
 	private int entry_num;
 	
-	Entry(String name, long date) {
-		this.name = name;
+	Entry(String body, long date) {
+		this.body = body;
 		this.date = date;
-		this.id = 0;
 	}
 	
 	public int getServerId() {
@@ -25,12 +24,12 @@ public class Entry {
 		this.id = serverId;
 	}
 	
-	public String getName() {
-		return name;
+	public String getBody() {
+		return body;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setBody(String body) {
+		this.body = body;
 	}
 	
 	public long getDate() {

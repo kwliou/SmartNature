@@ -136,7 +136,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 			View v = convertView;
 			if (v == null)
 				v = li.inflate(R.layout.plant_list_item, null);
-			plant = plot.getPlant(position);
+			plant = plants.get(position);
 			((TextView) v.findViewById(R.id.plant_name)).setText(plant.getName());
 
 			return v;

@@ -21,6 +21,7 @@
 	<string name="new_entry_prompt">Enter journal entry</string>
 	<string name="garden_list_title">My Gardens</string>
 	<string name="global_prefs_name">GardenGnome Settings</string>
+	<string name="search_hint">Search plant name</string>
 	<string name="hint_gardenscreen">Press on a plot to view its plants/info\nLong press on a plot to edit its shape\nDrag the screen to pan the garden</string>
 	<string name="hint_editpoly">Double tap screen to add points to shape\nDrag a point to move it around\nLong press on a point to delete it\nThe last dotted line will be added for you</string>
 	<string name="hint_editscreen">Drag the edited plot to move it around\nDrag the dotted circle to rotate the plot\nDrag the square in bottom right corner of plot to resize it</string>

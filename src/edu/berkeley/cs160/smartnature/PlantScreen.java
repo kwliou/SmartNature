@@ -122,7 +122,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			entryText.setText("");			
 		}
 		else {
-			plant.getEntry(clickedPosition).setName(entryText.getText().toString());
+			plant.getEntry(clickedPosition).setBody(entryText.getText().toString());
 			entryText.setText("");
 			entryText.setHint("Add journal entry");
 			addEntryButton.setText("Post");
@@ -166,7 +166,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			if (v == null)
 				v = li.inflate(R.layout.journal_list_item, null);
 			Entry e = items.get(position);
-			((TextView) v.findViewById(R.id.entry_name)).setText(e.getName());
+			((TextView) v.findViewById(R.id.entry_name)).setText(e.getBody());
 			String dateStr = formatter.format(e.getDate()); // currentDate.toLocaleString();
 			((TextView) v.findViewById(R.id.entry_date)).setText(dateStr);
 			
@@ -187,7 +187,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		startActivity(intent);
 		*/
 		clickedPosition = position;
-		entryText.setText(plant.getEntry(position).getName());
+		entryText.setText(plant.getEntry(position).getBody());
 		entryText.setHint("Edit journal entry");
 		addEntryButton.setText("Edit");
 		addEntryButton.setCompoundDrawablesWithIntrinsicBounds(0, android.R.drawable.ic_menu_edit, 0, 0);
@@ -225,7 +225,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		Intent intent;
 		switch (item.getItemId()) {
 			case R.id.m_home:
-				intent = new Intent(PlantScreen.this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;
 			case R.id.m_deleteplant:
@@ -234,11 +234,9 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 				finish();
 				break;
 			case R.id.m_searchplant:
-				intent = new Intent(PlantScreen.this, Encyclopedia.class);
-				Bundle bundle = new Bundle(1);
-				bundle.putString("name", name);
-				
-				intent.putExtras(bundle);
+				intent = new Intent(this, Encyclopedia.class);
+				intent.setAction(Intent.ACTION_SEARCH);
+				intent.putExtra(android.app.SearchManager.QUERY, name);
 				startActivity(intent);
 				break;
 			case R.id.m_renameplant:

@@ -452,7 +452,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		else
 			builder.setMessage("Confirm you want to download");
 		
-		final Dialog dialog = builder.setTitle("Download garden")
+		final Dialog dialog = builder.setTitle(stub[NAME])
 		.setPositiveButton(R.string.alert_dialog_confirm, this)
 		.setNegativeButton(R.string.alert_dialog_cancel, cancelled) // this means cancel was pressed
 		.create();
@@ -460,7 +460,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		if (!is_public) {
 			// automatically show soft keyboard
 			EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-			input.setHint("Enter password");
+			input.setHint("Enter garden password");
 			input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 			input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 				@Override

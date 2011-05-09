@@ -38,7 +38,7 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 			((TextView) findViewById(R.id.searchName)).setText(pName);
 			Button addToPlot = (Button) findViewById(R.id.addToPlot);
 			addToPlot.setOnClickListener(this);
-			throbber = ProgressDialog.show(this, "Please wait", "Downloading entry...", true, true, this);
+			throbber = ProgressDialog.show(this, null, "Downloading entry...", true, true, this);
 			new Thread(this).start();
 		}
 	}

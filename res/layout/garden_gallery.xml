@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:gravity="center_vertical"
+	android:paddingTop="20dp"
+	android:paddingBottom="20dp"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<Button
+		android:id="@+id/image_left"
+		android:background="@drawable/btn_gallery_arrow_left"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+
+	<Gallery
+		android:id="@+id/gallery"
+		android:unselectedAlpha="0.6"
+		android:spacing="1dp"
+		android:layout_weight="1"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent" />
+
+	<Button
+		android:id="@+id/image_right"
+		android:background="@drawable/btn_gallery_arrow_right"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+
+</LinearLayout>

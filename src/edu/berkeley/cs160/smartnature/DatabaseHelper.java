@@ -52,18 +52,18 @@ public class DatabaseHelper {
 
 	public DatabaseHelper(Context context) {
 		this.context = context;
-		OpenHelper openHelper = new OpenHelper(this.context);
-		this.db = openHelper.getWritableDatabase();
-		this.insertStmt_garden = this.db.compileStatement(INSERT_GARDEN);
-		this.insertStmt_plot = this.db.compileStatement(INSERT_PLOT);
-		this.insertStmt_plant = this.db.compileStatement(INSERT_PLANT);
-		this.insertStmt_entry = this.db.compileStatement(INSERT_ENTRY);
-		this.insertStmt_photo = this.db.compileStatement(INSERT_PHOTO);
-		this.insertStmt_map_gp = this.db.compileStatement(INSERT_MAP_GP);
-		this.insertStmt_map_pp = this.db.compileStatement(INSERT_MAP_PP);
-		this.insertStmt_map_pe = this.db.compileStatement(INSERT_MAP_PE);
-		this.insertStmt_map_gp2 = this.db.compileStatement(INSERT_MAP_GP2);
-		this.insertStmt_counter = this.db.compileStatement(INSERT_COUNTER);
+		OpenHelper openHelper = new OpenHelper(context);
+		db = openHelper.getWritableDatabase();
+		insertStmt_garden = db.compileStatement(INSERT_GARDEN);
+		insertStmt_plot = db.compileStatement(INSERT_PLOT);
+		insertStmt_plant = db.compileStatement(INSERT_PLANT);
+		insertStmt_entry = db.compileStatement(INSERT_ENTRY);
+		insertStmt_photo = db.compileStatement(INSERT_PHOTO);
+		insertStmt_map_gp = db.compileStatement(INSERT_MAP_GP);
+		insertStmt_map_pp = db.compileStatement(INSERT_MAP_PP);
+		insertStmt_map_pe = db.compileStatement(INSERT_MAP_PE);
+		insertStmt_map_gp2 = db.compileStatement(INSERT_MAP_GP2);
+		insertStmt_counter = db.compileStatement(INSERT_COUNTER);
 	}
 
 	public long insert_counter(int garden_id, int plot_id, int plant_id, int entry_id, int photo_id) {

@@ -348,7 +348,7 @@ class GardenGnome extends Application {
 		for(int i = 0; i < temp.size(); i++) {
 			if(e_pk != -1) 
 				break;
-			if(entry.getName().equalsIgnoreCase(dh.select_entry_name(temp.get(i).intValue())))
+			if(entry.getBody().equalsIgnoreCase(dh.select_entry_name(temp.get(i).intValue())))
 				e_pk = temp.get(i);
 		}
 		return e_pk;
@@ -357,8 +357,8 @@ class GardenGnome extends Application {
 	/** FIXME */
 	public static void addEntry(Plant plant, Entry entry) {
 		dh.update_counter_entry(1, entry_id);
-		Log.w("debug", "addEntry " + plant.getName() + " " + entry.getName());
-		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
+		Log.w("debug", "addEntry " + plant.getName() + " " + entry.getBody());
+		dh.insert_entry(entry.getBody(), entry.getDate() + "", entry.getServerId());
 		dh.insert_map_pe(plant.getPlantNum(), entry_id);
 		entry.setEntryNum(entry_id);
 		plant.addEntry(entry);
@@ -368,7 +368,7 @@ class GardenGnome extends Application {
 
 	public static void addEntry(int pa_pk, Plant plant, Entry entry) {
 		dh.update_counter_entry(1, entry_id);
-		dh.insert_entry(entry.getName(), entry.getDate() + "", entry.getServerId());
+		dh.insert_entry(entry.getBody(), entry.getDate() + "", entry.getServerId());
 		dh.insert_map_pe(pa_pk, entry_id);
 		entry.setEntryNum(entry_id);
 		plant.addEntry(entry);
@@ -377,7 +377,7 @@ class GardenGnome extends Application {
 	}
 
 	public static void updateEntry(int e_pk, String name, Entry entry) {
-		entry.setName(name);
+		entry.setBody(name);
 		dh.update_entry(e_pk, name);
 	}
 
@@ -456,7 +456,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			showDialog(0);
 			break;
 		case R.id.search_encyclopedia:
-			startActivityForResult(new Intent(this, Encyclopedia.class), 0);
+			startActivity(new Intent(this, Encyclopedia.class));
 			break;
 		case R.id.find_garden:
 			startActivityForResult(new Intent(this, FindGarden.class), 0);
@@ -554,7 +554,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, GardenScreen.class);
-		System.out.println("clicked garden_index=" + gardens.get(position).getId());
+		//System.out.println("clicked garden_index=" + gardens.get(position).getId());
 		intent.putExtra("garden_id", gardens.get(position).getId());
 		startActivityForResult(intent, 0);
 	}
@@ -563,7 +563,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.m_contact:
-			Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+			Intent intent = new Intent(Intent.ACTION_VIEW);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 			intent.setData(Uri.parse("mailto:" + getString(R.string.dev_email)));
 			intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "GardenGnome feedback");
@@ -613,7 +613,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 			} catch (Exception e) { e.printStackTrace(); }
 		}
 		else
-			BitmapFactory.decodeFile(uri.toString().replace("file://", ""), o);
+			BitmapFactory.decodeFile(uri.getPath(), o);
 		double scale = 1;
         if (o.outWidth > 75 || o.outHeight > 50)
             scale = Math.pow(2, (int) Math.round(Math.log(75 / (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
@@ -661,7 +661,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 				}
 				else {
 					System.out.println(preview.getPath());
-					image.setImageBitmap(BitmapFactory.decodeFile(preview.toString().replace("file://", ""), options));
+					image.setImageBitmap(BitmapFactory.decodeFile(preview.getPath(), options));
 				}
 			}
 			return view;

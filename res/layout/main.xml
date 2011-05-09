@@ -21,7 +21,7 @@
 			<Button
 				android:id="@+id/new_garden"
 				android:text="Map out your garden"
-				android:textSize="16sp"
+				android:textSize="15.5sp"
 				android:drawableTop="@android:drawable/ic_menu_add"
 				android:layout_weight="1"
 				android:layout_margin="2dp"
@@ -31,7 +31,7 @@
 			<Button
 				android:id="@+id/search_encyclopedia"
 				android:text="Plant encyclo-pedia"
-				android:textSize="16sp"
+				android:textSize="15.5sp"
 				android:drawableTop="@android:drawable/ic_menu_search"
 				android:layout_weight="1"
 				android:layout_margin="2dp"
@@ -41,7 +41,7 @@
 			<Button
 				android:id="@+id/find_garden"
 				android:text="Find existing garden"
-				android:textSize="16sp"
+				android:textSize="15.5sp"
 				android:drawableTop="@android:drawable/ic_menu_mapmode"
 				android:layout_weight="1"
 				android:layout_margin="2dp"

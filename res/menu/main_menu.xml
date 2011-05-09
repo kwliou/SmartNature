@@ -5,9 +5,7 @@
 	<item android:id="@+id/m_globaloptions"
 		android:icon="@android:drawable/ic_menu_preferences"
 		android:title="@string/m_globaloptions" />
-	<!--
 	<item android:id="@+id/m_help"
 		android:icon="@android:drawable/ic_menu_help"
 		android:title="@string/m_help" />
-	-->
 </menu>

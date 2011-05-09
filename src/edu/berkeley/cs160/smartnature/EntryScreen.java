@@ -53,7 +53,7 @@ public class EntryScreen extends ListActivity implements View.OnClickListener{
 		setContentView(R.layout.entry);
 
 		newJournalText = (EditText) findViewById(R.id.newJournalText);
-		newJournalText.setText(entry.getName());
+		newJournalText.setText(entry.getBody());
 		//entryDate = (TextView) findViewById(R.id.entryDate);
 		//entryDate.setText(entry.getDate());
 		

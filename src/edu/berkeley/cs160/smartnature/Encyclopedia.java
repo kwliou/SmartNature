@@ -10,6 +10,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.app.ListActivity;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -52,8 +53,10 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		Button searchBtn = (Button) findViewById(R.id.searchButton);
 		searchBtn.setOnClickListener(this);
 		search = (EditText) findViewById(R.id.searchText);
-		if (previousData == null && getIntent().hasExtra("name")) {
-			name = getIntent().getStringExtra("name");
+		Intent intent = getIntent();
+	    
+		if (previousData == null && intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEARCH)) {
+			name = getIntent().getStringExtra(SearchManager.QUERY);
 			search.setText(name);
 			searchBtn.performClick();
 		}
@@ -77,18 +80,20 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 			runOnUiThread(new Runnable() {
 				@Override public void run() {
 					setProgressBarIndeterminateVisibility(false);
+					((TextView)findViewById(R.id.encycl_msg_title)).setText("Sorry!");
+					((TextView)findViewById(R.id.encycl_msg_body)).setText("No internet connection found.");
 					findViewById(R.id.encycl_msg).setVisibility(View.VISIBLE);
 				}
 			});
 			return;
 		}
 		if (resultBox.child(1).attr("id").equals("_ctl0_mainHolder_noresults")) {
-			// Toast.makeText(Encyclopedia.this, "Sorry, no results were found.", Toast.LENGTH_SHORT).show();
-			resultList.add(new SearchResult("No results found", "Please try refining your search", "", ""));
 			runOnUiThread(new Runnable() {
 				@Override public void run() {
+					((TextView)findViewById(R.id.encycl_msg_title)).setText("No results found");
+					((TextView)findViewById(R.id.encycl_msg_body)).setText("Please try refining your search.");
+					findViewById(R.id.encycl_msg).setVisibility(View.VISIBLE);
 					setProgressBarIndeterminateVisibility(false);
-					adapter.notifyDataSetChanged();
 				}
 			});
 		} else {
