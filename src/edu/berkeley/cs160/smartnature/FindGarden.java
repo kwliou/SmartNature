@@ -256,7 +256,6 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		
 		System.out.println("garden_json=" + result);
 		Garden garden = gson.fromJson(result, Garden.class);
-		GardenGnome.addGardenServer(garden);
 		getPlots(garden);
 		getImages(garden);
 		return garden;
@@ -276,7 +275,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		
 		for (Plot plot : plots) {
 			plot.postDownload();
-			GardenGnome.addPlot(garden, plot); //garden.addPlot(plot);
+			garden.addPlot(plot);
 			getPlants(plot);
 		}
 	}
@@ -294,7 +293,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		Plant[] plants = gson.fromJson(result, Plant[].class);
 		
 		for (Plant plant : plants) {
-			GardenGnome.addPlant(plot, plant); //plot.addPlant(plant);
+			plot.addPlant(plant); //plot.addPlant(plant);
 			getEntries(plant);
 		}
 	}
@@ -313,7 +312,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		System.out.println("plant_entries.nil?=" + Boolean.toString(plant.getEntries() == null));
 		plant.setEntries(new ArrayList<Entry>());
 		for (Entry entry : entries)
-			GardenGnome.addEntry(plant, entry); //plant.addEntry(entry);
+			plant.addEntry(entry);
 	}
 	
 	public void getImages(Garden garden) {
@@ -347,9 +346,10 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			String fileName = hexCode(code) + ".jpg";
 			
 			Uri imageUri = writeBitmap2(fileName);
+			if (imageUri == null)
+				return;
 			photo.setUri(imageUri);
-			garden.addImage(photo);
-			//GardenGnome.addPhoto(garden, photo);
+			garden.addPhoto(photo);
 		}
 	}
 	
@@ -399,7 +399,14 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			output = getContentResolver().openOutputStream(imageUri);
 		} catch (FileNotFoundException e) { e.printStackTrace(); return null; }
 		String bucketName = "gardengnome";
-		InputStream input = s3.getObject(bucketName, fileName).getObjectContent();
+		InputStream input = null;
+		try {
+			input = s3.getObject(bucketName, fileName).getObjectContent();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(this, "Amazon S3 has rejected your timezone", Toast.LENGTH_SHORT).show();
+			return null;
+		}
 		int buffer = 0;
 		try {
 			while ((buffer = input.read()) != -1)
@@ -420,11 +427,11 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		String name = ((EditText)findViewById(R.id.search_garden_name)).getText().toString().trim();
 		String city = ((EditText)findViewById(R.id.search_garden_city)).getText().toString().trim();
 		String state = ((EditText)findViewById(R.id.search_garden_state)).getText().toString().trim();
-		boolean empty = name.length() == 0 && city.length() == 0 && state.length() == 0;
+		boolean emptyFields = name.length() == 0 && city.length() == 0 && state.length() == 0;
 		params[NAME] = name;
 		params[CITY] = city;
 		params[STATE] = state;
-		if (!empty) {
+		if (!emptyFields) {
 			inputMgr.hideSoftInputFromWindow(findViewById(R.id.search_garden_state).getWindowToken(), 0);
 			setProgressBarIndeterminateVisibility(true);
 			resultsLabel.setText("Searching...");
@@ -561,12 +568,11 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		@Override
 		public void run() {
 			Garden garden = getGarden(serverId);
-			//GardenGnome.addGarden(garden);
+			GardenGnome.addServerGarden(garden);
 			runOnUiThread(new Runnable() {
 				@Override public void run() { if (--threadCount == 0) scanner.disconnect(); }
 			});
-			int gardenId = garden.getId();
-			Intent intent = new Intent(FindGarden.this, GardenScreen.class).putExtra("garden_id", gardenId);
+			Intent intent = new Intent(FindGarden.this, GardenScreen.class).putExtra("garden_index", GardenGnome.indexOf(garden));
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			
 			String[] text = { "Successfully downloaded", garden.getName() };

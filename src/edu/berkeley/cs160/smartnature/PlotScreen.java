@@ -24,50 +24,41 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class PlotScreen extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
-
+	
 	ListView plantListView;
 	EditText plantName;
 	AlertDialog dialog;
-
+	
 	Garden garden;
 	Plot plot;
 	static PlantAdapter adapter;
 	Plant plant;
-	int gardenID, plotID; 
-	int po_pk;
-
+	int gardenIndex, plotIndex; 
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		if (!intent.hasExtra("garden_id")) {
+		if (!intent.hasExtra("garden_index")) {
 			finish();
 			return;
 		}
-		gardenID = intent.getIntExtra("garden_id", 0);
-		garden = GardenGnome.getGarden(gardenID);
-		plotID = intent.getIntExtra("plot_id", 0);
-		plot = garden.getPlot(plotID);
+		GardenGnome.init(this);
+		gardenIndex = intent.getIntExtra("garden_index", 0);
+		garden = GardenGnome.getGarden(gardenIndex);
+		plotIndex = intent.getIntExtra("plot_index", 0);
+		plot = garden.getPlot(plotIndex);
 		setTitle(plot.getName());
 
 		setContentView(R.layout.plot);
-		po_pk = GardenGnome.getPlotPk(gardenID, plot);
-
-		initMockData();
-		getListView().setOnItemClickListener(this);
-
+		
 		plantName = (EditText) findViewById(R.id.new_plant_name);
-		((Button) findViewById(R.id.addPlantButton)).setOnClickListener(this);
-
-	}
-
-	public void initMockData() {
-		//plot.getPlants().clear();
-		//GardenGnome.initPlant(po_pk, plot);
 		adapter = new PlantAdapter(this, R.layout.plant_list_item, plot.getPlants());
 		setListAdapter(adapter);
+		getListView().setOnItemClickListener(this);
+		((Button) findViewById(R.id.addPlantButton)).setOnClickListener(this);
 	}
-
+	
 	// currently unused
 	@Override
 	public Dialog onCreateDialog(int id) {
@@ -109,13 +100,11 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 
 	@Override
 	public void onClick(View view) {
-		//showDialog(0);
 		String plantString = plantName.getText().toString();
 		if (plantString.length() == 0)
 			plantString = "Untitled plant";
 		
-		//GardenGnome.addPlant(plot, new Plant(plantString));
-		GardenGnome.addPlant(po_pk, plantString, plot);
+		GardenGnome.addPlant(plot, new Plant(plantString));
 		plantName.setText("");
 		adapter.notifyDataSetChanged(); //refresh ListView
 	}
@@ -148,9 +137,9 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
 		intent.putExtra("name", plot.getPlant(position).getName());
-		intent.putExtra("garden_id", gardenID);
-		intent.putExtra("plot_id", plotID);
-		intent.putExtra("plant_id", position);
+		intent.putExtra("garden_index", gardenIndex);
+		intent.putExtra("plot_index", plotIndex);
+		intent.putExtra("plant_index", position);
 		startActivity(intent);
 	}
 
@@ -170,9 +159,9 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 			startActivity(intent);
 			break;
 		case R.id.m_deleteplot:
-			GardenGnome.removePlot(gardenID, po_pk, plot);
+			GardenGnome.removePlot(garden, plot);
 			finish();
-
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

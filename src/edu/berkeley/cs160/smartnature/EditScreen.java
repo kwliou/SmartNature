@@ -49,7 +49,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		super.onCreate(savedInstanceState);
 		
 		extras = getIntent().getExtras();
-		garden = GardenGnome.getGarden(extras.getInt("garden_id"));
+		garden = GardenGnome.getGarden(extras.getInt("garden_index"));
 		setTitle(extras.getString("name") + " (Edit mode)"); 
 		
 		if (extras.getInt("type") == Plot.POLY)
@@ -131,11 +131,10 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		else
 			plot = new Plot(name, bounds, type);
 		
-		GardenGnome.addPlot(extras.getInt("garden_id"), plot);
+		GardenGnome.addPlot(garden, plot);
 		if (garden.getPlots().size() == 1) {
 			garden.refreshBounds();
-			String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
-			GardenGnome.tmpupdateGarden(extras.getInt("garden_id"), bounds_s);
+			GardenGnome.updateGarden(garden);
 		}
 	}
 	
@@ -143,7 +142,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		if (extras.containsKey("type"))
 			plot = garden.getPlot(garden.size() - 2);
 		else
-			plot = garden.getPlot(extras.getInt("plot_id"));
+			plot = garden.getPlot(extras.getInt("plot_index"));
 	}
 	
 	@Override
@@ -208,7 +207,6 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		
 		if (createPoly)
 			garden.remove(plot);
-		System.out.println("edit_screen=" + garden.getBounds().toString());
 		garden.remove(oldPlot);
 		plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_default));
 		Intent intent = new Intent().putExtra("zoom_scale", editView.zoomScale);
@@ -218,7 +216,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		intent.putExtra("drag_matrix", values);
 		intent.putExtra("bgdrag_matrix", bgvalues);
 		setResult(RESULT_OK, intent);
-		GardenGnome.updatePlot(extras.getInt("garden_id"), plot);
+		GardenGnome.updatePlot(plot);
 		finish();
 		overridePendingTransition(0, 0);
 	}
@@ -274,8 +272,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		case R.id.edit_zoomfit_btn:
 			editView.zoomScale = 1;
 			garden.refreshBounds(garden.size() - (createPoly ? 2 : 1));
-			String bounds_s = "" + garden.getBounds().left + "," + garden.getBounds().top + "," + garden.getBounds().right + "," + garden.getBounds().bottom;
-			GardenGnome.tmpupdateGarden(extras.getInt("garden_id"), bounds_s);
+			GardenGnome.updateGarden(garden);
 			editView.reset();
 			break;
 		}

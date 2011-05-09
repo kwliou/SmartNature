@@ -29,7 +29,6 @@ public class AddPlot extends Activity implements View.OnClickListener, View.OnKe
 			return;
 		}
 		Intent intent = new Intent(this, EditScreen.class);
-		Bundle bundle = new Bundle();
 		
 		int radioId = ((RadioGroup)findViewById(R.id.rg_shape)).getCheckedRadioButtonId();
 		int shapeType;
@@ -47,9 +46,8 @@ public class AddPlot extends Activity implements View.OnClickListener, View.OnKe
 		String plotName = et_plot_name.getText().toString().trim();
 		if (plotName.length() == 0)
 			plotName = "Untitled plot"; 
-		bundle.putString("name", plotName);
-		bundle.putInt("type", shapeType);
-		intent.putExtras(bundle);
+		intent.putExtra("name", plotName);
+		intent.putExtra("type", shapeType);
 		setResult(RESULT_OK, intent);
 		finish();
 	}

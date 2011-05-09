@@ -31,14 +31,14 @@ public class GardenGallery extends Activity implements AdapterView.OnItemClickLi
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		if (!intent.hasExtra("garden_id")) {
+		if (!intent.hasExtra("garden_index")) {
 			finish();
 			return;
 		}
-		int gardenID = intent.getIntExtra("garden_id", 0);
-		Garden garden = GardenGnome.getGarden(gardenID);
+		int gardenIndex = intent.getIntExtra("garden_index", 0);
+		Garden garden = GardenGnome.getGarden(gardenIndex);
 		setTitle(garden.getName() + " Photo Gallery");
-		photos = garden.getImages();
+		photos = garden.getPhotos();
 		adapter = new PhotoAdapter(this, R.layout.gallery_item, photos);
 		setContentView(R.layout.garden_gallery);
 		
@@ -92,7 +92,7 @@ public class GardenGallery extends Activity implements AdapterView.OnItemClickLi
 			Uri imageUri = photo.getUri();
 			float maxSize = getWindowManager().getDefaultDisplay().getHeight() / 2f;
 			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = (int) getSampleSize(imageUri, maxSize);
+			options.inSampleSize = Helper.getSampleSize(GardenGallery.this, imageUri, maxSize);
 			
 			try {
 				InputStream stream = getContentResolver().openInputStream(imageUri);
@@ -102,28 +102,6 @@ public class GardenGallery extends Activity implements AdapterView.OnItemClickLi
 			} catch (Exception e) { e.printStackTrace(); }
 			
 			return view;
-		}
-		
-		/** @see http://stackoverflow.com/questions/477572/android-strange-out-of-memory-issue */
-		public double getSampleSize(Uri uri, float maxSize) {
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inJustDecodeBounds = true;
-			if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
-				try {
-					InputStream stream = getContentResolver().openInputStream(uri);
-					BitmapFactory.decodeStream(stream, null, options);
-					stream.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else
-				BitmapFactory.decodeFile(uri.getPath(), options);
-			double scale = 1;
-			int longSide = Math.max(options.outHeight, options.outWidth);
-			if (longSide > maxSize)
-				scale = Math.pow(2, (int) Math.round(Math.log(maxSize / longSide) / Math.log(0.5)));
-			
-			return scale;
 		}
 	}
 	

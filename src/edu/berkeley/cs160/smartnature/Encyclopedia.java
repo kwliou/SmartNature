@@ -26,7 +26,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Encyclopedia extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener, Runnable {
 	
@@ -124,9 +123,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	@Override
 	public void onClick(View view) {
 		String searchText = search.getText().toString().trim();
-		if (searchText.equals(""))
-			Toast.makeText(this, "Please enter the plant you are looking for.", Toast.LENGTH_SHORT).show();
-		else {
+		if (!searchText.equals("")) {
 			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(search.getWindowToken(), 0);
 			resultList.clear();
 			findViewById(R.id.encycl_msg).setVisibility(View.GONE);

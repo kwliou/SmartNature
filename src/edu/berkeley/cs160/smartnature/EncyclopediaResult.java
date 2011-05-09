@@ -85,12 +85,12 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 		super.onActivityResult(requestCode, resultCode, data);
 		
 		if (data != null) {
-			int plotId, gardenId;
-			gardenId = data.getIntExtra("gardenId", 0);
-			plotId = data.getIntExtra("plotId", 0);
+			int plotIndex, gardenIndex;
+			gardenIndex = data.getIntExtra("garden_index", 0);
+			plotIndex = data.getIntExtra("plot_index", 0);
 			// int po_pk = GardenGnome.getPlotPk(gardenId,
 			// GardenGnome.getPlot(gardenId, plotId));
-			Plot plot = GardenGnome.getGarden(gardenId).getPlot(plotId);
+			Plot plot = GardenGnome.getGarden(gardenIndex).getPlot(plotIndex);
 			Plant plant = new Plant(pName);
 			GardenGnome.addPlant(plot, plant);
 			//GardenGnome.addPlant(po_pk, pName, GardenGnome.getGardens().get(gardenId).getPlot(plotId));

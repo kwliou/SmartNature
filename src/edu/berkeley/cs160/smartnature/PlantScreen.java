@@ -35,20 +35,15 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class PlantScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
-	AlertDialog dialog;
-	
 	static EntryAdapter adapter;
-	
-	int gardenID, plotID, plantID;
 	
 	String name;
 	EditText entryText;
 	Button addEntryButton;
-	int po_pk, pa_pk;
-	Garden garden;
 	Plot plot;
 	Plant plant;
 	
+	AlertDialog dialog;
 	View textEntryView;
 	EditText input;
 	int clickedPosition;
@@ -60,23 +55,17 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Bundle extras = getIntent().getExtras();
-		if (extras != null && extras.containsKey("name")) {
-			name = extras.getString("name");
-			gardenID = extras.getInt("garden_id");
-			plotID = extras.getInt("plot_id");
-			plantID = extras.getInt("plant_id");
-			setTitle(name);
-		} else {
-			showDialog(0);
+		Intent intent = getIntent();
+		if (!intent.hasExtra("name")) {
+			finish();
+			return;
 		}
-		
-		garden = GardenGnome.getGarden(gardenID);
-		plot = garden.getPlot(plotID);
-		plant = plot.getPlants().get(plantID);
-		
-		po_pk = GardenGnome.getPlotPk(gardenID, plot);
-		pa_pk = GardenGnome.getPlantPk(po_pk, plant);
+		GardenGnome.init(this);
+		name = intent.getStringExtra("name");
+		setTitle(name);	
+		Garden garden = GardenGnome.getGarden(intent.getIntExtra("garden_index", 0));
+		plot = garden.getPlot(intent.getIntExtra("plot_index", 0));
+		plant = plot.getPlant(intent.getIntExtra("plant_index", 0));
 		
 		setContentView(R.layout.plant);
 		initMockData();
@@ -116,8 +105,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			if (entryName.length() == 0)
 				entryName = "Untitled entry";
 			Entry entry = new Entry(entryName, new Date().getTime());
-			// GardenGnome.addEntry(plant, entry);
-			GardenGnome.addEntry(pa_pk, plant, entry);
+			GardenGnome.addEntry(plant, entry);
 			adapter.notifyDataSetChanged(); // refresh ListView
 			entryText.setText("");			
 		}
@@ -229,7 +217,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 				startActivity(intent);
 				break;
 			case R.id.m_deleteplant:
-				GardenGnome.removePlant(plantID, pa_pk, plot);
+				GardenGnome.removePlant(plot, plant);
 				PlotScreen.adapter.notifyDataSetChanged();
 				finish();
 				break;
@@ -262,6 +250,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		
 		// automatically show soft keyboard
 		input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		input.setText(plant.getName());
 		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override public void onFocusChange(View v, boolean hasFocus) {
 				if (hasFocus)

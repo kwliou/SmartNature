@@ -1,56 +1,48 @@
 package edu.berkeley.cs160.smartnature;
 import java.util.ArrayList;
 
+import android.content.ContentValues;
+
 import com.google.gson.annotations.Expose;
 
 public class Plant {
-	
-	@Expose private String name;
-	//@Expose private String online_entry;
+		
+	private int db_id;
 	/** database id on server */
 	private int id;
+	@Expose private String name;
+	//@Expose private String online_entry;
 	private ArrayList<Entry> entries = new ArrayList<Entry>();
-		
-	private int plant_num;
 	
-	Plant(String name) {
-		this.name = name;
+	Plant(String name) { this.name = name; }
+	
+	public ContentValues getContentValues() {
+		ContentValues values = new ContentValues();
+		values.put("server_id", id);
+		values.put("name", name);
+		return values;
 	}
 	
-	public int getServerId() {
-		return id;
-	}
+	public ArrayList<Entry> getEntries() { return entries; }
 	
-	public void setServerId(int serverId) {
-		this.id = serverId;
-	}
+	public int getId() { return db_id; }
 	
-	public String getName() {
-		return name;
-	}
+	public String getName() { return name; }
 	
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public ArrayList<Entry> getEntries() {
-		return entries;
-	}
+	public int getServerId() { return id; }
 	
-	public void setEntries(ArrayList<Entry> entries) {
-		this.entries = entries;
-	}
+	public void setEntries(ArrayList<Entry> entries) { this.entries = entries; }
 	
-	public void addEntry(Entry entry) {
-		entries.add(entry);
-	}
+	public void setId(int id) { db_id = id; }
 	
-	public Entry getEntry(int index) { 
-		return entries.get(index); 
-	}
+	public void setName(String name) { this.name = name; }
 	
-	public int getPlantNum() { return this.plant_num; }
-
-	public void setPlantNum(int plant_num) { this.plant_num = plant_num; }
+	public void setServerId(int serverId) { this.id = serverId; }
+	
+	/** ArrayList-related methods */
+	
+	public void addEntry(Entry entry) { entries.add(entry); }
+	
+	public Entry getEntry(int index) { return entries.get(index); }
 	
 }

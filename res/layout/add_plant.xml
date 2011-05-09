@@ -14,8 +14,6 @@
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 
-		
-
 		<TextView
 			android:id="@+id/choosePrompt"
 			android:text="Choose garden"
@@ -32,11 +30,7 @@
 				android:orientation="vertical"
 				android:layout_marginRight="10dp"
 				android:layout_width="fill_parent"
-				android:layout_height="wrap_content">
-
-				
-
-			</RadioGroup>
+				android:layout_height="wrap_content" />
 		<!--  /ScrollView-->
 
 	</LinearLayout>

@@ -24,7 +24,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	/** plot that is being edited */
 	Plot editPlot;
 	/** the entire transformation matrix applied to the canvas */
-	Matrix m = new Matrix();
+	Matrix matrix = new Matrix();
 	/** translation matrix applied to the canvas */
 	Matrix dragMatrix = new Matrix();
 	/** translation matrix applied to the background */
@@ -136,19 +136,19 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		bg.draw(canvas);
 		canvas.restore();
 		
-		m.reset();
+		matrix.reset();
 		RectF gardenBounds = context.showFullScreen ? garden.getBounds() : garden.getBounds(portraitMode);
-		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
+		matrix.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
 		if (portraitMode)
-			m.postRotate(90, width/2f, width/2f);
-		m.postConcat(dragMatrix);
-		m.postScale(zoomScale, zoomScale, width/2f, height/2f);
+			matrix.postRotate(90, width/2f, width/2f);
+		matrix.postConcat(dragMatrix);
+		matrix.postScale(zoomScale, zoomScale, width/2f, height/2f);
 		
 		Rect shapeBounds = editPlot.getBounds();
 		shapeMid[0] = shapeBounds.centerX(); shapeMid[1] = shapeBounds.centerY();
 		shapeTop[0] = shapeBounds.left; shapeTop[1] = shapeBounds.top;
-		m.mapPoints(shapeMid);
-		m.mapPoints(shapeTop);
+		matrix.mapPoints(shapeMid);
+		matrix.mapPoints(shapeTop);
 
 		canvas.save();
 		drawPlots(canvas);
@@ -168,7 +168,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	}
 	
 	public void drawPlots(Canvas canvas) {
-		canvas.concat(m);
+		canvas.concat(matrix);
 		for (int i = 0; i < garden.size() - (context.createPoly ? 2 : 1); i++) {
 			Plot p = garden.getPlot(i);
 			canvas.save();
@@ -191,7 +191,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 	/** draws polygon points in create polygon mode */
 	public void drawPoly(Canvas canvas) {
 		float[] pts = EditScreen.toFloatArray(polyPts);
-		m.mapPoints(pts);
+		matrix.mapPoints(pts);
 		int len = pts.length;
 		canvas.drawLines(pts, polyPaint);
 		if (len >= 6) {
@@ -221,7 +221,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		float boxSize = zoomClamp * getResources().getDimension(R.dimen.resizebox_min);
 		float[] boxCorner = { shapeBounds.right, portraitMode ? shapeBounds.top : shapeBounds.bottom };
 		
-		m.mapPoints(boxCorner);
+		matrix.mapPoints(boxCorner);
 			resizeBox.set(boxCorner[0] - boxSize, boxCorner[1] - boxSize, boxCorner[0], boxCorner[1]);
 		canvas.rotate(editPlot.getAngle(), shapeMid[0], shapeMid[1]);
 		canvas.drawRect(resizeBox, whitePaint);
@@ -266,7 +266,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 				labelLoc = new float[] { bounds.left - 10, bounds.centerY() };
 			else
 				labelLoc =  new float[] { bounds.centerX(), bounds.top - 10 };
-			m.mapPoints(labelLoc);
+			matrix.mapPoints(labelLoc);
 			canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 		}
 	}
@@ -347,7 +347,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 			downY = y;
 			float[] xy = { x, y };
 			Matrix inverse = new Matrix();
-			m.invert(inverse);
+			matrix.invert(inverse);
 			inverse.mapPoints(xy);
 			
 			float hitRadius = getResources().getDimension(R.dimen.point_size) / 2 + 10;
@@ -370,7 +370,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 			if (mode == TOUCH_POINT || mode == DRAG_POINT || mode == HOLD_POINT) { // simply focPoint != 1?
 				float[] xy = { x, y };
 				Matrix inverse = new Matrix();
-				m.invert(inverse);
+				matrix.invert(inverse);
 				inverse.mapPoints(xy);
 				polyPts.set(focPoint, xy[0]);
 				polyPts.set(focPoint + 1, xy[1]);
@@ -427,7 +427,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		// check if shape hit
 		float[] xy = { x, y };
 		Matrix inverse = new Matrix();
-		m.invert(inverse);
+		matrix.invert(inverse);
 		inverse.mapPoints(xy); // transformed coordinates
 		inverse.postRotate(-editPlot.getAngle(), editPlot.getBounds().centerX(), editPlot.getBounds().centerY());
 		if (editPlot.contains(xy[0], xy[1])) {
@@ -463,7 +463,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		}
 		
 		Matrix inverse = new Matrix();
-		m.invert(inverse);
+		matrix.invert(inverse);
 		
 		if (mode == DRAG_SHAPE) {
 			inverse.mapPoints(dxy);
@@ -516,7 +516,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 		if (context.createPoly && mode == IDLE) {
 			float[] xy = { e.getX(), e.getY() };
 			Matrix inverse = new Matrix();
-			m.invert(inverse);
+			matrix.invert(inverse);
 			inverse.mapPoints(xy);
 			polyPts.add(xy[0]);
 			polyPts.add(xy[1]);

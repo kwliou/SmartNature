@@ -27,7 +27,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	final static int EDIT_GARDEN = 1, SHARE_GARDEN = 2, USE_CAMERA = 3, ADD_PLOT = 4, EDIT_PLOT = 5, VIEW_PLOT = 6, VIEW_PHOTOS=7;
 	
 	Garden garden;
-	int gardenId;
+	int gardenIndex;
 	GardenView gardenView;
 	View textEntryView;
 	AlertDialog dialog;
@@ -46,12 +46,13 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		if (showFullScreen)
 			setTheme(android.R.style.Theme_Light_NoTitleBar_Fullscreen);
 		super.onCreate(savedInstanceState);
-		if (!getIntent().hasExtra("garden_id")) {
+		if (!getIntent().hasExtra("garden_index")) {
 			finish();
 			return;
 		}
-		gardenId = getIntent().getIntExtra("garden_id", 0);
-		garden = GardenGnome.getGarden(gardenId);
+		GardenGnome.init(this);
+		gardenIndex = getIntent().getIntExtra("garden_index", 0);
+		garden = GardenGnome.getGarden(gardenIndex);
 		setTitle(garden.getName());
 		if (savedInstanceState == null) // first init
 			garden.refreshBounds();
@@ -176,7 +177,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case ADD_PLOT: // returning from AddPlot activity
 				if (data != null) {
-					data.putExtra("garden_id", gardenId);
+					data.putExtra("garden_index", gardenIndex);
 					data.putExtra("zoom_scale", gardenView.zoomScale);
 					float[] values = new float[9], bgvalues = new float[9];
 					gardenView.dragMatrix.getValues(values);
@@ -191,7 +192,6 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				gardenView.zoomScale = data.getFloatExtra("zoom_scale", 1);
 				gardenView.dragMatrix.setValues(data.getFloatArrayExtra("drag_matrix"));
 				gardenView.bgDragMatrix.setValues(data.getFloatArrayExtra("bgdrag_matrix"));
-				System.out.println("garden_screen=" + garden.getBounds().toString());
 				gardenView.onAnimationEnd();
 				if (zoomAutoHidden)
 					zoomControls.setVisibility(View.GONE); // need to manually hide
@@ -220,22 +220,22 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				break;
 			case R.id.m_gardenoptions:
 				intent = new Intent(this, GardenAttr.class);
-				intent.putExtra("garden_id", gardenId);
+				intent.putExtra("garden_index", gardenIndex);
 				startActivityForResult(intent, EDIT_GARDEN);
 				break;
 			case R.id.m_sharegarden:
 				intent = new Intent(this, ShareGarden.class);
-				intent.putExtra("garden_id", gardenId);
+				intent.putExtra("garden_index", gardenIndex);
 				startActivityForResult(intent, SHARE_GARDEN);
 				break;
 			case R.id.m_gallery:
 				intent = new Intent(this, GardenGallery.class);
-				intent.putExtra("garden_id", gardenId);
+				intent.putExtra("garden_index", gardenIndex);
 				startActivityForResult(intent, VIEW_PHOTOS);
 				break;
 			case R.id.m_takephoto:
 				intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				String fileName = "GardenGnome_" + garden.getName() + garden.numImages() + ".jpg";
+				String fileName = "GardenGnome_" + garden.getName() + garden.numPhotos() + ".jpg";
 				
 				// HTC camera app ignores EXTRA_OUTPUT
 				ContentValues values = new ContentValues();
@@ -247,7 +247,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				startActivityForResult(intent, USE_CAMERA);
 				break;
 			case R.id.m_deletegarden:
-				GardenGnome.removeGarden(gardenId);
+				GardenGnome.removeGarden(gardenIndex);
 				finish();
 				break;
 		}

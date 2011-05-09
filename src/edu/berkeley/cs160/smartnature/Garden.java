@@ -1,5 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
+import android.content.ContentValues;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -11,22 +12,21 @@ import com.google.gson.annotations.Expose;
 
 public class Garden {
 
-	@Expose private String name;
-	@Expose private String city;
-	@Expose private String state;
+	private int db_id;
 	/** database id on server, equal to -1 during uploading */
 	private int id;
+	@Expose private String name;
+	@Expose private String city = "";
+	@Expose private String state = "";
 	@Expose private boolean is_public;
 	@Expose private String password;  // should we turn this into a SHA-256 hash?
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
 	private RectF bounds = new RectF(0, 0, 800, 480);
-	private ArrayList<Photo> images = new ArrayList<Photo>();
+	private ArrayList<Photo> photos = new ArrayList<Photo>();
 	
 	private static Rect padding = new Rect(30, 30, 30, 30);
 	private static Rect paddingLand = new Rect(20, 30, 20, 10);
 	private static Rect paddingPort = new Rect(30, 20, 10, 20);
-	
-	private int garden_num;
 	
 	Garden() { this(""); }
 		
@@ -108,14 +108,25 @@ public class Garden {
 	}
 	
 	public String getCity() { return city; }
-		
-	public int getId() { return GardenGnome.getGardens().indexOf(this); }
+	
+	public ContentValues getContentValues() {
+		ContentValues values = new ContentValues();
+		values.put("server_id", id);
+		values.put("name", name);
+		values.put("bounds", Helper.toString(getBounds()));
+		values.put("city", city);
+		values.put("state", state);
+		values.put("is_public", is_public ? 1 : 0);
+		return values;
+	}
+
+	public int getId() { return db_id; }
 	
 	public String getName() { return name; }
 	
 	public String getPassword() { return password; }
 	
-	public Uri getPreview() {return images.get(images.size() - 1).getUri(); }
+	public Uri getPreview() {return photos.get(photos.size() - 1).getUri(); }
 	
 	public RectF getRawBounds() { return bounds; }
 	
@@ -126,6 +137,8 @@ public class Garden {
 	public boolean isPublic() { return is_public; }
 	
 	public void setCity(String city) { this.city = city; }
+	
+	public void setId (int id) { this.db_id = id; }
 	
 	public void setName(String name) { this.name = name; }
 	
@@ -141,13 +154,12 @@ public class Garden {
 	
 	/** Helpful ArrayList-related methods */
 	
-	public ArrayList<Photo> getImages() {return images; }
+	public ArrayList<Photo> getPhotos() {return photos; }
 	
-	//public void setImages(ArrayList<Photo> images) {this.images = images; }
-	public void setImages(ArrayList<String> uris) {
-		images = new ArrayList<Photo>(); 
+	public void setPhotos(ArrayList<String> uris) {
+		photos = new ArrayList<Photo>(); 
 		for (String uri : uris)
-			images.add(new Photo(Uri.parse(uri)));
+			photos.add(new Photo(Uri.parse(uri)));
 	}
 	
 	public ArrayList<Plot> getPlots() { return plots; }
@@ -162,16 +174,12 @@ public class Garden {
 	
 	public int size() { return plots.size(); }
 	
-	public Photo getImage(int index) {return images.get(index); }
+	public Photo getPhoto(int index) {return photos.get(index); }
 	
-	public void addImage(Uri uri) { images.add(new Photo(uri)); }
+	public void addPhoto(Uri uri) { photos.add(new Photo(uri)); }
 	
-	public void addImage(Photo photo) { images.add(photo); }
+	public void addPhoto(Photo photo) { photos.add(photo); }
 	
-	public int numImages() { return images.size(); }
-	
-	public int getGardenNum() { return this.garden_num; }
-	
-	public void setGardenNum(int garden_num) { this.garden_num = garden_num; }
+	public int numPhotos() { return photos.size(); }
 	
 }

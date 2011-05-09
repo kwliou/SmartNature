@@ -19,7 +19,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 	/** plot that is currently pressed */
 	Plot focusedPlot;
 	/** the entire transformation matrix applied to the canvas */
-	Matrix m = new Matrix();
+	Matrix matrix = new Matrix();
 	/** translation matrix applied to the canvas */
 	Matrix dragMatrix = new Matrix();
 	/** translation matrix applied to the background */
@@ -84,17 +84,17 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		bg.draw(canvas);
 		canvas.restore();
 		
-		m.reset();
+		matrix.reset();
 		RectF gardenBounds = context.showFullScreen ? garden.getBounds() : garden.getBounds(portraitMode);
-		m.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
+		matrix.setRectToRect(gardenBounds, getBounds(), Matrix.ScaleToFit.CENTER);
 		if (portraitMode)
-			m.postRotate(90, width/2f, width/2f);
-		m.postConcat(dragMatrix);
-		m.postScale(zoomScale, zoomScale, width/2f, height/2f);
+			matrix.postRotate(90, width/2f, width/2f);
+		matrix.postConcat(dragMatrix);
+		matrix.postScale(zoomScale, zoomScale, width/2f, height/2f);
 		
 		// draw plots
 		canvas.save();
-		canvas.concat(m);
+		canvas.concat(matrix);
 		for (Plot p: garden.getPlots()) {
 			canvas.save();
 			Rect bounds = p.getBounds();
@@ -113,7 +113,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 					labelLoc = new float[] { rbounds.left - 10, rbounds.centerY() };
 				else
 					labelLoc = new float[] { rbounds.centerX(), rbounds.top - 10 };
-				m.mapPoints(labelLoc);
+				matrix.mapPoints(labelLoc);
 				canvas.drawText(p.getName().toUpperCase(), labelLoc[0], labelLoc[1], textPaint);
 			}
 	}
@@ -140,8 +140,8 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, PlotScreen.class);
 			intent.putExtra("name", focusedPlot.getName());
-			intent.putExtra("garden_id", context.gardenId);
-			intent.putExtra("plot_id", garden.getPlots().indexOf(focusedPlot));
+			intent.putExtra("garden_index", context.gardenIndex);
+			intent.putExtra("plot_index", garden.indexOf(focusedPlot));
 			context.startActivityForResult(intent, GardenScreen.VIEW_PLOT);
 			//context.handleZoom();
 		}
@@ -153,8 +153,8 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		if (focusedPlot != null) {
 			Intent intent = new Intent(context, EditScreen.class);
 			intent.putExtra("name", focusedPlot.getName());
-			intent.putExtra("garden_id", context.gardenId);
-			intent.putExtra("plot_id", garden.indexOf(focusedPlot));
+			intent.putExtra("garden_index", context.gardenIndex);
+			intent.putExtra("plot_index", garden.indexOf(focusedPlot));
 			intent.putExtra("zoom_scale", zoomScale);
 			float[] values = new float[9], bgvalues = new float[9];
 			dragMatrix.getValues(values);
@@ -180,7 +180,7 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		case MotionEvent.ACTION_DOWN:
 			mode = TOUCH_SCREEN;
 			downX = x; downY = y;
-			focusedPlot = garden.plotAt(x, y, m);
+			focusedPlot = garden.plotAt(x, y, matrix);
 			if (focusedPlot != null) {
 				// set focused plot appearance
 				tempColor = focusedPlot.getPaint().getColor();
