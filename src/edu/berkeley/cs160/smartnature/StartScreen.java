@@ -375,9 +375,11 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 				Uri preview = garden.getPreview();
 				
 				BitmapFactory.Options options = new BitmapFactory.Options();
-				options.inSampleSize = Helper.getSampleSize(StartScreen.this, preview, 50);
-				options.outWidth = 75;
-				options.outHeight = 50;
+				options.outWidth = (int) getResources().getDimension(R.dimen.preview_width);
+				options.outHeight = (int) getResources().getDimension(R.dimen.preview_height);
+				options.inSampleSize = Helper.getSampleSize(StartScreen.this, preview, getResources().getDimension(R.dimen.preview_width));
+				if (options.inSampleSize > 7)
+					options.inSampleSize /= 8;
 				//DisplayMetrics metrics = new DisplayMetrics();
 				//getWindowManager().getDefaultDisplay().getMetrics(metrics);
 				//options.inTargetDensity = metrics.densityDpi;

@@ -67,6 +67,7 @@ public class DatabaseHelper {
 		return id;
 	}
 	
+	/*
 	public Garden selectGarden(int garden_id) {
 		String[] selectionArgs = { Integer.toString(garden_id) };
 		Cursor cursor = db.query(GARDEN, null, "_id=?", selectionArgs, null, null, null);
@@ -86,6 +87,7 @@ public class DatabaseHelper {
 			cursor.close();
 		return garden;
 	}
+	*/
 	
 	public ArrayList<Garden> selectGardens() {
 		Cursor cursor = db.query(GARDEN, null, null, null, null, null, null);
@@ -242,7 +244,7 @@ public class DatabaseHelper {
 		OpenHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		}
-
+		
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			String SCAFFOLD = " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, server_id INTEGER, name TEXT, ";
@@ -252,7 +254,7 @@ public class DatabaseHelper {
 			db.execSQL(CREATE + ENTRY  + SCAFFOLD + "plant_id INTEGER, date TEXT)");
 			db.execSQL(CREATE + PHOTO  + SCAFFOLD + "garden_id INTEGER, uri TEXT)");
 		}
-
+		
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			db.execSQL(DROP + "garden");

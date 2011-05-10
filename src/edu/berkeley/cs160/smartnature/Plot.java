@@ -270,7 +270,7 @@ public class Plot {
 		values.put("angle", angle);
 		values.put("bounds", getBounds().flattenToString());
 		if (shapetype == POLY)
-			values.put("points", points);
+			values.put("points", Helper.toString(polyPoints));
 		return values;
 	}
 	

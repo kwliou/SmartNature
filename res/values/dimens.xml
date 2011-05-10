@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<dimen name="hintsize">15sp</dimen>
+	<dimen name="preview_width">75dp</dimen>
+	<dimen name="preview_height">50dp</dimen>
 	<dimen name="labelsize_default">15.5sp</dimen>
 	<dimen name="labelsize_min">10sp</dimen>
 	<dimen name="labelxscale_default">1.2px</dimen>
