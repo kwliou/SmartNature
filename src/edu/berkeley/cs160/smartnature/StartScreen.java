@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Locale;
 
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.ContentResolver;
@@ -37,147 +36,15 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
-class GardenGnome extends Application {
-	private static ArrayList<Garden> gardens = new ArrayList<Garden>();
-	private static DatabaseHelper dbHelper;
-	public static int garden_id;
-	public static int plot_id;
-	public static int plant_id;
-	public static int entry_id;
-	public static int photo_id;
-	
-	public static ArrayList<Garden> getGardens() { return gardens; }
-	
-	public static Garden getGarden(int index) { return gardens.get(index); }
-	
-	public static int indexOf(Garden garden) { return gardens.indexOf(garden); }
-	
-	public static void init(Context context) {
-		if (dbHelper != null)
-			return;
-		dbHelper = new DatabaseHelper(context);
-		gardens.addAll(dbHelper.selectGardens());
-		for (Garden garden : gardens) {
-			loadPhotos(garden);
-			loadPlots(garden);
-		}
-	}
-	
-	public static void loadPhotos(Garden garden) {
-		ArrayList<Photo> photos = dbHelper.selectPhotos(garden);
-		garden.getPhotos().addAll(photos);
-	}
-	
-	public static void loadPlots(Garden garden) {
-		ArrayList<Plot> plots = dbHelper.selectPlots(garden);
-		for (Plot plot : plots)
-			loadPlants(plot);
-		
-		garden.getPlots().addAll(plots);
-	}
-	
-	public static void loadPlants(Plot plot) {
-		ArrayList<Plant> plants = dbHelper.selectPlants(plot);
-		for (Plant plant : plants)
-			loadEntries(plant);
-		
-		plot.getPlants().addAll(plants);
-	}
-	
-	public static void loadEntries(Plant plant) {
-		ArrayList<Entry> entries = dbHelper.selectEntries(plant);
-		plant.getEntries().addAll(entries);
-	}
-	
-	/** adds entire garden info to database */
-	public static void addServerGarden(Garden garden) {
-		addGarden(garden);
-		
-		for (Photo photo : garden.getPhotos())
-			dbHelper.insertPhoto(garden, photo);
-		
-		for (Plot plot : garden.getPlots()) {
-			dbHelper.insertPlot(garden, plot);
-			for (Plant plant : plot.getPlants()) {
-				dbHelper.insertPlant(plot, plant);
-				for (Entry entry : plant.getEntries())
-					dbHelper.insertEntry(plant, entry);
-			}
-		}
-	}
-	
-	public static void addGarden(Garden garden) {
-		dbHelper.insertGarden(garden);
-		gardens.add(garden);
-		System.out.println("garden_id= " + garden.getId());
-	}
-	
-	public static void addPhoto(Garden garden, Photo photo) {
-		dbHelper.insertPhoto(garden, photo);
-		garden.addPhoto(photo);
-		System.out.println("photo_id= " + photo.getId());
-	}
-	
-	public static void addPlot(Garden garden, Plot plot) {
-		dbHelper.insertPlot(garden, plot);
-		garden.addPlot(plot);
-		System.out.println("plot_id= " + plot.getId());
-	}
-	
-	public static void addPlant(Plot plot, Plant plant) {
-		dbHelper.insertPlant(plot, plant);
-		plot.addPlant(plant);
-		System.out.println("plant_id= " + plant.getId());
-	}
-	
-	public static void addEntry(Plant plant, Entry entry) {
-		dbHelper.insertEntry(plant, entry);
-		plant.addEntry(entry);
-		System.out.println("entry_id= " + entry.getId());
-	}
-	
-	public static void removeGarden(int index) { removeGarden(gardens.get(index)); }
-	
-	public static void removeGarden(Garden garden) {
-		dbHelper.deleteGarden(garden);
-		gardens.remove(garden);
-	}
-	
-	public static void removePlot(Garden garden, Plot plot) {
-		dbHelper.deletePlot(plot);
-		garden.getPlots().remove(plot);
-	}
-	
-	public static void removePlant(Plot plot, Plant plant) {
-		dbHelper.deletePlant(plant);
-		plot.getPlants().remove(plant);
-	}
-	
-	public static void removeEntry(Plant plant, Entry entry) {
-		dbHelper.deleteEntry(entry);
-		plant.getEntries().remove(entry);
-	}
-	
-	public static void updateGarden(Garden garden) { dbHelper.updateGarden(garden); }
-	
-	public static void updatePhoto(Photo photo) { dbHelper.updatePhoto(photo); }
-	
-	public static void updatePlot(Plot plot) { dbHelper.updatePlot(plot); }
-	
-	public static void updatePlant(Plant plant) { dbHelper.updatePlant(plant); }
-	
-	public static void updateEntry(Entry entry) { dbHelper.updateEntry(entry); }
-	
-}
-
-public class StartScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
+public class StartScreen extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnClickListener {
 
 	static GardenAdapter adapter;
 	ArrayList<Garden> gardens = GardenGnome.getGardens();
 	AlertDialog dialog;
 	View textEntryView;
-
+	
 	LocationManager lm;
 	Geocoder geocoder;
 
@@ -197,22 +64,61 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		findViewById(R.id.search_encyclopedia).setOnClickListener(this);
 		findViewById(R.id.find_garden).setOnClickListener(this);
 	}
-
+	
+	/** sets garden location using user's physical coarse location */
+	Runnable setLocation = new Runnable() {
+		@Override
+		public void run() {
+			Garden garden = gardens.get(gardens.size() - 1);
+			List<String> providers = lm.getProviders(false);
+			if (providers.isEmpty())
+				return;
+			
+			Location loc = lm.getLastKnownLocation(providers.get(0));
+			List<Address> addresses = new ArrayList<Address>();
+			try {
+				addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+			} catch (Exception e) { e.printStackTrace(); }
+			if (addresses.isEmpty())
+				return;
+			
+			Address addr = addresses.get(0);
+			System.out.println(addr.getLocality() + "," + addr.getAdminArea() + "," + addr.getCountryCode());
+			garden.setCity(addr.getLocality());
+			if (addr.getAdminArea() != null)
+				garden.setState(addr.getAdminArea());
+			else
+				garden.setState(addr.getCountryCode());
+		}
+	};
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		adapter.notifyDataSetChanged();
+	}
+	
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-		case R.id.new_garden:
-			showDialog(0);
-			break;
-		case R.id.search_encyclopedia:
-			startActivity(new Intent(this, Encyclopedia.class));
-			break;
-		case R.id.find_garden:
-			startActivityForResult(new Intent(this, FindGarden.class), 0);
-			break;
+			case R.id.new_garden:
+				showDialog(0);
+				break;
+			case R.id.search_encyclopedia:
+				startActivity(new Intent(this, Encyclopedia.class));
+				break;
+			case R.id.find_garden:
+				startActivityForResult(new Intent(this, FindGarden.class), 0);
+				break;
 		}
 	}
-
+	
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		Intent intent = new Intent(this, GardenScreen.class);
+		intent.putExtra("garden_index", position);
+		startActivityForResult(intent, 0);
+	}
+	
 	@Override
 	public Dialog onCreateDialog(int id) {
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
@@ -246,7 +152,8 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 
 		return dialog;
 	}
-
+	
+	@Override
 	public void onClick(DialogInterface dialog, int whichButton) {
 		EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
 		String gardenName = textEntry.getText().toString().trim();
@@ -261,54 +168,14 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		new Thread(setLocation).start();
 		removeDialog(0);
 	}
-
-	/** sets garden location using user's physical location */
-	Runnable setLocation = new Runnable() {
-		@Override
-		public void run() {
-			Garden garden = gardens.get(gardens.size() - 1);
-			List<String> providers = lm.getProviders(false);
-			if (providers.isEmpty())
-				return;
-			
-			Location loc = lm.getLastKnownLocation(providers.get(0));
-			List<Address> addresses = new ArrayList<Address>();
-			try {
-				addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-			} catch (Exception e) { e.printStackTrace(); }
-			if (!addresses.isEmpty()) {
-				Address addr = addresses.get(0);
-				System.out.println(addr.getLocality() + "," + addr.getAdminArea() + "," + addr.getCountryCode());
-				garden.setCity(addr.getLocality());
-				if (addr.getAdminArea() != null)
-					garden.setState(addr.getAdminArea());
-				else
-					garden.setState(addr.getCountryCode());
-			}
-		}
-	};
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		adapter.notifyDataSetChanged();
-	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_menu, menu);
 		return true;
 	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Intent intent = new Intent(this, GardenScreen.class);
-		//System.out.println("clicked garden_index=" + gardens.get(position).getId());
-		intent.putExtra("garden_index", position);
-		startActivityForResult(intent, 0);
-	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -325,7 +192,7 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
+	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, view, menuInfo);
@@ -334,55 +201,49 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 		menu.add(Menu.NONE, 0, Menu.NONE, "Edit info"); //menu.add(Menu.NONE).setNumericShortcut(1);
 		menu.add(Menu.NONE, 1, Menu.NONE, "Delete"); //menu.add("Delete").setNumericShortcut(2);
 	}
-
+	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
-		case 0:
-			Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
-			startActivityForResult(intent, 0);
-			break;
-		case 1:
-			GardenGnome.removeGarden(info.position);
-			adapter.notifyDataSetChanged();
-			break;
+			case 0:
+				Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
+				startActivityForResult(intent, 0);
+				break;
+			case 1:
+				GardenGnome.removeGarden(info.position);
+				adapter.notifyDataSetChanged();
+				break;
 		}
 		return super.onContextItemSelected(item);
 	}
-
+	
 	class GardenAdapter extends ArrayAdapter<Garden> {
 		private ArrayList<Garden> gardens;
 		private LayoutInflater li;
-
+		
 		public GardenAdapter(Context context, int textViewResourceId, ArrayList<Garden> items) {
 			super(context, textViewResourceId, items);
 			li = ((ListActivity) context).getLayoutInflater();
 			gardens = items;
 		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = convertView;
-			if (view == null)
-				view = li.inflate(R.layout.garden_list_item, null);
-			Garden garden = gardens.get(position);
-			((TextView) view.findViewById(R.id.garden_name)).setText(garden.getName());
-			ImageView image = (ImageView) view.findViewById(R.id.preview_img); 
-			if (garden.getPhotos().isEmpty())
+		
+		public void loadImages(Garden garden, ViewFlipper flipper) {
+			flipper.removeAllViews();
+			if (garden.getPhotos().isEmpty()) {
+				ImageView image = new ImageView(StartScreen.this);
 				image.setImageResource(R.drawable.preview);
-			else {
-				Uri preview = garden.getPreview();
-				
+				flipper.addView(image);
+				flipper.stopFlipping();
+				return;
+			}
+			
+			for (Photo photo : garden.getPhotos()) {
+				ImageView image = new ImageView(StartScreen.this);
+				Uri preview = photo.getUri();
 				BitmapFactory.Options options = new BitmapFactory.Options();
-				options.outWidth = (int) getResources().getDimension(R.dimen.preview_width);
-				options.outHeight = (int) getResources().getDimension(R.dimen.preview_height);
-				options.inSampleSize = Helper.getSampleSize(StartScreen.this, preview, getResources().getDimension(R.dimen.preview_width));
-				if (options.inSampleSize > 7)
-					options.inSampleSize /= 8;
-				//DisplayMetrics metrics = new DisplayMetrics();
-				//getWindowManager().getDefaultDisplay().getMetrics(metrics);
-				//options.inTargetDensity = metrics.densityDpi;
+				float maxSize = getResources().getDimension(R.dimen.preview_width);
+				options.inSampleSize = Helper.getSampleSize(StartScreen.this, preview, maxSize) / 2;
 				
 				if (preview.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
 					try {
@@ -390,13 +251,44 @@ public class StartScreen extends ListActivity implements DialogInterface.OnClick
 						image.setImageBitmap(BitmapFactory.decodeStream(stream, null, options));
 						stream.close();
 					} catch (Exception e) { e.printStackTrace(); }
-				}
-				else {
-					System.out.println(preview.getPath());
+				} else
 					image.setImageBitmap(BitmapFactory.decodeFile(preview.getPath(), options));
-				}
+				
+				flipper.addView(image);
 			}
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view = convertView;
+			if (view == null)
+				view = li.inflate(R.layout.garden_list_item, null);
+			Garden garden = gardens.get(position);
+			((TextView) view.findViewById(R.id.garden_name)).setText(garden.getName());
+			loadImages(garden, (ViewFlipper) view.findViewById(R.id.flipper));
+			/*
+			ImageView image = (ImageView) view.findViewById(R.id.preview_img); 
+			if (garden.getPhotos().isEmpty()) {
+				image.setImageResource(R.drawable.preview);
+				return view;
+			}
+			Uri preview = garden.getPreview();
+			
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			float maxSize = getResources().getDimension(R.dimen.preview_width);
+			options.inSampleSize = Helper.getSampleSize(StartScreen.this, preview, maxSize) / 2;
+			
+			if (preview.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+				try {
+					InputStream stream = getContentResolver().openInputStream(preview);
+					image.setImageBitmap(BitmapFactory.decodeStream(stream, null, options));
+					stream.close();
+				} catch (Exception e) { e.printStackTrace(); }
+			} else
+				image.setImageBitmap(BitmapFactory.decodeFile(preview.getPath(), options));
+			*/
 			return view;
 		}
 	}
+	
 }

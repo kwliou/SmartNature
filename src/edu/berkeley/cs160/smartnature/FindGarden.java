@@ -31,7 +31,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.text.InputType;
 import android.view.KeyEvent;
@@ -388,23 +387,27 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		values.put(Images.Media.TITLE, fileName); //values.put(Images.Media.DESCRIPTION, "Image capture by camera");
 		Uri imageUri = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 		System.out.print("imageUri=" + imageUri.toString() + " -> ");
-		android.database.Cursor cursor = managedQuery(imageUri, new String[] {MediaStore.Images.Media.DATA}, null, null, null);
-		int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-		cursor.moveToFirst();
-		final String resolvedPath = cursor.getString(column_index);
+		String resolvedPath = Helper.resolveUri(this, imageUri);
 		System.out.println(resolvedPath);
 		
 		OutputStream output = null;
 		try {
 			output = getContentResolver().openOutputStream(imageUri);
-		} catch (FileNotFoundException e) { e.printStackTrace(); return null; }
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
 		String bucketName = "gardengnome";
 		InputStream input = null;
 		try {
 			input = s3.getObject(bucketName, fileName).getObjectContent();
 		} catch (Exception e) {
 			e.printStackTrace();
-			Toast.makeText(this, "Amazon S3 has rejected your timezone", Toast.LENGTH_SHORT).show();
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					Toast.makeText(FindGarden.this, "Amazon S3 has rejected your timezone", Toast.LENGTH_SHORT).show();
+				}
+			});
 			return null;
 		}
 		int buffer = 0;
@@ -412,8 +415,18 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			while ((buffer = input.read()) != -1)
 				output.write(buffer);
 			input.close();
+			output.flush();
 			output.close();
-		} catch (IOException e) { e.printStackTrace(); return null; }
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("could not write outputstream");
+			runOnUiThread(new Runnable() {
+				@Override public void run() {
+					Toast.makeText(FindGarden.this, "Your internet is not fast enough to download these photos", Toast.LENGTH_SHORT).show();
+				}
+			});
+			return null;
+		}
 		getContentResolver().notifyChange(imageUri, null);
 		
 		// notify change
@@ -524,7 +537,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	}
 	
 	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate) {
-		makeNote(id, icon, text, flags, vibrate, null);
+		makeNote(id, icon, text, flags, vibrate, new Intent());
 	}
 	
 	/** text = { tickerText, contentTitle } */
@@ -602,7 +615,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 				view = li.inflate(R.layout.findgarden_list_item, null);
 			String[] stub = stubs.get(position);
 			((TextView) view.findViewById(R.id.garden_name)).setText(stub[NAME]);
-			((TextView) view.findViewById(R.id.garden_info)).setText(stub[CITY] + ", " + stub[STATE]);
+			((TextView) view.findViewById(R.id.garden_loc)).setText(stub[CITY] + ", " + stub[STATE]);
 			return view;
 		}
 	}

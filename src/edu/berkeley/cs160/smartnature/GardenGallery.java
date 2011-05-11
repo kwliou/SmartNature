@@ -7,12 +7,10 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,11 +60,7 @@ public class GardenGallery extends Activity implements AdapterView.OnItemClickLi
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Uri contentUri = photos.get(position).getUri();
-		String[] projection = { MediaStore.Images.Media.DATA };
-		Cursor cursor = managedQuery(contentUri, projection, null, null, null);
-		int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-		cursor.moveToFirst();
-		Uri resolvedUri = Uri.parse(ContentResolver.SCHEME_FILE + "://" + cursor.getString(column_index));
+		Uri resolvedUri = Uri.parse(ContentResolver.SCHEME_FILE + "://" + Helper.resolveUri(this, contentUri));
 		Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(resolvedUri, "image/*");
 		startActivity(intent);
 	}

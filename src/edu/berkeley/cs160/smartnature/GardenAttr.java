@@ -24,7 +24,7 @@ public class GardenAttr extends Activity implements View.OnClickListener {
 											"Texas", "Utah", "Vermont", "Virginia", "Virgin Islands", "Washington", "West Virginia", "Wisconsin", "Wyoming" };
 	
 	Garden garden;
-	EditText name, city;
+	EditText name, city, info;
 	AutoCompleteTextView state;
 	
 	/** Called when the activity is first created. */
@@ -32,11 +32,13 @@ public class GardenAttr extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.garden_attr);
 		garden = GardenGnome.getGarden(getIntent().getIntExtra("garden_index", 0));
-		name = (EditText)findViewById(R.id.garden_name_edit); 
-		city = (EditText)findViewById(R.id.garden_city); 
-		state = (AutoCompleteTextView) findViewById(R.id.garden_state); 
+		name = (EditText)findViewById(R.id.garden_name_edit);
+		city = (EditText)findViewById(R.id.garden_city);
+		info = (EditText)findViewById(R.id.garden_info);
+		state = (AutoCompleteTextView) findViewById(R.id.garden_state);
 		name.setText(garden.getName());
 		city.setText(garden.getCity());
+		info.setText(garden.getInfo()); 
 		state.setText(garden.getState());
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, STATES);
 		state.setAdapter(adapter);
@@ -52,18 +54,20 @@ public class GardenAttr extends Activity implements View.OnClickListener {
 			name.setText(garden.getName());
 			city.setText(garden.getCity());
 			state.setText(garden.getState());
+			info.setText(garden.getInfo()); 
 		}
 	}
 	
 	@Override
 	public void onBackPressed() {
-		garden.setName(name.getText().toString());
 		String gardenName = name.getText().toString().trim();
 		if (gardenName.length() == 0)
 			gardenName = "Untitled Garden"; 
 		garden.setName(gardenName);
 		garden.setCity(city.getText().toString());
 		garden.setState(state.getText().toString());
+		garden.setInfo(info.getText().toString()); 
+		GardenGnome.updateGarden(garden);
 		super.onBackPressed();
 	}
 	

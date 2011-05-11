@@ -49,7 +49,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		plotIndex = intent.getIntExtra("plot_index", 0);
 		plot = garden.getPlot(plotIndex);
 		setTitle(plot.getName());
-
+		
 		setContentView(R.layout.plot);
 		
 		plantName = (EditText) findViewById(R.id.new_plant_name);
@@ -97,7 +97,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 
 		return dialog;
 	}
-
+	
 	@Override
 	public void onClick(View view) {
 		String plantString = plantName.getText().toString();
@@ -108,7 +108,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		plantName.setText("");
 		adapter.notifyDataSetChanged(); //refresh ListView
 	}
-
+	
 	class PlantAdapter extends ArrayAdapter<Plant> {
 
 		private ArrayList<Plant> plants;
@@ -132,7 +132,7 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		}
 
 	}
-
+	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
@@ -142,14 +142,14 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		intent.putExtra("plant_index", position);
 		startActivity(intent);
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.plot_menu, menu);
 		return true;
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 

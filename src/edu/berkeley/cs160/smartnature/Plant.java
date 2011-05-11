@@ -2,6 +2,7 @@ package edu.berkeley.cs160.smartnature;
 import java.util.ArrayList;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 
 import com.google.gson.annotations.Expose;
 
@@ -15,6 +16,12 @@ public class Plant {
 	private ArrayList<Entry> entries = new ArrayList<Entry>();
 	
 	Plant(String name) { this.name = name; }
+	
+	Plant(Cursor cursor) {
+		name = Helper.getString(cursor, "name");
+		db_id = Helper.getInt(cursor, "_id");
+		id = Helper.getInt(cursor, "server_id");
+	}
 	
 	public ContentValues getContentValues() {
 		ContentValues values = new ContentValues();

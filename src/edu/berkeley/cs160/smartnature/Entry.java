@@ -1,6 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -16,6 +17,13 @@ public class Entry {
 	Entry(String body, long date) {
 		this.body = body;
 		this.date = date;
+	}
+	
+	Entry(Cursor cursor) {
+		db_id = Helper.getInt(cursor, "_id");
+		id = Helper.getInt(cursor, "server_id");
+		body = Helper.getString(cursor, "name");
+		date = Long.parseLong(Helper.getString(cursor, "date"));
 	}
 	
 	public ContentValues getContentValues() {

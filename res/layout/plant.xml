@@ -20,7 +20,7 @@
 		android:layout_height="wrap_content">
 
 		<EditText
-			android:id="@+id/entryText"
+			android:id="@+id/entry_body"
 			android:hint="Add journal entry"
 			android:inputType="textCapSentences|textMultiLine"
 			android:gravity="top"
@@ -28,14 +28,14 @@
 			android:layout_width="wrap_content"
 			android:layout_height="fill_parent" />
 		<Button
-			android:id="@+id/addEntryButton"
+			android:id="@+id/btn_add_entry"
 			android:text="Post"
 			android:drawableTop="@drawable/ic_menu_compose"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" />
 	</LinearLayout>
 	<Button
-		android:id="@+id/recordVoiceButton"
+		android:id="@+id/btn_record_voice"
 		android:text="Record Voice"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />

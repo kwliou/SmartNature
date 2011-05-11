@@ -1,8 +1,10 @@
+
 package edu.berkeley.cs160.smartnature;
 
 import com.google.gson.annotations.Expose;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 
 public class Photo {
@@ -16,6 +18,12 @@ public class Photo {
 	Photo(String uri) { this.uri = uri; }
 	
 	Photo(Uri uri) { this.uri = uri.toString(); }
+	
+	Photo(Cursor cursor) {
+		uri = Helper.getString(cursor, "uri");
+		db_id = Helper.getInt(cursor, "_id");
+		id = Helper.getInt(cursor, "server_id");
+	}
 	
 	public ContentValues getContentValues() {
 		ContentValues values = new ContentValues();

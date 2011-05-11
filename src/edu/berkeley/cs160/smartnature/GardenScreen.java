@@ -2,8 +2,10 @@ package edu.berkeley.cs160.smartnature;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Matrix;
@@ -158,19 +160,12 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 			case USE_CAMERA: // returning from Camera activity
 				if (resultCode == RESULT_OK) {
 					System.out.print("imageUri=" + imageUri.toString() + " => " );
-					android.database.Cursor cursor = managedQuery(imageUri, new String[] {MediaStore.Images.Media.DATA}, null, null, null);
-					int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-					cursor.moveToFirst();
-					System.out.println(cursor.getString(column_index));
+					System.out.println(Helper.resolveUri(this, imageUri));
 					
 					if (data != null && data.getData() != null)
 						imageUri = data.getData();
 					System.out.print("imageUri=" + imageUri.toString() + " => " );
-					cursor = managedQuery(imageUri, new String[] {MediaStore.Images.Media.DATA}, null, null, null);
-					column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-					cursor.moveToFirst();
-					System.out.println(cursor.getString(column_index));
-					//garden.addImage(imageUri);
+					System.out.println(Helper.resolveUri(this, imageUri));
 					
 					GardenGnome.addPhoto(garden, new Photo(imageUri));	
 				}
@@ -204,6 +199,24 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	}
 	
 	@Override
+	public Dialog onCreateDialog(int id) {
+		DialogInterface.OnClickListener confirm = new DialogInterface.OnClickListener() {
+			@Override public void onClick(DialogInterface dialog, int whichButton) {
+				GardenGnome.removeGarden(gardenIndex);
+				finish();
+			}
+		};
+		
+		AlertDialog dialog = new AlertDialog.Builder(this)
+			.setTitle("Confirm deletion")
+			.setPositiveButton(R.string.alert_dialog_delete, confirm)
+			.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
+			.create();
+		
+		return dialog;
+	}
+	
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.garden_menu, menu);
@@ -215,22 +228,16 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 		Intent intent;
 		
 		switch (item.getItemId()) {
-			case R.id.m_home:
-				finish();
-				break;
 			case R.id.m_gardenoptions:
-				intent = new Intent(this, GardenAttr.class);
-				intent.putExtra("garden_index", gardenIndex);
+				intent = new Intent(this, GardenAttr.class).putExtra("garden_index", gardenIndex);
 				startActivityForResult(intent, EDIT_GARDEN);
 				break;
 			case R.id.m_sharegarden:
-				intent = new Intent(this, ShareGarden.class);
-				intent.putExtra("garden_index", gardenIndex);
+				intent = new Intent(this, ShareGarden.class).putExtra("garden_index", gardenIndex);
 				startActivityForResult(intent, SHARE_GARDEN);
 				break;
 			case R.id.m_gallery:
-				intent = new Intent(this, GardenGallery.class);
-				intent.putExtra("garden_index", gardenIndex);
+				intent = new Intent(this, GardenGallery.class).putExtra("garden_index", gardenIndex);
 				startActivityForResult(intent, VIEW_PHOTOS);
 				break;
 			case R.id.m_takephoto:
@@ -247,8 +254,11 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				startActivityForResult(intent, USE_CAMERA);
 				break;
 			case R.id.m_deletegarden:
-				GardenGnome.removeGarden(gardenIndex);
-				finish();
+				showDialog(0);
+				break;
+			case R.id.m_home:
+				intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
 				break;
 		}
 		return super.onOptionsItemSelected(item);

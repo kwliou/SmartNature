@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/m_gallery" 
+	<item android:id="@+id/m_gallery"
 		android:icon="@android:drawable/ic_menu_gallery"
-		android:title="View Photos" />
+		android:title="View photos" />
 	<item android:id="@+id/m_gardenoptions"
 		android:icon="@android:drawable/ic_menu_manage"
 		android:title="@string/m_gardenoptions" />
@@ -11,10 +11,10 @@
 	<item android:id="@+id/m_sharegarden"
 		android:icon="@android:drawable/ic_menu_share"
 		android:title="@string/m_sharegarden" />
-	<item android:id="@+id/m_home"
-		android:icon="@drawable/ic_menu_home"
-		android:title="@string/m_home" />
 	<item android:id="@+id/m_deletegarden"
 		android:icon="@android:drawable/ic_menu_delete"
 		android:title="@string/m_deletegarden" />
+	<item android:id="@+id/m_home"
+		android:icon="@drawable/ic_menu_home"
+		android:title="@string/m_home" />
 </menu>

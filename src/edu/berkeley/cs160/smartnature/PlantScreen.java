@@ -67,17 +67,18 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		plot = garden.getPlot(intent.getIntExtra("plot_index", 0));
 		plant = plot.getPlant(intent.getIntExtra("plant_index", 0));
 		
+		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());
+		setListAdapter(adapter);
 		setContentView(R.layout.plant);
-		initMockData();
 		getListView().setOnItemClickListener(PlantScreen.this);
 		registerForContextMenu(getListView());
 		
-		entryText = (EditText) findViewById(R.id.entryText);
-		addEntryButton = (Button) findViewById(R.id.addEntryButton);
+		entryText = (EditText) findViewById(R.id.entry_body);
+		addEntryButton = (Button) findViewById(R.id.btn_add_entry);
 		addEntryButton.setOnClickListener(this);
 		
 		/** Voice Recognition **/
-		Button speakButton = (Button) findViewById(R.id.recordVoiceButton);
+		Button speakButton = (Button) findViewById(R.id.btn_record_voice);
 		
 		PackageManager pm = getPackageManager();
 		List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
@@ -87,16 +88,9 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			speakButton.setVisibility(View.GONE);
 	}
 	
-	public void initMockData() {
-		//plant.getEntries().clear();
-		//GardenGnome.initEntry(pa_pk, plant);
-		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());
-		setListAdapter(adapter);
-	}
-	
 	@Override
 	public void onClick(View view) {
-		if (view.getId() == R.id.recordVoiceButton) {
+		if (view.getId() == R.id.btn_record_voice) {
 			startVoiceRecognitionActivity();
 			return;
 		}
@@ -110,7 +104,9 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			entryText.setText("");			
 		}
 		else {
-			plant.getEntry(clickedPosition).setBody(entryText.getText().toString());
+			Entry entry = plant.getEntry(clickedPosition); 
+			entry.setBody(entryText.getText().toString());
+			GardenGnome.updateEntry(entry);
 			entryText.setText("");
 			entryText.setHint("Add journal entry");
 			addEntryButton.setText("Post");
@@ -137,43 +133,8 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		}
 	}
 	
-	class EntryAdapter extends ArrayAdapter<Entry> {
-		
-		private ArrayList<Entry> items;
-		private LayoutInflater li;
-		
-		public EntryAdapter(Context context, int textViewResourceId, ArrayList<Entry> items) {
-			super(context, textViewResourceId, items);
-			li = ((ListActivity) context).getLayoutInflater();
-			this.items = items;
-		}
-		
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View v = convertView;
-			if (v == null)
-				v = li.inflate(R.layout.journal_list_item, null);
-			Entry e = items.get(position);
-			((TextView) v.findViewById(R.id.entry_name)).setText(e.getBody());
-			String dateStr = formatter.format(e.getDate()); // currentDate.toLocaleString();
-			((TextView) v.findViewById(R.id.entry_date)).setText(dateStr);
-			
-			return v;
-		}
-	}
-	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		/*
-		Intent intent = new Intent(PlantScreen.this, EntryScreen.class);
-		intent.putExtra("name", name);
-		intent.putExtra("garden_id", gardenID);
-		intent.putExtra("plot_id", plotID);
-		intent.putExtra("plant_id", plantID);
-		intent.putExtra("entry_id", position);
-		intent.putExtra("pa_pk", pa_pk);
-		startActivity(intent);
-		*/
 		clickedPosition = position;
 		entryText.setText(plant.getEntry(position).getBody());
 		entryText.setHint("Edit journal entry");
@@ -194,7 +155,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
 			case 0:
-				plant.getEntries().remove(info.position);
+				GardenGnome.removeEntry(plant, plant.getEntry(info.position));
 				adapter.notifyDataSetChanged();
 				break;
 		}
@@ -277,9 +238,34 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		if (plantName.length() == 0)
 			plantName = "Untitled plant";
 		plant.setName(plantName);
+		GardenGnome.updatePlant(plant);
 		setTitle(plantName);
 		PlotScreen.adapter.notifyDataSetChanged();
 		removeDialog(0);
 	}
-	
+
+	class EntryAdapter extends ArrayAdapter<Entry> {
+		
+		private ArrayList<Entry> items;
+		private LayoutInflater li;
+		
+		public EntryAdapter(Context context, int textViewResourceId, ArrayList<Entry> items) {
+			super(context, textViewResourceId, items);
+			li = ((ListActivity) context).getLayoutInflater();
+			this.items = items;
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View view = convertView;
+			if (view == null)
+				view = li.inflate(R.layout.journal_list_item, null);
+			Entry e = items.get(position);
+			((TextView) view.findViewById(R.id.entry_name)).setText(e.getBody());
+			String dateStr = formatter.format(e.getDate()); // currentDate.toLocaleString();
+			((TextView) view.findViewById(R.id.entry_date)).setText(dateStr);
+			
+			return view;
+		}
+	}
 }

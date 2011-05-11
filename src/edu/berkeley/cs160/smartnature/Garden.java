@@ -1,6 +1,7 @@
 package edu.berkeley.cs160.smartnature;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -18,6 +19,7 @@ public class Garden {
 	@Expose private String name;
 	@Expose private String city = "";
 	@Expose private String state = "";
+	@Expose private String info = "";
 	@Expose private boolean is_public;
 	@Expose private String password;  // should we turn this into a SHA-256 hash?
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
@@ -33,6 +35,30 @@ public class Garden {
 	Garden(String gardenName) {
 		bounds = new RectF(0, 0, 800, 480);
 		name = gardenName;
+	}
+	
+	Garden(Cursor cursor) {
+		name = Helper.getString(cursor, "name");
+		db_id = Helper.getInt(cursor, "_id");
+		id = Helper.getInt(cursor, "server_id");
+		setRawBounds(Helper.toRectF(Helper.getString(cursor, "bounds")));
+		city = Helper.getString(cursor, "city");
+		state = Helper.getString(cursor, "state");
+		info = Helper.getString(cursor, "info");
+		if (Helper.getInt(cursor, "is_public") == 1)
+			is_public = true;
+	}
+	
+	public ContentValues getContentValues() {
+		ContentValues values = new ContentValues();
+		values.put("server_id", id);
+		values.put("name", name);
+		values.put("is_public", is_public ? 1 : 0);
+		values.put("bounds", Helper.toString(getBounds()));
+		values.put("city", city);
+		values.put("state", state);
+		values.put("info", info);
+		return values;
 	}
 	
 	public void addPlot(Plot plot) {
@@ -109,18 +135,9 @@ public class Garden {
 	
 	public String getCity() { return city; }
 	
-	public ContentValues getContentValues() {
-		ContentValues values = new ContentValues();
-		values.put("server_id", id);
-		values.put("name", name);
-		values.put("bounds", Helper.toString(getBounds()));
-		values.put("city", city);
-		values.put("state", state);
-		values.put("is_public", is_public ? 1 : 0);
-		return values;
-	}
-
 	public int getId() { return db_id; }
+	
+	public String getInfo() { return info; }
 	
 	public String getName() { return name; }
 	
@@ -139,6 +156,8 @@ public class Garden {
 	public void setCity(String city) { this.city = city; }
 	
 	public void setId (int id) { this.db_id = id; }
+	
+	public void setInfo(String info) { this.info = info; }
 	
 	public void setName(String name) { this.name = name; }
 	

@@ -3,6 +3,7 @@ package edu.berkeley.cs160.smartnature;
 import java.util.ArrayList;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -108,16 +109,45 @@ public class Plot {
 		shapetype = src.getType();
 		color = src.getColor();
 		angle = src.getAngle();
-
+		
 		if (shapetype == POLY)
 			polyPoints = src.getPoints().clone();	
-
+		
 		try {
 			shape = new ShapeDrawable(src.getShape().clone());
 		} catch (CloneNotSupportedException e) { e.printStackTrace(); }
 		setBounds(src.getBounds());
 		getPaint().set(src.getPaint());
 		plants = src.getPlants();
+	}
+	
+	Plot(Cursor cursor) {
+		name = Helper.getString(cursor, "name");
+		Rect bounds = Rect.unflattenFromString(Helper.getString(cursor, "bounds"));
+		shapetype = Helper.getInt(cursor, "shape");
+		
+		if (shapetype == Plot.POLY)
+			set(new Plot(name, bounds, Helper.toFloatArray(Helper.getString(cursor, "points"))));
+		else
+			set(new Plot(name, bounds, shapetype));
+		
+		db_id = Helper.getInt(cursor, "_id");
+		id = Helper.getInt(cursor, "server_id");
+		angle = Helper.getFloat(cursor, "angle");
+		color = Helper.getInt(cursor, "color");
+	}
+	
+	public ContentValues getContentValues() {
+		ContentValues values = new ContentValues();
+		values.put("server_id", id);
+		values.put("name", name);
+		values.put("shape", shapetype);
+		values.put("color", color);
+		values.put("angle", angle);
+		values.put("bounds", getBounds().flattenToString());
+		if (shapetype == POLY)
+			values.put("points", Helper.toString(polyPoints));
+		return values;
 	}
 	
 	public void initPaint() {
@@ -260,19 +290,6 @@ public class Plot {
 	public float getAngle() { return angle; }
 	
 	public int getColor() { return color; }
-	
-	public ContentValues getContentValues() {
-		ContentValues values = new ContentValues();
-		values.put("server_id", id);
-		values.put("name", name);
-		values.put("shape", shapetype);
-		values.put("color", color);
-		values.put("angle", angle);
-		values.put("bounds", getBounds().flattenToString());
-		if (shapetype == POLY)
-			values.put("points", Helper.toString(polyPoints));
-		return values;
-	}
 	
 	public int getId(){ return db_id; }
 	
