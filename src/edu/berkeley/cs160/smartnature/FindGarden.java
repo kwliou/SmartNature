@@ -344,7 +344,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			String code = garden.getServerId() + "|" + photo.getServerId() + "|" + accessKey;
 			String fileName = hexCode(code) + ".jpg";
 			
-			Uri imageUri = writeBitmap2(fileName);
+			Uri imageUri = writeBitmap(fileName);
 			if (imageUri == null)
 				return;
 			photo.setUri(imageUri);
@@ -352,9 +352,34 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		}
 	}
 	
+	/** writes to device's "external image storage" ex. /sdcard/DCIM/camera
+ 	and shows up under "Camera images" in the Gallery app */
+	public Uri writeBitmap(String fileName) {
+		ContentValues values = new ContentValues();
+		values.put(Images.Media.TITLE, fileName); //values.put(Images.Media.DESCRIPTION, "Image capture by camera");
+		Uri imageUri = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+		System.out.print("imageUri=" + imageUri.toString() + " -> ");
+		String resolvedPath = Helper.resolveUri(this, imageUri);
+		System.out.println(resolvedPath);
+		
+		OutputStream output = null;
+		try {
+			output = getContentResolver().openOutputStream(imageUri);
+		} catch (FileNotFoundException e) { e.printStackTrace(); return null; }
+		
+		try {
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpGet httpget = new HttpGet("http://s3.amazonaws.com/gardengnome/" + fileName);
+			HttpResponse response = httpclient.execute(httpget);
+			response.getEntity().writeTo(output);
+		} catch (Exception e) { e.printStackTrace(); return null; }
+		
+		return imageUri;
+	}
+	
 	/** writes to custom folder /sdcard/Pictures/GardenGnome
  		and shows up under "GardenGnome" in the Gallery app */
-	public Uri writeBitmap1(String fileName, InputStream input) {
+	public Uri writeBitmap2(String fileName, InputStream input) {
 		File dir = new File(Environment.getExternalStorageDirectory(), "Pictures");
 		dir.mkdir();
 		dir = new File(dir, "GardenGnome");
@@ -377,61 +402,6 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		
 		// notify change
 		scanner.scanFile(imageUri.getPath(), "image/jpeg");
-		return imageUri;
-	}
-	
-	/** writes to device's "external image storage" ex. /sdcard/DCIM/camera
-	 	and shows up under "Camera images" in the Gallery app */
-	public Uri writeBitmap2(String fileName) {
-		ContentValues values = new ContentValues();
-		values.put(Images.Media.TITLE, fileName); //values.put(Images.Media.DESCRIPTION, "Image capture by camera");
-		Uri imageUri = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-		System.out.print("imageUri=" + imageUri.toString() + " -> ");
-		String resolvedPath = Helper.resolveUri(this, imageUri);
-		System.out.println(resolvedPath);
-		
-		OutputStream output = null;
-		try {
-			output = getContentResolver().openOutputStream(imageUri);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		}
-		String bucketName = "gardengnome";
-		InputStream input = null;
-		try {
-			input = s3.getObject(bucketName, fileName).getObjectContent();
-		} catch (Exception e) {
-			e.printStackTrace();
-			runOnUiThread(new Runnable() {
-				@Override public void run() {
-					Toast.makeText(FindGarden.this, "Amazon S3 has rejected your timezone", Toast.LENGTH_SHORT).show();
-				}
-			});
-			return null;
-		}
-		int buffer = 0;
-		try {
-			while ((buffer = input.read()) != -1)
-				output.write(buffer);
-			input.close();
-			output.flush();
-			output.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("could not write outputstream");
-			runOnUiThread(new Runnable() {
-				@Override public void run() {
-					Toast.makeText(FindGarden.this, "Your internet is not fast enough to download these photos", Toast.LENGTH_SHORT).show();
-				}
-			});
-			return null;
-		}
-		getContentResolver().notifyChange(imageUri, null);
-		
-		// notify change
-		scanner.scanFile(resolvedPath, "image/jpeg");
-		
 		return imageUri;
 	}
 	

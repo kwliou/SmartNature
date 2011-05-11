@@ -145,7 +145,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		@Override
 		public void run() {
 			try {
-				result.setBitmap(BitmapFactory.decodeStream(new URL(result.getPicURL()).openConnection().getInputStream()));
+				result.setBitmap(BitmapFactory.decodeStream(new URL(result.getPicURL()).openStream()));
 			} catch (IOException e) { e.printStackTrace(); }
 			runOnUiThread(new Runnable() {
 				@Override public void run() {
