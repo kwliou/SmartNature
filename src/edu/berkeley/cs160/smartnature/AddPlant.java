@@ -14,8 +14,6 @@ import android.widget.TextView;
 
 public class AddPlant extends Activity implements View.OnClickListener {
 	
-	String garden = "";
-	String plot = "";
 	ArrayList<Garden> gardens;
 	ArrayList<Plot> plots;
 	int gardenIndex;
@@ -35,20 +33,14 @@ public class AddPlant extends Activity implements View.OnClickListener {
 		for (int i = 0; i < gardens.size(); i++) {
 			RadioButton r = new RadioButton(this);
 			r.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-			r.setText(gardens.get(i).getName());
+			r.setText("  " + gardens.get(i).getName());
 			r.setTextSize(18);
-			//r.setPadding(45, 0, 0, 0);
 			radioGroup.addView(r);
-			
 		}
 		
 	}
 	
 	public void nextDialog() {
-		for (int i = 0; i < gardens.size(); i++) {
-			if (gardens.get(i).getName().equals(garden))
-				gardenIndex = i;
-		}
 		plots = gardens.get(gardenIndex).getPlots();
 		Button next = (Button) findViewById(R.id.next);
 		next.setText("Create");
@@ -59,19 +51,19 @@ public class AddPlant extends Activity implements View.OnClickListener {
 		for (int i = 0; i < plots.size(); i++) {
 			RadioButton r = new RadioButton(this);
 			r.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-			r.setText(plots.get(i).getName());
+			r.setText("  " + plots.get(i).getName());
 			r.setTextSize(18);
 			radioGroup.addView(r);
 		}
 	}
 	
 	@Override
-	public void onClick(View v) {
-		if (v.getId() == R.id.cancel)
+	public void onClick(View view) {
+		if (view.getId() == R.id.cancel)
 			finish();
-		else if (((Button) v).getText().toString().equals("Next")) {
+		else if (((Button) view).getText().equals("Next")) {
 			int radioId = radioGroup.getCheckedRadioButtonId();
-			garden = ((RadioButton) findViewById(radioId)).getText().toString();
+			gardenIndex = radioGroup.indexOfChild(findViewById(radioId));
 			nextDialog();
 		} else {
 			int radioId = radioGroup.getCheckedRadioButtonId();

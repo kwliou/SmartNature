@@ -180,9 +180,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 				((TextView) v.findViewById(R.id.linkURL)).setText(s.getLinkURL());
 				try {
 					((ImageView) v.findViewById(R.id.searchPic)).setImageBitmap(s.getBitmap());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				} catch (Exception e) { e.printStackTrace(); }
 			}
 			
 			return v;

@@ -17,16 +17,15 @@
 		android:layout_toLeftOf="@+id/preview_img"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />
-	<!--
+
 	<ImageView
-		android:src="@drawable/preview"
 		android:id="@+id/preview_img"
+		android:src="@drawable/preview"
 		android:layout_alignParentRight="true"
 		android:layout_centerInParent="true"
 		android:layout_margin="10dp"
 		android:layout_width="75dp"
 		android:layout_height="50dp" />
- 	-->
 
 	<ViewFlipper
 		android:id="@+id/flipper"

@@ -128,7 +128,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
 			ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-			EditText entry = (EditText) findViewById(R.id.entryText);
+			EditText entry = (EditText) findViewById(R.id.entry_body);
 			entry.setText(matches.get(0).toString());
 		}
 	}

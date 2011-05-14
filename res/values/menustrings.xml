@@ -3,8 +3,9 @@
 	<string name="m_addplot">Add plot</string>
 	<string name="m_changecolor">Change color</string>
 	<string name="m_contact">Feedback</string>
-	<string name="m_deletegarden">Delete garden</string>
+	<string name="m_deletegarden">Delete</string>
 	<string name="m_editgardendim">Edit dimensions</string>
+	<string name="m_gallery">View photos</string>
 	<string name="m_gardenoptions">Edit info</string>
 	<string name="m_globaloptions">Settings</string>
 	<string name="m_help">Help</string>

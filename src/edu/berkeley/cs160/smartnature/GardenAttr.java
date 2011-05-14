@@ -28,7 +28,8 @@ public class GardenAttr extends Activity implements View.OnClickListener {
 	AutoCompleteTextView state;
 	
 	/** Called when the activity is first created. */
-	@Override public void onCreate(Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.garden_attr);
 		garden = GardenGnome.getGarden(getIntent().getIntExtra("garden_index", 0));
@@ -40,7 +41,7 @@ public class GardenAttr extends Activity implements View.OnClickListener {
 		city.setText(garden.getCity());
 		info.setText(garden.getInfo()); 
 		state.setText(garden.getState());
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, STATES);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.autocomplete_item, STATES);
 		state.setAdapter(adapter);
 		findViewById(R.id.attr_confirm).setOnClickListener(this);
 		findViewById(R.id.attr_cancel).setOnClickListener(this);

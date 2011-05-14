@@ -39,13 +39,12 @@ add alternate plot list view for gardens
 going back into edit polygon mode?
 
 Current issues:
-empty garden name when editing names?
-bunch of newlines in any edittext?
+handle cases when device feature is missing
 photo filenames depend on garden name staying constant
 what happens when user uploads garden with same name+city+state
 afraid share garden activity might end before it's finished
 zoomfit when polygon point mode?
-what do when a plot completely overlaps another? introduce z-index?
+what to do when a plot completely overlaps another? introduce z-index?
 dotted circle might be obscured in edit mode
 
 "Main"/home screen

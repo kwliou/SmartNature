@@ -12,6 +12,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
@@ -160,9 +162,8 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 		if (gardenName.length() == 0)
 			gardenName = "Untitled garden";
 		Intent intent = new Intent(this, GardenScreen.class);
-		intent.putExtra("garden_id", gardens.size());
-		Garden garden = new Garden(gardenName);
-		GardenGnome.addGarden(garden);
+		intent.putExtra("garden_index", gardens.size());
+		GardenGnome.addGarden(new Garden(gardenName));
 		adapter.notifyDataSetChanged();
 		startActivityForResult(intent, 0);
 		new Thread(setLocation).start();
@@ -179,16 +180,19 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.m_contact:
-			Intent intent = new Intent(Intent.ACTION_VIEW);
-			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-			intent.setData(Uri.parse("mailto:" + getString(R.string.dev_email)));
-			intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "GardenGnome feedback");
-			startActivity(intent); //startActivity(Intent.createChooser(intent, "Send mail..."));
-			break;
-		case R.id.m_globaloptions:
-			startActivity(new Intent(this, GlobalSettings.class));
-			break;
+			case R.id.m_contact:
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+				intent.setData(Uri.parse("mailto:" + getString(R.string.dev_email)));
+				intent.putExtra(android.content.Intent.EXTRA_SUBJECT, "GardenGnome feedback");
+				startActivity(intent); //startActivity(Intent.createChooser(intent, "Send mail..."));
+				break;
+			case R.id.m_globaloptions:
+				startActivityForResult(new Intent(this, GlobalSettings.class), 0);
+				break;
+			case R.id.m_help:
+				startActivity(new Intent(this, HelpScreen.class));
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -228,36 +232,6 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 			gardens = items;
 		}
 		
-		public void loadImages(Garden garden, ViewFlipper flipper) {
-			flipper.removeAllViews();
-			if (garden.getPhotos().isEmpty()) {
-				ImageView image = new ImageView(StartScreen.this);
-				image.setImageResource(R.drawable.preview);
-				flipper.addView(image);
-				flipper.stopFlipping();
-				return;
-			}
-			
-			for (Photo photo : garden.getPhotos()) {
-				ImageView image = new ImageView(StartScreen.this);
-				Uri preview = photo.getUri();
-				BitmapFactory.Options options = new BitmapFactory.Options();
-				float maxSize = getResources().getDimension(R.dimen.preview_width);
-				options.inSampleSize = Helper.getSampleSize(StartScreen.this, preview, maxSize) / 2;
-				
-				if (preview.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
-					try {
-						InputStream stream = getContentResolver().openInputStream(preview);
-						image.setImageBitmap(BitmapFactory.decodeStream(stream, null, options));
-						stream.close();
-					} catch (Exception e) { e.printStackTrace(); }
-				} else
-					image.setImageBitmap(BitmapFactory.decodeFile(preview.getPath(), options));
-				
-				flipper.addView(image);
-			}
-		}
-		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = convertView;
@@ -265,30 +239,51 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 				view = li.inflate(R.layout.garden_list_item, null);
 			Garden garden = gardens.get(position);
 			((TextView) view.findViewById(R.id.garden_name)).setText(garden.getName());
-			loadImages(garden, (ViewFlipper) view.findViewById(R.id.flipper));
-			/*
-			ImageView image = (ImageView) view.findViewById(R.id.preview_img); 
-			if (garden.getPhotos().isEmpty()) {
-				image.setImageResource(R.drawable.preview);
-				return view;
-			}
-			Uri preview = garden.getPreview();
 			
+			SharedPreferences prefs = getSharedPreferences("global", Context.MODE_PRIVATE);
+			ViewFlipper flipper = (ViewFlipper) view.findViewById(R.id.flipper);
+			ImageView preview = (ImageView) view.findViewById(R.id.preview_img);
+			if (prefs.getBoolean("anim_photos", true) && garden.numPhotos() > 1) {
+				flipper.removeAllViews();
+				for (int i = garden.numPhotos() - 1; i >= 0; i--) {
+					ImageView image = new ImageView(StartScreen.this);
+					image.setImageBitmap(initImage(garden.getPhoto(i)));
+					flipper.addView(image);
+				}
+				flipper.setVisibility(View.VISIBLE);
+				preview.setVisibility(View.GONE);
+			}
+			else {
+				if (garden.numPhotos() == 0)
+					preview.setImageResource(R.drawable.preview);
+				else
+					preview.setImageBitmap(initImage(garden.getPhoto(garden.numPhotos() - 1)));
+				flipper.setVisibility(View.GONE);
+				preview.setVisibility(View.VISIBLE);
+			}
+			
+			return view;
+		}
+		
+
+		private Bitmap initImage(Photo photo) {
+			Uri preview = photo.getUri();
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			float maxSize = getResources().getDimension(R.dimen.preview_width);
 			options.inSampleSize = Helper.getSampleSize(StartScreen.this, preview, maxSize) / 2;
-			
+			Bitmap bmp = null;
 			if (preview.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
 				try {
 					InputStream stream = getContentResolver().openInputStream(preview);
-					image.setImageBitmap(BitmapFactory.decodeStream(stream, null, options));
+					bmp = BitmapFactory.decodeStream(stream, null, options);
 					stream.close();
 				} catch (Exception e) { e.printStackTrace(); }
 			} else
-				image.setImageBitmap(BitmapFactory.decodeFile(preview.getPath(), options));
-			*/
-			return view;
+				bmp = BitmapFactory.decodeFile(preview.getPath(), options);
+			
+			return bmp;
 		}
+		
 	}
 	
 }

@@ -13,7 +13,6 @@
 		android:layout_height="wrap_content">
 		<TextView
 			android:id="@+id/searchName"
-			android:text="planni hu iuhnuihnuih oi oi t"
 			android:scrollHorizontally="true"
 			android:textSize="20sp"
 			android:gravity="fill_horizontal"

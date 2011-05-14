@@ -60,6 +60,7 @@
 			<EditText
 				android:id="@+id/garden_info"
 				android:hint="Garden description"
+				android:inputType="textCapSentences|textMultiLine"
 				android:lines="4"
 				android:gravity="top"
 				android:layout_width="fill_parent"

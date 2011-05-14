@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="Display options">
+	<PreferenceCategory
+		android:title="Display options">
 		<CheckBoxPreference
 			android:key="show_hints"
 			android:title="Show hints"
@@ -19,5 +21,11 @@
 			android:defaultValue="false"
 			android:summary="Only show zoom buttons when touching the garden screen" />
 	</PreferenceCategory>
+
+	<CheckBoxPreference
+		android:key="anim_photos"
+		android:title="Show slideshow"
+		android:defaultValue="true"
+		android:summary="Animate your gardens' photo previews" />
 
 </PreferenceScreen>

@@ -257,8 +257,12 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				showDialog(0);
 				break;
 			case R.id.m_home:
-				intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
+				if (getCallingActivity().getShortClassName().equals(".StartScreen"))
+					finish();
+				else {
+					intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+				}
 				break;
 		}
 		return super.onOptionsItemSelected(item);

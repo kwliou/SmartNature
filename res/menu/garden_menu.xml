@@ -1,10 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/m_gardenoptions"
+		android:icon="@android:drawable/ic_menu_info_details"
+		android:title="@string/m_gardenoptions" />
 	<item android:id="@+id/m_gallery"
 		android:icon="@android:drawable/ic_menu_gallery"
-		android:title="View photos" />
-	<item android:id="@+id/m_gardenoptions"
-		android:icon="@android:drawable/ic_menu_manage"
-		android:title="@string/m_gardenoptions" />
+		android:title="@string/m_gallery" />
 	<item android:id="@+id/m_takephoto"
 		android:icon="@android:drawable/ic_menu_camera"
 		android:title="@string/m_takephoto" />

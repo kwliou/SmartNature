@@ -61,8 +61,9 @@ import org.apache.http.util.EntityUtils;
 
 public class FindGarden extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnClickListener {
 	
-	static private int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4, PASSWORD = 5;
-	static StubAdapter adapter;
+	private static final char[] HEX = "0123456789abcdef".toCharArray();
+	private static int ID = 0, NAME = 1, CITY = 2, STATE = 3, PUBLIC = 4, PASSWORD = 5;
+	StubAdapter adapter;
 	ArrayList<String[]> stubs = new ArrayList<String[]>();
 	View textEntryView;
 	TextView resultsLabel;
@@ -71,7 +72,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	/** position of item clicked */
 	int positionClicked;
 	/** HTTP GET query parameters for searching gardens */
-	String[] params = {null, "", "", ""};
+	String[] params = { null, "", "", "" };
 	InputMethodManager inputMgr;
 	
 	Gson gson = new Gson();
@@ -146,13 +147,20 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			}
 		});
 		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, GardenAttr.STATES);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.autocomplete_item, GardenAttr.STATES);
 		searchState.setAdapter(adapter);
 	}
 	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return stubs.isEmpty() ? null : stubs;
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (threadCount == 0)
+			scanner.disconnect();
+		super.onBackPressed();
 	}
 	
 	Runnable getLocation = new Runnable() {
@@ -353,7 +361,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	}
 	
 	/** writes to device's "external image storage" ex. /sdcard/DCIM/camera
- 	and shows up under "Camera images" in the Gallery app */
+	 *  and shows up under "Camera images" in the Gallery app */
 	public Uri writeBitmap(String fileName) {
 		ContentValues values = new ContentValues();
 		values.put(Images.Media.TITLE, fileName); //values.put(Images.Media.DESCRIPTION, "Image capture by camera");
@@ -494,9 +502,9 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		}
 		cancelled.onClick(dialog, whichButton);
 		if (is_public || password.equals(stub[PASSWORD])) {
-			String[] text = {"Now downloading", stub[NAME] };
-			makeNote(Integer.parseInt(stub[ID]), android.R.drawable.stat_sys_download, text, Notification.FLAG_ONGOING_EVENT, false);
 			threadCount++;
+			String[] text = { "Now ", "Downloading", stub[NAME] };
+			makeNote(Integer.parseInt(stub[ID]), android.R.drawable.stat_sys_download, text, Notification.FLAG_ONGOING_EVENT, false);
 			if (!scanner.isConnected())
 				scanner.connect();
 			new Thread(new LoadGarden(stub[ID])).start();
@@ -513,7 +521,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	/** text = { tickerText, contentTitle } */
 	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate, Intent intent) {
 		manager.cancel(id + 1);
-		Notification notification = new Notification(icon, text[0] + " garden", System.currentTimeMillis());
+		Notification notification = new Notification(icon, text[0] + text[1].toLowerCase() + " garden", System.currentTimeMillis());
 		int pendingflags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT; // for Samsung Galaxy S
 		PendingIntent contentIntent = null;
 		try {
@@ -523,13 +531,11 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		if (vibrate)
 			notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
 		String title = "GardenGnome";
-		String contentText = text[0] + " " + text[1]; 
+		String contentText = text[1] + " " + text[2]; 
 		notification.setLatestEventInfo(this, title, contentText, contentIntent);
 		
 		manager.notify(id + 1, notification); // NOTE: HTC does not like an id parameter of 0
 	}
-	
-	private static final char[] HEX = "0123456789abcdef".toCharArray();
 	
 	/** meant for SHA-256 */
 	public String hexCode(String input) {
@@ -558,7 +564,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			Intent intent = new Intent(FindGarden.this, GardenScreen.class).putExtra("garden_index", GardenGnome.indexOf(garden));
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			
-			String[] text = { "Successfully downloaded", garden.getName() };
+			String[] text = { "Successfully ", "Downloaded", garden.getName() };
 			makeNote(Integer.parseInt(serverId), android.R.drawable.stat_sys_download_done, text, Notification.FLAG_AUTO_CANCEL, true, intent);
 			runOnUiThread(new Runnable() {
 				@Override public void run() { StartScreen.adapter.notifyDataSetChanged(); }
