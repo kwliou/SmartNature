@@ -446,11 +446,12 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 			prevDist = dist;
 			float diffX = x - motionEvent.getX(1);
 			float diffY = y - motionEvent.getY(1);
-			dist = diffX * diffX + diffY * diffY;
-			zoomScale = (zoomScale * (dist/prevDist + 1))/2; // less "sensitive"
-			
-			onAnimationEnd();
-			return;
+			if (Math.abs(diffX) < 350 && Math.abs(diffY) < 350) {
+				dist = diffX * diffX + diffY * diffY;
+				zoomScale = (zoomScale * (dist/prevDist + 1))/2; // less "sensitive"
+				onAnimationEnd();
+				return;
+			}
 		}
 		
 		float[] dxy = { prevX, prevY, x, y };

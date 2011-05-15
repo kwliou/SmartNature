@@ -64,8 +64,6 @@
 		
 		<activity android:name=".PlotScreen" />
 		
-		<activity android:name=".AddPlant" android:theme="@style/Theme.Dialog.NoTitleBar" />
-		
 		<activity android:name=".PlantScreen" />
 		
 	</application>

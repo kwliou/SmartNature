@@ -201,4 +201,6 @@ public class Garden {
 	
 	public int numPhotos() { return photos.size(); }
 	
+	public int numPlots() { return plots.size(); }
+	
 }

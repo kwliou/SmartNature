@@ -72,7 +72,7 @@ public class DatabaseHelper {
 	
 	public ArrayList<Garden> selectGardens() {
 		Cursor cursor = db.query(GARDEN, null, null, null, null, null, null);
-		ArrayList<Garden> gardens = new ArrayList<Garden>();
+		ArrayList<Garden> gardens = new ArrayList<Garden>(cursor.getCount());
 		if (cursor.moveToFirst()) {
 			do gardens.add(new Garden(cursor));
 			while (cursor.moveToNext());
@@ -86,7 +86,7 @@ public class DatabaseHelper {
 	public ArrayList<Photo> selectPhotos(Garden garden) {
 		String[] selectionArgs = { Integer.toString(garden.getId()) };
 		Cursor cursor = db.query(PHOTO, null, GARDEN_ID + "=?", selectionArgs, null, null, null);
-		ArrayList<Photo> photos = new ArrayList<Photo>();
+		ArrayList<Photo> photos = new ArrayList<Photo>(cursor.getCount());
 		if (cursor.moveToFirst()) {
 			do photos.add(new Photo(cursor));
 			while (cursor.moveToNext());
@@ -100,7 +100,7 @@ public class DatabaseHelper {
 	public ArrayList<Plot> selectPlots(Garden garden) {
 		String[] selectionArgs = { Integer.toString(garden.getId()) };
 		Cursor cursor = db.query(PLOT, null, GARDEN_ID + "=?", selectionArgs, null, null, null);
-		ArrayList<Plot> plots = new ArrayList<Plot>();
+		ArrayList<Plot> plots = new ArrayList<Plot>(cursor.getCount());
 		if (cursor.moveToFirst()) {
 			do plots.add(new Plot(cursor));
 			while (cursor.moveToNext());
@@ -114,7 +114,7 @@ public class DatabaseHelper {
 	public ArrayList<Plant> selectPlants(Plot plot) {
 		String[] selectionArgs = { Integer.toString(plot.getId()) };
 		Cursor cursor = db.query(PLANT, null, PLOT_ID + "=?", selectionArgs, null, null, null);
-		ArrayList<Plant> plants = new ArrayList<Plant>();
+		ArrayList<Plant> plants = new ArrayList<Plant>(cursor.getCount());
 		if (cursor.moveToFirst()) {
 			do plants.add(new Plant(cursor));
 			while (cursor.moveToNext());
@@ -128,7 +128,7 @@ public class DatabaseHelper {
 	public ArrayList<Entry> selectEntries(Plant plant) {
 		String[] selectionArgs = { Integer.toString(plant.getId()) };
 		Cursor cursor = db.query(ENTRY, null, PLANT_ID + "=?", selectionArgs, null, null, null);
-		ArrayList<Entry> entries = new ArrayList<Entry>();
+		ArrayList<Entry> entries = new ArrayList<Entry>(cursor.getCount());
 		if (cursor.moveToFirst()) {
 			do entries.add(new Entry(cursor));
 			while (cursor.moveToNext());
@@ -139,25 +139,25 @@ public class DatabaseHelper {
 		return entries;
 	}
 	
-	public int updateGarden(Garden garden) { return updateRow(GARDEN, garden.getId(), garden.getContentValues()); } 
+	public int update(Garden garden) { return updateRow(GARDEN, garden.getId(), garden.getContentValues()); } 
 	
-	public int updatePhoto(Photo photo) { return updateRow(PHOTO, photo.getId(), photo.getContentValues()); } 
+	public int update(Photo photo) { return updateRow(PHOTO, photo.getId(), photo.getContentValues()); } 
 	
-	public int updatePlot(Plot plot) { return updateRow(PLOT, plot.getId(), plot.getContentValues()); } 
+	public int update(Plot plot) { return updateRow(PLOT, plot.getId(), plot.getContentValues()); } 
 	
-	public int updatePlant(Plant plant) { return updateRow(PLANT, plant.getId(), plant.getContentValues()); } 
+	public int update(Plant plant) { return updateRow(PLANT, plant.getId(), plant.getContentValues()); } 
 	
-	public int updateEntry(Entry entry) { return updateRow(ENTRY, entry.getId(), entry.getContentValues()); } 
+	public int update(Entry entry) { return updateRow(ENTRY, entry.getId(), entry.getContentValues()); } 
 	
-	public int deleteGarden(Garden garden) { return deleteRow(GARDEN, garden.getId()); }
+	public int delete(Garden garden) { return deleteRow(GARDEN, garden.getId()); }
 	
-	public int deletePhoto(Photo photo) { return deleteRow(PHOTO, photo.getId()); }
+	public int delete(Photo photo) { return deleteRow(PHOTO, photo.getId()); }
 	
-	public int deletePlot(Plot plot) { return deleteRow(PLOT, plot.getId()); }
+	public int delete(Plot plot) { return deleteRow(PLOT, plot.getId()); }
 	
-	public int deletePlant(Plant plant) { return deleteRow(PLANT, plant.getId()); }
+	public int delete(Plant plant) { return deleteRow(PLANT, plant.getId()); }
 	
-	public int deleteEntry(Entry entry) { return deleteRow(ENTRY, entry.getId()); }
+	public int delete(Entry entry) { return deleteRow(ENTRY, entry.getId()); }
 	
 	public int updateRow(String table, int id, ContentValues values) {
 		String[] whereArgs = { Integer.toString(id) };

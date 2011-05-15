@@ -35,9 +35,8 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class PlantScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
-	static EntryAdapter adapter;
+	EntryAdapter adapter;
 	
-	String name;
 	EditText entryText;
 	Button addEntryButton;
 	Plot plot;
@@ -45,7 +44,6 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	
 	AlertDialog dialog;
 	View textEntryView;
-	EditText input;
 	int clickedPosition;
 	/** Voice Recognition */
 	private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
@@ -56,21 +54,20 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		super.onCreate(savedInstanceState);
 		
 		Intent intent = getIntent();
-		if (!intent.hasExtra("name")) {
+		if (!intent.hasExtra("garden_index")) {
 			finish();
 			return;
 		}
 		GardenGnome.init(this);
-		name = intent.getStringExtra("name");
-		setTitle(name);	
 		Garden garden = GardenGnome.getGarden(intent.getIntExtra("garden_index", 0));
 		plot = garden.getPlot(intent.getIntExtra("plot_index", 0));
 		plant = plot.getPlant(intent.getIntExtra("plant_index", 0));
+		setTitle(plant.getName());	
 		
 		adapter = new EntryAdapter(this, R.layout.journal_list_item, plant.getEntries());
 		setListAdapter(adapter);
 		setContentView(R.layout.plant);
-		getListView().setOnItemClickListener(PlantScreen.this);
+		getListView().setOnItemClickListener(this);
 		registerForContextMenu(getListView());
 		
 		entryText = (EditText) findViewById(R.id.entry_body);
@@ -94,7 +91,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			startVoiceRecognitionActivity();
 			return;
 		}
-		if (addEntryButton.getText().equals("Post")) { // R.id.addEntryButton
+		if (addEntryButton.getText().equals("Post")) {
 			String entryName = entryText.getText().toString().trim();
 			if (entryName.length() == 0)
 				entryName = "Untitled entry";
@@ -185,13 +182,11 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			case R.id.m_searchplant:
 				intent = new Intent(this, Encyclopedia.class);
 				intent.setAction(Intent.ACTION_SEARCH);
-				intent.putExtra(android.app.SearchManager.QUERY, name);
+				intent.putExtra(android.app.SearchManager.QUERY, plant.getName());
 				startActivity(intent);
 				break;
 			case R.id.m_renameplant:
 				showDialog(0);
-				
-				// plant.setName(name);
 				break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -210,7 +205,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			.create();
 		
 		// automatically show soft keyboard
-		input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 		input.setText(plant.getName());
 		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override public void onFocusChange(View v, boolean hasFocus) {

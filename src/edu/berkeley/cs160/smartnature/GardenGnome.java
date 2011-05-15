@@ -15,6 +15,8 @@ public class GardenGnome extends Application {
 	
 	public static int indexOf(Garden garden) { return gardens.indexOf(garden); }
 	
+	public static int numGardens() { return gardens.size(); }
+	
 	public static void init(Context context) {
 		if (dbHelper != null)
 			return;
@@ -102,46 +104,58 @@ public class GardenGnome extends Application {
 	public static void removeGarden(int index) { removeGarden(gardens.get(index)); }
 	
 	public static void removeGarden(Garden garden) {
-		while (!garden.getPlots().isEmpty())
-			removePlot(garden, garden.getPlot(0));
-		for (Photo photo : garden.getPhotos())
-			dbHelper.deletePhoto(photo);
-		dbHelper.deleteGarden(garden);
+		remove(garden);
 		gardens.remove(garden);
 	}
 	
 	public static void removePhoto(Garden garden, Photo photo) {
-		dbHelper.deletePhoto(photo);
+		dbHelper.delete(photo);
 		garden.getPhotos().remove(photo);
 	}
 	
 	public static void removePlot(Garden garden, Plot plot) {
-		while (!plot.getPlants().isEmpty())
-			removePlant(plot, plot.getPlant(0));
-		dbHelper.deletePlot(plot);
+		remove(plot);
 		garden.getPlots().remove(plot);
 	}
 	
 	public static void removePlant(Plot plot, Plant plant) {
-		for (Entry entry : plant.getEntries()) 
-			dbHelper.deleteEntry(entry);
-		dbHelper.deletePlant(plant);
+		remove(plant);
 		plot.getPlants().remove(plant);
 	}
 	
 	public static void removeEntry(Plant plant, Entry entry) {
-		dbHelper.deleteEntry(entry);
+		dbHelper.delete(entry);
 		plant.getEntries().remove(entry);
 	}
 	
-	public static void updateGarden(Garden garden) { dbHelper.updateGarden(garden); }
+	private static void remove(Garden garden) {
+		dbHelper.delete(garden);
+		for (Photo photo : garden.getPhotos())
+			dbHelper.delete(photo);
+		for (Plot plot : garden.getPlots())
+			remove(plot);
+	}
 	
-	public static void updatePhoto(Photo photo) { dbHelper.updatePhoto(photo); }
+	private static void remove(Plot plot) {
+		dbHelper.delete(plot);
+		for (Plant plant : plot.getPlants())
+			remove(plant);
+	}
 	
-	public static void updatePlot(Plot plot) { dbHelper.updatePlot(plot); }
+	private static void remove(Plant plant) {
+		dbHelper.delete(plant);
+		for (Entry entry : plant.getEntries())
+			dbHelper.delete(entry);
+	}
 	
-	public static void updatePlant(Plant plant) { dbHelper.updatePlant(plant); }
+	public static void updateGarden(Garden garden) { dbHelper.update(garden); }
 	
-	public static void updateEntry(Entry entry) { dbHelper.updateEntry(entry); }
+	public static void updatePhoto(Photo photo) { dbHelper.update(photo); }
+	
+	public static void updatePlot(Plot plot) { dbHelper.update(plot); }
+	
+	public static void updatePlant(Plant plant) { dbHelper.update(plant); }
+	
+	public static void updateEntry(Entry entry) { dbHelper.update(entry); }
 	
 }

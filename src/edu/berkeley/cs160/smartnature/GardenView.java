@@ -207,13 +207,14 @@ public class GardenView extends View implements View.OnClickListener, View.OnLon
 		case MotionEvent.ACTION_MOVE:
 			if (mode == PINCH_ZOOM) {
 				prevDist = dist;
-				diffX = x - event.getX(1);
+				diffX = event.getX(1) - x;
 				diffY = y - event.getY(1);
-				dist = diffX * diffX + diffY * diffY;
-				//zoomScale *= dist/prevDist;
-				zoomScale = (zoomScale * (dist/prevDist + 1))/2; // less "sensitive"
-				
-				onAnimationEnd();
+				if (Math.abs(diffX) < 350 && Math.abs(diffY) < 350) {
+					dist = diffX * diffX + diffY * diffY;
+					//zoomScale *= dist/prevDist;
+					zoomScale = (zoomScale * (dist/prevDist + 1))/2; // less "sensitive"
+					onAnimationEnd();
+				}
 			}
 			else if (mode != IDLE) {
 				float dx = x - prevX, dy = y - prevY;

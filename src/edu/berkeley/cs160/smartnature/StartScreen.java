@@ -211,7 +211,7 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
 			case 0:
-				Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_id", info.position);
+				Intent intent = new Intent(this, GardenAttr.class).putExtra("garden_index", info.position);
 				startActivityForResult(intent, 0);
 				break;
 			case 1:

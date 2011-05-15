@@ -8,6 +8,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,7 +23,7 @@ import android.widget.TextView;
 
 public class EncyclopediaResult extends Activity implements Runnable, DialogInterface.OnCancelListener, View.OnClickListener {
 	ProgressDialog throbber;
-	String pName = "";
+	String plantName = "";
 	Elements tableValues;
 	String plantURL;
 	
@@ -32,10 +34,10 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 		
 		Intent intent = getIntent();
 		if (intent.hasExtra("name")) {
-			pName = intent.getStringExtra("name");
-			setTitle(pName);
+			plantName = intent.getStringExtra("name");
+			setTitle(plantName);
 			plantURL = intent.getStringExtra("linkURL");
-			((TextView) findViewById(R.id.searchName)).setText(pName);
+			((TextView) findViewById(R.id.searchName)).setText(plantName);
 			Button addToPlot = (Button) findViewById(R.id.addToPlot);
 			addToPlot.setOnClickListener(this);
 			throbber = ProgressDialog.show(this, null, "Downloading entry...", true, true, this);
@@ -88,20 +90,12 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 			int plotIndex, gardenIndex;
 			gardenIndex = data.getIntExtra("garden_index", 0);
 			plotIndex = data.getIntExtra("plot_index", 0);
-			// int po_pk = GardenGnome.getPlotPk(gardenId,
-			// GardenGnome.getPlot(gardenId, plotId));
 			Plot plot = GardenGnome.getGarden(gardenIndex).getPlot(plotIndex);
-			Plant plant = new Plant(pName);
+			Plant plant = new Plant(plantName);
 			GardenGnome.addPlant(plot, plant);
-			//GardenGnome.addPlant(po_pk, pName, GardenGnome.getGardens().get(gardenId).getPlot(plotId));
 			if (PlotScreen.adapter != null)
 				PlotScreen.adapter.notifyDataSetChanged();
 		}
-	}
-	
-	@Override
-	public void onClick(View view) {
-		startActivityForResult(new Intent(this, AddPlant.class), 0);
 	}
 	
 	@Override
@@ -126,7 +120,63 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 		});
 		
 	}
-
+	
+	@Override
+	public void onClick(View view) {
+		showDialog(0);
+	}
+	
+	int gardenIndex;
+	Garden chosenGarden;
+	
+	@Override
+	public Dialog onCreateDialog(int id) {
+		DialogInterface.OnClickListener choseGarden = new DialogInterface.OnClickListener() {
+			@Override public void onClick(DialogInterface dialog, int whichButton) {
+				gardenIndex = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+				chosenGarden = GardenGnome.getGarden(gardenIndex);
+				removeDialog(1);
+				showDialog(1);
+			}
+		};
+		
+		DialogInterface.OnClickListener chosePlot = new DialogInterface.OnClickListener() {
+			@Override public void onClick(DialogInterface dialog, int whichButton) {
+				int plotIndex = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+				Plot plot = chosenGarden.getPlot(plotIndex);
+				Intent intent = new Intent(EncyclopediaResult.this, PlantScreen.class);
+				intent.putExtra("garden_index", gardenIndex);
+				intent.putExtra("plot_index", plotIndex);
+				intent.putExtra("plant_index", plot.numPlants());
+				GardenGnome.addPlant(plot, new Plant(plantName));
+				startActivity(intent);
+			}
+		};
+		
+		if (id == 0) {
+			String[] names = new String[GardenGnome.numGardens()];
+			for (int i = 0; i < GardenGnome.numGardens(); i++)
+				names[i] = GardenGnome.getGarden(i).getName();
+			return new AlertDialog.Builder(this)
+				.setTitle("Choose garden")
+				.setSingleChoiceItems(names, 0, null)
+				.setPositiveButton("Next", choseGarden)
+				.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
+				.create();
+		}
+		
+		String[] names = new String[chosenGarden.numPlots()];
+		for (int i = 0; i < chosenGarden.numPlots(); i++)
+			names[i] = chosenGarden.getPlot(i).getName();
+		
+		return new AlertDialog.Builder(this)
+			.setTitle("Choose plot")
+			.setSingleChoiceItems(names, 0, null)
+			.setPositiveButton(R.string.alert_dialog_ok, chosePlot)
+			.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
+			.create();
+	}
+	
 	@Override
 	public void onCancel(DialogInterface dialog) {
 		finish();

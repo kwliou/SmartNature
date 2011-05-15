@@ -305,6 +305,8 @@ public class Plot {
 	
 	public int getType() { return shapetype; }
 	
+	public int numPlants() { return plants.size(); }
+	
 	public void setAngle(float angle) { this.angle = angle; }
 	
 	public void setColor(int color) { this.color = color; }
