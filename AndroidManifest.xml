@@ -66,5 +66,7 @@
 		
 		<activity android:name=".PlantScreen" />
 		
+		<provider android:name=".HistoryProvider" android:authorities="edu.berkeley.cs160.smartnature" />
+
 	</application>
 </manifest>

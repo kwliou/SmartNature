@@ -15,7 +15,6 @@
 		<EditText
 			android:id="@+id/searchText"
 			android:hint="Enter plant name"
-			android:inputType="textCapWords"
 			android:layout_weight="1"
 			android:layout_marginLeft="5dp"
 			android:layout_width="wrap_content"

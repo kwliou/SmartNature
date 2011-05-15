@@ -16,6 +16,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.GestureDetector;
+import android.widget.TextView;
 
 public class EditView extends View implements View.OnLongClickListener, View.OnTouchListener, GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
@@ -495,6 +496,7 @@ public class EditView extends View implements View.OnLongClickListener, View.OnT
 				angle += 360;
 			
 			editPlot.setAngle(angle);
+			((TextView)context.findViewById(R.id.plot_angle)).setText(context.angleFormat.format(angle));
 		}
 	}
 	

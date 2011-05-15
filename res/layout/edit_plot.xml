@@ -50,4 +50,12 @@
 
 	</LinearLayout>
 
+	<TextView
+		android:id="@+id/plot_angle"
+		android:layout_above="@id/edit_footer"
+		android:layout_marginLeft="5dp"
+		android:textStyle="bold"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
+
 </RelativeLayout>

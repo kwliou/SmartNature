@@ -20,6 +20,7 @@
 	<string name="new_region_prompt">Enter region name</string>
 	<string name="new_plant_prompt">Enter plant name</string>
 	<string name="new_entry_prompt">Enter journal entry</string>
+	<string name="angle_format">0.00°</string>
 	<string name="garden_list_title">My Gardens</string>
 	<string name="global_prefs_name">GardenGnome Settings</string>
 	<string name="search_hint">Search plant name</string>

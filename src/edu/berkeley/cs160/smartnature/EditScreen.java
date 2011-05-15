@@ -1,5 +1,6 @@
 package edu.berkeley.cs160.smartnature;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -30,7 +31,8 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 	Plot plot, oldPlot;
 	Bundle extras;
 	ZoomControls zoomControls;
-
+	DecimalFormat angleFormat;
+	
 	boolean footerShown;
 	/** false if activity has been previously started */
 	boolean firstInit = true;
@@ -70,15 +72,17 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		setContentView(R.layout.edit_plot);
 		editView = (EditView) findViewById(R.id.edit_view);
 		
-		if (createPoly)
-			((Button)findViewById(R.id.save_btn)).setText("Save shape");
-		
 		if (firstInit) {
 			editView.zoomScale = extras.getFloat("zoom_scale");
 			editView.dragMatrix.setValues(extras.getFloatArray("drag_matrix"));
 			editView.bgDragMatrix.setValues(extras.getFloatArray("bgdrag_matrix"));
 			editView.onAnimationEnd();
 		}
+		
+		editView.invalidate();
+		
+		if (createPoly)
+			((Button)findViewById(R.id.save_btn)).setText("Save shape");
 		
 		if (hintsOn) {
 			TextView hint = (TextView) findViewById(R.id.edit_hint);
@@ -97,7 +101,8 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		if (zoomAutoHidden)
 			zoomControls.setVisibility(View.GONE);
 		
-		editView.invalidate();
+		angleFormat = new DecimalFormat(getString(R.string.angle_format));
+		((TextView)findViewById(R.id.plot_angle)).setText(angleFormat.format(plot.getAngle()));
 	}
 	
 	public void loadPreferences() {
@@ -253,6 +258,7 @@ public class EditScreen extends Activity implements View.OnClickListener, View.O
 		case R.id.m_revert:
 			plot.set(oldPlot);
 			plot.getPaint().setStrokeWidth(getResources().getDimension(R.dimen.strokesize_edit));
+			((TextView)findViewById(R.id.plot_angle)).setText(angleFormat.format(plot.getAngle()));
 			editView.invalidate();
 			break;
 		}

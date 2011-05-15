@@ -27,6 +27,11 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 	Elements tableValues;
 	String plantURL;
 	
+	/** garden chosen in add plant dialog */
+	Garden chosenGarden;
+	/** index of chosen garden */
+	int gardenIndex;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -125,9 +130,6 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 	public void onClick(View view) {
 		showDialog(0);
 	}
-	
-	int gardenIndex;
-	Garden chosenGarden;
 	
 	@Override
 	public Dialog onCreateDialog(int id) {

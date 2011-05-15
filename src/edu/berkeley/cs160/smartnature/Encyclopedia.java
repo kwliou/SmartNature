@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.SearchRecentSuggestions;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	String pName = "";
 	String name = "";
 	EditText search;
+	SearchRecentSuggestions history;
 	
 	/** Called when the activity is first created. */
 	@Override @SuppressWarnings("unchecked")
@@ -54,10 +56,12 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		search = (EditText) findViewById(R.id.searchText);
 		Intent intent = getIntent();
 	    
-		if (previousData == null && intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEARCH)) {
+		history = new SearchRecentSuggestions(this, HistoryProvider.AUTHORITY, HistoryProvider.MODE);
+		if (previousData == null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			name = getIntent().getStringExtra(SearchManager.QUERY);
 			search.setText(name);
 			searchBtn.performClick();
+			history.saveRecentQuery(name, null);
 		}
 	}
 	
@@ -122,13 +126,14 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	
 	@Override
 	public void onClick(View view) {
-		String searchText = search.getText().toString().trim();
-		if (!searchText.equals("")) {
+		String query = search.getText().toString().trim();
+		if (!query.equals("")) {
 			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(search.getWindowToken(), 0);
 			resultList.clear();
 			findViewById(R.id.encycl_msg).setVisibility(View.GONE);
 			setProgressBarIndeterminateVisibility(true);
 			new Thread(this).start();
+			history.saveRecentQuery(query, null);
 		}
 	}
 	
