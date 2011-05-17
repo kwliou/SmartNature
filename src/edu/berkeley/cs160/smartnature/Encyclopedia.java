@@ -32,8 +32,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	
 	ResultAdapter adapter;
 	ArrayList<SearchResult> resultList = new ArrayList<SearchResult>();
-	String pName = "";
-	String name = "";
+	String plantName = "";
 	EditText search;
 	SearchRecentSuggestions history;
 	
@@ -58,10 +57,10 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	    
 		history = new SearchRecentSuggestions(this, HistoryProvider.AUTHORITY, HistoryProvider.MODE);
 		if (previousData == null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			name = getIntent().getStringExtra(SearchManager.QUERY);
-			search.setText(name);
+			plantName = getIntent().getStringExtra(SearchManager.QUERY);
+			search.setText(plantName);
 			searchBtn.performClick();
-			history.saveRecentQuery(name, null);
+			history.saveRecentQuery(plantName, null);
 		}
 	}
 	

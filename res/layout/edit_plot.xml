@@ -54,7 +54,10 @@
 		android:id="@+id/plot_angle"
 		android:layout_above="@id/edit_footer"
 		android:layout_marginLeft="5dp"
+		android:textColor="@android:color/white"
 		android:textStyle="bold"
+		android:shadowColor="#ff222222"
+		android:shadowRadius="2"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content" />
 

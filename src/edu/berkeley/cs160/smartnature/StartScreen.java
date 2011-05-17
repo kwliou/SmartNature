@@ -106,7 +106,7 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 				showDialog(0);
 				break;
 			case R.id.search_encyclopedia:
-				startActivity(new Intent(this, Encyclopedia.class));
+				onSearchRequested();
 				break;
 			case R.id.find_garden:
 				startActivityForResult(new Intent(this, FindGarden.class), 0);
@@ -265,8 +265,9 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 			return view;
 		}
 		
-
 		private Bitmap initImage(Photo photo) {
+			if (photo.getBitmap() != null)
+				return photo.getBitmap();
 			Uri preview = photo.getUri();
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			float maxSize = getResources().getDimension(R.dimen.preview_width);
@@ -280,7 +281,7 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 				} catch (Exception e) { e.printStackTrace(); }
 			} else
 				bmp = BitmapFactory.decodeFile(preview.getPath(), options);
-			
+			photo.setBitmap(bmp);
 			return bmp;
 		}
 		

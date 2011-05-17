@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 public class Photo {
@@ -14,6 +15,7 @@ public class Photo {
 	/** uri is a string for json convenience */
 	private String uri;
 	@Expose private String title;
+	private Bitmap bmp;
 	
 	Photo(String uri) { this.uri = uri; }
 	
@@ -33,6 +35,8 @@ public class Photo {
 		return values;
 	}
 	
+	public Bitmap getBitmap() { return bmp; }
+	
 	public int getId() { return db_id; }
 	
 	public int getServerId() { return id; }
@@ -40,6 +44,8 @@ public class Photo {
 	public String getTitle() { return title; }
 	
 	public Uri getUri() { return Uri.parse(uri); }
+	
+	public void setBitmap(Bitmap bmp) { this.bmp = bmp; }
 	
 	public void setId(int id) { db_id = id; }
 	

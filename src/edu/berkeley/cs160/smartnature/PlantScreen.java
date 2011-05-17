@@ -116,7 +116,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	private void startVoiceRecognitionActivity() {
 		Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-		//intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech recognition");
+		intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech recognition");
 		startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
 	}
 	

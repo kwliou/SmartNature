@@ -504,7 +504,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		if (is_public || password.equals(stub[PASSWORD])) {
 			threadCount++;
 			String[] text = { "Now ", "Downloading", stub[NAME] };
-			makeNote(Integer.parseInt(stub[ID]), android.R.drawable.stat_sys_download, text, Notification.FLAG_ONGOING_EVENT, false);
+			makeNote(Integer.parseInt(stub[ID]), android.R.drawable.stat_sys_download, text, Notification.FLAG_ONGOING_EVENT);
 			if (!scanner.isConnected())
 				scanner.connect();
 			new Thread(new LoadGarden(stub[ID])).start();
@@ -514,12 +514,12 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 		}
 	}
 	
-	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate) {
-		makeNote(id, icon, text, flags, vibrate, new Intent());
+	public void makeNote(int id, int icon, String[] text, int flags) {
+		makeNote(id, icon, text, flags, new Intent());
 	}
 	
-	/** text = { tickerText, contentTitle } */
-	public void makeNote(int id, int icon, String[] text, int flags, boolean vibrate, Intent intent) {
+	/** text = { ticker prefix, content } */
+	public void makeNote(int id, int icon, String[] text, int flags, Intent intent) {
 		manager.cancel(id + 1);
 		Notification notification = new Notification(icon, text[0] + text[1].toLowerCase() + " garden", System.currentTimeMillis());
 		int pendingflags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT; // for Samsung Galaxy S
@@ -528,8 +528,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			contentIntent = PendingIntent.getActivity(this, 0, intent, pendingflags);
 		} catch (Exception e) { contentIntent = PendingIntent.getActivity(this, 0, intent, 0); }
 		notification.flags |= flags;
-		if (vibrate)
-			notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
+		//if (vibrate)
+		//	notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
 		String title = "GardenGnome";
 		String contentText = text[1] + " " + text[2]; 
 		notification.setLatestEventInfo(this, title, contentText, contentIntent);
@@ -565,7 +565,7 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			
 			String[] text = { "Successfully ", "Downloaded", garden.getName() };
-			makeNote(Integer.parseInt(serverId), android.R.drawable.stat_sys_download_done, text, Notification.FLAG_AUTO_CANCEL, true, intent);
+			makeNote(Integer.parseInt(serverId), android.R.drawable.stat_sys_download_done, text, Notification.FLAG_AUTO_CANCEL, intent);
 			runOnUiThread(new Runnable() {
 				@Override public void run() { StartScreen.adapter.notifyDataSetChanged(); }
 			});
