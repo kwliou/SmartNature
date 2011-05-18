@@ -203,11 +203,11 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			HttpClient httpclient = new DefaultHttpClient();
 			String query = "";
 			if (params[NAME].length() > 0)
-				query += "&name=" + params[NAME];
+				query += "&name=" + Uri.encode(params[NAME]);
 			if (params[CITY].length() > 0)
-				query += "&city=" + params[CITY];
+				query += "&city=" + Uri.encode(params[CITY]);
 			if (params[STATE].length() > 0)
-				query += "&state=" + params[STATE];
+				query += "&state=" + Uri.encode(params[STATE]);
 			
 			HttpGet httpget = new HttpGet(getString(R.string.server_url) + "find.json?" + query.substring(1));
 			boolean success = true;
