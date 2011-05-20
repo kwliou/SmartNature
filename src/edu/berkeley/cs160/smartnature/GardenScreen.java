@@ -93,7 +93,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
-		savedInstanceState.putParcelable("key", imageUri);
+		savedInstanceState.putParcelable("photo_uri", imageUri);
 		savedInstanceState.putFloat("zoom_scale", gardenView.zoomScale);
 		savedInstanceState.putBoolean("portrait_mode", gardenView.portraitMode);
 		float[] values = new float[9], bgvalues = new float[9];
@@ -107,7 +107,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		imageUri = (Uri) savedInstanceState.getParcelable("key");
+		imageUri = (Uri) savedInstanceState.getParcelable("photo_uri");
 		gardenView.zoomScale = savedInstanceState.getFloat("zoom_scale");
 		boolean prevPortraitMode = savedInstanceState.getBoolean("portrait_mode");
 		boolean portraitMode = getWindowManager().getDefaultDisplay().getWidth() < getWindowManager().getDefaultDisplay().getHeight();

@@ -1,14 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/m_home"
-		android:icon="@drawable/ic_menu_home"
-		android:title="@string/m_home" />
-	<item android:id="@+id/m_deleteplant"
-		android:icon="@android:drawable/ic_menu_delete"
-		android:title="@string/m_deleteplant" />
 	<item android:id="@+id/m_searchplant"
 		android:icon="@android:drawable/ic_menu_search"
 		android:title="@string/m_searchplant" />
 	<item android:id="@+id/m_renameplant"
 		android:icon="@android:drawable/ic_menu_edit"
 		android:title="@string/m_renameplant" />
+	<item android:id="@+id/m_deleteplant"
+		android:icon="@android:drawable/ic_menu_delete"
+		android:title="@string/m_deleteplant" />
+	<item android:id="@+id/m_home"
+		android:icon="@drawable/ic_menu_home"
+		android:title="@string/m_home" />
 </menu>

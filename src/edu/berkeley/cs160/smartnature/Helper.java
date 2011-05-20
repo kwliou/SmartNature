@@ -47,10 +47,14 @@ public class Helper {
 		}
 		else
 			BitmapFactory.decodeFile(uri.getPath(), options);
-		int scale = 1;
 		int longSide = Math.max(options.outHeight, options.outWidth);
-		if (longSide > maxSize)
-			scale = 1 << (int) (Math.log(maxSize / longSide) / Math.log(0.5));
+		return getSampleSize(longSide, maxSize);
+	}
+	
+	public static int getSampleSize(int size, float maxSize) {
+		int scale = 1;
+		if (size > maxSize)
+			scale = 1 << (int) (Math.log(size / maxSize) / Math.log(2));
 		System.out.println("inSampleSize=" + scale);
 		return scale;
 	}

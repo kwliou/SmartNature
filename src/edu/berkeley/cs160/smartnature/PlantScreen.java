@@ -91,19 +91,22 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 			startVoiceRecognitionActivity();
 			return;
 		}
+		String body = entryText.getText().toString().trim();
 		if (addEntryButton.getText().equals("Post")) {
-			String entryName = entryText.getText().toString().trim();
-			if (entryName.length() == 0)
-				entryName = "Untitled entry";
-			Entry entry = new Entry(entryName, new Date().getTime());
+			if (body.length() == 0)
+				return;
+			Entry entry = new Entry(body, new Date().getTime());
 			GardenGnome.addEntry(plant, entry);
 			adapter.notifyDataSetChanged(); // refresh ListView
 			entryText.setText("");			
 		}
 		else {
 			Entry entry = plant.getEntry(clickedPosition); 
-			entry.setBody(entryText.getText().toString());
-			GardenGnome.updateEntry(entry);
+			if (body.length() > 0) {
+				entry.setBody(entryText.getText().toString());
+				GardenGnome.updateEntry(entry);
+				adapter.notifyDataSetChanged();
+			}
 			entryText.setText("");
 			entryText.setHint("Add journal entry");
 			addEntryButton.setText("Post");
@@ -176,7 +179,6 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 				break;
 			case R.id.m_deleteplant:
 				GardenGnome.removePlant(plot, plant);
-				PlotScreen.adapter.notifyDataSetChanged();
 				finish();
 				break;
 			case R.id.m_searchplant:
@@ -186,6 +188,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 				startActivity(intent);
 				break;
 			case R.id.m_renameplant:
+				removeDialog(0);
 				showDialog(0);
 				break;
 		}
@@ -194,13 +197,11 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	
 	@Override
 	public Dialog onCreateDialog(int id) {
-		AlertDialog.Builder builder;
-		
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
-		builder = new AlertDialog.Builder(this).setView(textEntryView);
 		
-		dialog = builder.setTitle("Enter new plant name")
-			.setPositiveButton("Rename", this)
+		dialog = new AlertDialog.Builder(this).setView(textEntryView)
+			.setTitle("Edit plant name")
+			.setPositiveButton(R.string.alert_dialog_rename, this)
 			.setNegativeButton(R.string.alert_dialog_cancel, null)
 			.create();
 		
@@ -227,20 +228,18 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		return dialog;
 	}
 	
+	@Override
 	public void onClick(DialogInterface dialog, int whichButton) {
-		EditText textEntry = ((EditText) textEntryView.findViewById(R.id.dialog_text_entry));
+		EditText textEntry = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 		String plantName = textEntry.getText().toString().trim();
 		if (plantName.length() == 0)
-			plantName = "Untitled plant";
+			return;
 		plant.setName(plantName);
 		GardenGnome.updatePlant(plant);
 		setTitle(plantName);
-		PlotScreen.adapter.notifyDataSetChanged();
-		removeDialog(0);
 	}
-
+	
 	class EntryAdapter extends ArrayAdapter<Entry> {
-		
 		private ArrayList<Entry> items;
 		private LayoutInflater li;
 		

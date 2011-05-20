@@ -152,6 +152,18 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	}
 	
 	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		savedInstanceState.putCharSequence("label", resultsLabel.getText());
+		super.onSaveInstanceState(savedInstanceState);
+	}
+	
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		resultsLabel.setText(savedInstanceState.getCharSequence("label"));
+	}
+	
+	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return stubs.isEmpty() ? null : stubs;
 	}
@@ -246,6 +258,8 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 				setProgressBarIndeterminateVisibility(false);
 				if (resultsLabel.getText().toString().equals("Searching..."))
 					resultsLabel.setText("Search results");
+				if (resultsLabel.getText().length() > 0)
+					resultsLabel.append(" (" + stubs.size() + ")");
 			}
 		});
 	}
@@ -364,7 +378,6 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 	 *  and shows up under "Camera images" in the Gallery app */
 	public Uri writeBitmap(String fileName) {
 		ContentValues values = new ContentValues();
-		values.put(Images.Media.TITLE, fileName); //values.put(Images.Media.DESCRIPTION, "Image capture by camera");
 		Uri imageUri = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
 		System.out.print("imageUri=" + imageUri.toString() + " -> ");
 		String resolvedPath = Helper.resolveUri(this, imageUri);
@@ -462,21 +475,12 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 			input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 				@Override
-				public void onFocusChange(View v, boolean hasFocus) {
+				public void onFocusChange(View view, boolean hasFocus) {
 					if (hasFocus)
 						dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 				}
 			});
 		}
-		/*input.setOnKeyListener(new View.OnKeyListener() {
-			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
-				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
-					inputMgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
-					return true;
-				}
-				return false;
-			}
-		});*/
 		
 		return dialog;
 	}
@@ -528,8 +532,6 @@ public class FindGarden extends ListActivity implements AdapterView.OnItemClickL
 			contentIntent = PendingIntent.getActivity(this, 0, intent, pendingflags);
 		} catch (Exception e) { contentIntent = PendingIntent.getActivity(this, 0, intent, 0); }
 		notification.flags |= flags;
-		//if (vibrate)
-		//	notification.defaults |= Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
 		String title = "GardenGnome";
 		String contentText = text[1] + " " + text[2]; 
 		notification.setLatestEventInfo(this, title, contentText, contentIntent);

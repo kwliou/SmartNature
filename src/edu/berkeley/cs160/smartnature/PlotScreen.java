@@ -23,15 +23,16 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class PlotScreen extends ListActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class PlotScreen extends ListActivity implements DialogInterface.OnClickListener, View.OnClickListener, AdapterView.OnItemClickListener {
 	
 	ListView plantListView;
 	EditText plantName;
 	AlertDialog dialog;
+	View textEntryView;
 	
 	Garden garden;
 	Plot plot;
-	static PlantAdapter adapter;
+	PlantAdapter adapter;
 	Plant plant;
 	int gardenIndex, plotIndex; 
 	
@@ -59,34 +60,24 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		((Button) findViewById(R.id.addPlantButton)).setOnClickListener(this);
 	}
 	
-	// currently unused
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		adapter.notifyDataSetChanged();
+	}
+	
 	@Override
 	public Dialog onCreateDialog(int id) {
-		LayoutInflater factory = LayoutInflater.from(this);
-		final View textEntryView = factory.inflate(R.layout.text_entry_dialog, null);
-		DialogInterface.OnClickListener confirmed = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				EditText plantName = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
-				plot.addPlant(new Plant(plantName.getText().toString()));
-				adapter.notifyDataSetChanged(); //refresh ListView
-			}
-		};
-		DialogInterface.OnClickListener canceled = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int whichButton) {
-				finish();
-			}
-		};
-		dialog = new AlertDialog.Builder(this)
-		.setTitle(R.string.new_plant_prompt)
-		.setView(textEntryView)
-		.setPositiveButton(R.string.alert_dialog_ok, confirmed)
-		.setNegativeButton(R.string.alert_dialog_cancel, canceled)
-		.create();
-
+		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
+		
+		dialog = new AlertDialog.Builder(this).setView(textEntryView)
+			.setTitle("Edit plot name")
+			.setPositiveButton(R.string.alert_dialog_rename, this)
+			.setNegativeButton(R.string.alert_dialog_cancel, null)
+			.create();
+		
 		// automatically show soft keyboard
 		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		input.setText(plot.getName());
 		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
@@ -94,8 +85,19 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 					dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 			}
 		});
-
+		
 		return dialog;
+	}
+	
+	@Override
+	public void onClick(DialogInterface dialog, int whichButton) {
+		EditText textEntry = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
+		String plotName = textEntry.getText().toString().trim();
+		if (plotName.length() == 0)
+			return;
+		plot.setName(plotName);
+		GardenGnome.updatePlot(plot);
+		setTitle(plotName);
 	}
 	
 	@Override
@@ -106,7 +108,43 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 		
 		GardenGnome.addPlant(plot, new Plant(plantString));
 		plantName.setText("");
-		adapter.notifyDataSetChanged(); //refresh ListView
+		adapter.notifyDataSetChanged();
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
+		intent.putExtra("name", plot.getPlant(position).getName());
+		intent.putExtra("garden_index", gardenIndex);
+		intent.putExtra("plot_index", plotIndex);
+		intent.putExtra("plant_index", position);
+		startActivityForResult(intent, 0);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.plot_menu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.m_home:
+				Intent intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
+			case R.id.m_deleteplot:
+				GardenGnome.removePlot(garden, plot);
+				finish();
+				break;
+			case R.id.m_renameplot:
+				removeDialog(0);
+				showDialog(0);
+				break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 	
 	class PlantAdapter extends ArrayAdapter<Plant> {
@@ -133,38 +171,4 @@ public class PlotScreen extends ListActivity implements View.OnClickListener, Ad
 
 	}
 	
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Intent intent = new Intent(PlotScreen.this, PlantScreen.class);
-		intent.putExtra("name", plot.getPlant(position).getName());
-		intent.putExtra("garden_index", gardenIndex);
-		intent.putExtra("plot_index", plotIndex);
-		intent.putExtra("plant_index", position);
-		startActivity(intent);
-	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.plot_menu, menu);
-		return true;
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		switch (item.getItemId()) {
-		case R.id.m_home:
-			Intent intent = new Intent(this, StartScreen.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
-			break;
-		case R.id.m_deleteplot:
-			GardenGnome.removePlot(garden, plot);
-			finish();
-			break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-
 }

@@ -1,9 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-	<item android:id="@+id/m_home"
-		android:icon="@drawable/ic_menu_home"
-		android:title="@string/m_home" />
+	<item android:id="@+id/m_renameplot"
+		android:icon="@android:drawable/ic_menu_edit"
+		android:title="@string/m_renameplot" />
 	<item android:id="@+id/m_deleteplot"
 		android:icon="@android:drawable/ic_menu_delete"
 		android:title="@string/m_deleteplot" />
+	<item android:id="@+id/m_home"
+		android:icon="@drawable/ic_menu_home"
+		android:title="@string/m_home" />
 </menu>

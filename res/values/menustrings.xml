@@ -12,6 +12,7 @@
 	<string name="m_hidelabels">Hide labels</string>
 	<string name="m_home">Home</string>
 	<string name="m_renamegarden">Rename garden</string>
+	<string name="m_renameplot">Rename plot</string>
 	<string name="m_resetzoom">Reset zoom</string>
 	<string name="m_revert">Revert changes</string>
 	<string name="m_sharegarden">Share garden</string>

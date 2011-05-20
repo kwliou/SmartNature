@@ -6,8 +6,7 @@
 
 	<EditText
 		android:id="@+id/dialog_text_entry"
-		android:inputType="textAutoCorrect|textCapSentences"
-		android:gravity="fill_horizontal"
+		android:inputType="textCapWords"
 		android:layout_marginLeft="6dp"
 		android:layout_marginRight="6dp"
 		android:layout_width="fill_parent"

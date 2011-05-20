@@ -23,7 +23,6 @@ only people with password can edit it
 content URI's look like content://media/external/images/media/734
 
 New ideas:
-show the actual angle number somewhere when rotating plot
 show the actual dimensions somewhere when resizing plot
 show a shadow of old copy of plot when editing current copy
 maybe have different hint when garden is empty

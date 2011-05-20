@@ -41,7 +41,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 public class StartScreen extends ListActivity implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener, View.OnClickListener {
-
+	
 	static GardenAdapter adapter;
 	ArrayList<Garden> gardens = GardenGnome.getGardens();
 	AlertDialog dialog;
@@ -49,7 +49,7 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 	
 	LocationManager lm;
 	Geocoder geocoder;
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -125,12 +125,12 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 	public Dialog onCreateDialog(int id) {
 		textEntryView = LayoutInflater.from(this).inflate(R.layout.text_entry_dialog, null);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(textEntryView);
-
+		
 		dialog = builder.setTitle(R.string.new_garden_prompt)
 		.setPositiveButton(R.string.alert_dialog_ok, this)
 		.setNegativeButton(R.string.alert_dialog_cancel, null) // this means cancel was pressed
 		.create();
-
+		
 		// automatically show soft keyboard
 		EditText input = (EditText) textEntryView.findViewById(R.id.dialog_text_entry);
 		input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -140,7 +140,7 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 					dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 			}
 		});
-
+		
 		input.setOnKeyListener(new View.OnKeyListener() {
 			@Override public boolean onKey(View view, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -151,7 +151,7 @@ public class StartScreen extends ListActivity implements AdapterView.OnItemClick
 				return false;
 			}
 		});
-
+		
 		return dialog;
 	}
 	

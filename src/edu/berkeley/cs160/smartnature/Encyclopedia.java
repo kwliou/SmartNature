@@ -1,9 +1,13 @@
 package edu.berkeley.cs160.smartnature;
 
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,7 +17,9 @@ import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.view.LayoutInflater;
@@ -72,7 +78,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	@Override
 	public void run() {
 		String searchText = ((EditText) findViewById(R.id.searchText)).getText().toString();
-		String searchURL = "http://www.plantcare.com/encyclopedia/search.aspx?q=" + searchText;
+		String searchURL = "http://www.plantcare.com/encyclopedia/search.aspx?q=" + Uri.encode(searchText);
 		Element resultBox = null;
 		try {
 			Document doc = Jsoup.connect(searchURL).get();
@@ -121,6 +127,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		intent.putExtra("name", result.getName());
 		intent.putExtra("linkURL", result.getLinkURL());
 		startActivity(intent);
+		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
 	
 	@Override
@@ -148,8 +155,16 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		LoadBitmap(SearchResult result, boolean last) { this.result = result; this.last = last; }
 		@Override
 		public void run() {
+			HttpClient httpclient = new DefaultHttpClient();
 			try {
-				result.setBitmap(BitmapFactory.decodeStream(new URL(result.getPicURL()).openStream()));
+				float maxSize = getResources().getDimension(R.dimen.preview_width);
+				HttpResponse response = httpclient.execute(new HttpGet(result.getPicURL()));
+				InputStream stream = response.getEntity().getContent();
+				Bitmap bmp = BitmapFactory.decodeStream(stream);
+				stream.close();
+				int scale = Helper.getSampleSize(Math.max(bmp.getWidth(), bmp.getWidth()), maxSize);
+				result.setBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth()/scale, bmp.getHeight()/scale, false));
+				bmp.recycle();
 			} catch (IOException e) { e.printStackTrace(); }
 			runOnUiThread(new Runnable() {
 				@Override public void run() {
