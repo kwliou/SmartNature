@@ -24,6 +24,7 @@
 			android:id="@+id/new_garden"
 			android:text="@string/btn_new_garden"
 			android:textSize="16sp"
+			style="@style/Widget.Button.Custom"
 			android:layout_margin="5dp"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
@@ -32,6 +33,7 @@
 			android:id="@+id/search_encyclopedia"
 			android:text="@string/btn_search_encyclopedia"
 			android:textSize="16sp"
+			style="@style/Widget.Button.Custom"
 			android:layout_margin="5dp"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
@@ -40,6 +42,7 @@
 			android:id="@+id/find_garden"
 			android:text="Find existing garden"
 			android:textSize="16sp"
+			style="@style/Widget.Button.Custom"
 			android:layout_margin="5dp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" />

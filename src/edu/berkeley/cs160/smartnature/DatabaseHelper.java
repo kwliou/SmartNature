@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper {
 	private static final String DATABASE_NAME = "gardengnome.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 1;
 	
 	private static final String CREATE = "CREATE TABLE ";
 	private static final String DROP = "DROP TABLE IF EXISTS ";
@@ -177,7 +177,7 @@ public class DatabaseHelper {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			String SCAFFOLD = " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, server_id INTEGER, name TEXT, ";
-			db.execSQL(CREATE + GARDEN + SCAFFOLD + "is_public INTEGER, bounds TEXT, city TEXT, state TEXT, info TEXT)");
+			db.execSQL(CREATE + GARDEN + SCAFFOLD + "is_public INTEGER, password TEXT, bounds TEXT, city TEXT, state TEXT, info TEXT)");
 			db.execSQL(CREATE + PLOT   + SCAFFOLD + "garden_id INTEGER, shape INTEGER, color INTEGER, angle REAL, bounds TEXT, points TEXT)");
 			db.execSQL(CREATE + PLANT  + SCAFFOLD + "plot_id INTEGER)");
 			db.execSQL(CREATE + ENTRY  + SCAFFOLD + "plant_id INTEGER, date TEXT)");

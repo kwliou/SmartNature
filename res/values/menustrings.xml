@@ -17,7 +17,7 @@
 	<string name="m_revert">Revert changes</string>
 	<string name="m_sharegarden">Share garden</string>
 	<string name="m_showlabels">Hide labels</string>
-	<string name="m_syncgarden">Manual sync</string>
+	<string name="m_syncgarden">Sync garden</string>
 	<string name="m_takephoto">Take a photo</string>
 	<string name="m_deleteplant">Delete plant</string>
 	<string name="m_deleteplot">Delete plot</string>

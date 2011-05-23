@@ -23,6 +23,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -32,7 +33,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.auth.BasicAWSCredentials;
 
-public class ShareGarden extends Activity implements Runnable, View.OnClickListener {
+public class SyncGarden extends Activity implements Runnable, View.OnClickListener {
 	
 	/** for AWS since certain Android versions do not have org.xml.sax.driver */
 	static {
@@ -47,7 +48,7 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	/** used in adding hash code to image filename */
 	MessageDigest digester;
 	NotificationManager manager;
-	Button shareButton;
+	Button syncButton;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -58,30 +59,28 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		try {
 			digester = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-		shareButton = (Button) findViewById(R.id.share_confirm);
-		EditText password = (EditText) findViewById(R.id.garden_password);
+		syncButton = (Button) findViewById(R.id.sync_confirm);
 		if (garden.getServerId() == -1)
-			shareButton.setText(R.string.btn_sharing);
+			syncButton.setText(R.string.btn_sharing);
 		else if (garden.getServerId() > 0) {
-			shareButton.setText(R.string.btn_shared);
-			password.setHint("No password set");
-			password.setText(garden.getPassword());
-			System.out.println("password=" + garden.getPassword());
-			password.setEnabled(false);
+			syncButton.setText(R.string.btn_shared);
+			EditText pass = (EditText) findViewById(R.id.garden_password);
+			pass.setHint("No password");
+			pass.setEnabled(false);
 		}
 		else
-			shareButton.setOnClickListener(this);
+			syncButton.setOnClickListener(this);
 		
-		findViewById(R.id.share_cancel).setOnClickListener(this);
+		findViewById(R.id.sync_cancel).setOnClickListener(this);
 	}
 	
 	@Override
 	public void onClick(View view) {
-		if (view.getId() == R.id.share_confirm && garden.getServerId() == 0) {
-			garden.setServerId(-1);
-			shareButton.setEnabled(false);
-			shareButton.setText(R.string.btn_sharing);
-			makeNote(android.R.drawable.stat_sys_upload, "Now uploading", Notification.FLAG_ONGOING_EVENT, false);
+		if (view.getId() == R.id.sync_confirm) {
+			//garden.setServerId(-1);
+			syncButton.setEnabled(false);
+			syncButton.setText("Syncing");
+			makeNote(android.R.drawable.stat_sys_upload, "Now syncing", Notification.FLAG_ONGOING_EVENT, false);
 			new Thread(this).start();
 		}
 		else if (view.getId() == R.id.share_cancel)
@@ -90,28 +89,28 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 	
 	@Override
 	public void run() {
-		if (!uploadGarden() || !uploadPlots()) {
+		if (!updateGarden() || !uploadPlots()) {
 			deleteGarden(garden.getServerId());
 			garden.setServerId(0);
 			makeNote(android.R.drawable.stat_notify_error, "Failed to upload", Notification.FLAG_AUTO_CANCEL, true);
 			runOnUiThread(new Runnable() {
 				@Override public void run() {
-					shareButton.setEnabled(true);
-					shareButton.setText(R.string.btn_share);
+					syncButton.setEnabled(true);
+					syncButton.setText(R.string.btn_sync);
 				}
 			});
 			return;
 		}
 		
 		if (garden.numPhotos() > 0 && !uploadImages()) {
-			makeNote(android.R.drawable.stat_notify_error, "Failed to upload photos from", Notification.FLAG_AUTO_CANCEL, true);
+			makeNote(android.R.drawable.stat_notify_error, "Failed to sync photos from", Notification.FLAG_AUTO_CANCEL, true);
 			return;
 		}
 		
-		makeNote(android.R.drawable.stat_sys_upload_done, "Successfully uploaded", Notification.FLAG_AUTO_CANCEL, true);
+		makeNote(android.R.drawable.stat_sys_upload_done, "Successfully updated", Notification.FLAG_AUTO_CANCEL, true);
 		runOnUiThread(new Runnable() {
 			@Override public void run() {
-				shareButton.setText(R.string.btn_shared);
+				syncButton.setText(R.string.btn_shared);
 			}
 		});
 	}
@@ -124,6 +123,23 @@ public class ShareGarden extends Activity implements Runnable, View.OnClickListe
 		try {
 			httpclient.execute(httpdelete);
 		} catch (Exception e) { e.printStackTrace(); }
+	}
+	
+	public boolean updateGarden() {
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPut httpput = new HttpPut(getString(R.string.server_url) + "gardens/" + garden.getServerId());
+		// rails server expects "garden" to be key value
+		String json = "{\"garden\":" + gson.toJson(garden) + "}";
+		boolean success = true;
+		try {
+			StringEntity entity = new StringEntity(json);
+			entity.setContentType("application/json");
+			httpput.setEntity(entity);
+			HttpResponse response = httpclient.execute(httpput);
+			System.out.println(response.getStatusLine().getStatusCode());
+		} catch (Exception e) { success = false; e.printStackTrace(); }
+		
+		return success;
 	}
 	
 	public boolean uploadGarden() {

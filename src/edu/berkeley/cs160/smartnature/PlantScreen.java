@@ -45,9 +45,8 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 	AlertDialog dialog;
 	View textEntryView;
 	int clickedPosition;
-	/** Voice Recognition */
-	private static final int VOICE_RECOGNITION_REQUEST_CODE = 1234;
-	SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy h:mm a");
+	private static final int VOICE_REC = 1;
+	SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy h:mm a");
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -120,16 +119,16 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 		Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
 		intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech recognition");
-		startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
+		startActivityForResult(intent, VOICE_REC);
 	}
 	
 	/** Handle the results from the recognition activity. */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == VOICE_RECOGNITION_REQUEST_CODE && resultCode == RESULT_OK) {
+		if (requestCode == VOICE_REC && resultCode == RESULT_OK) {
 			ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
 			EditText entry = (EditText) findViewById(R.id.entry_body);
-			entry.setText(matches.get(0).toString());
+			entry.append(matches.get(0));
 		}
 	}
 	
@@ -256,7 +255,7 @@ public class PlantScreen extends ListActivity implements DialogInterface.OnClick
 				view = li.inflate(R.layout.journal_list_item, null);
 			Entry e = items.get(position);
 			((TextView) view.findViewById(R.id.entry_name)).setText(e.getBody());
-			String dateStr = formatter.format(e.getDate()); // currentDate.toLocaleString();
+			String dateStr = dateFormat.format(e.getDate());
 			((TextView) view.findViewById(R.id.entry_date)).setText(dateStr);
 			
 			return view;

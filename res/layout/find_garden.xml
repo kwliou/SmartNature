@@ -66,6 +66,7 @@
 			android:id="@+id/btn_find_garden"
 			android:text="Search"
 			android:textSize="15sp"
+			style="@style/Widget.Button.Custom"
 			android:drawableTop="@android:drawable/ic_menu_search"
 			android:layout_width="wrap_content"
 			android:layout_height="fill_parent" />

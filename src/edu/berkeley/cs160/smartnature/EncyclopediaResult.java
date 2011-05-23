@@ -21,7 +21,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class EncyclopediaResult extends Activity implements Runnable, DialogInterface.OnCancelListener, View.OnClickListener {
+public class EncyclopediaResult extends Activity implements Runnable, View.OnClickListener {
 	ProgressDialog throbber;
 	String plantName = "";
 	Elements tableValues;
@@ -45,7 +45,7 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 			((TextView) findViewById(R.id.searchName)).setText(plantName);
 			Button addToPlot = (Button) findViewById(R.id.addToPlot);
 			addToPlot.setOnClickListener(this);
-			throbber = ProgressDialog.show(this, null, "Downloading entry...", true, true, this);
+			throbber = ProgressDialog.show(this, null, "Downloading entry...", true, true, cancelled);
 			new Thread(this).start();
 		}
 	}
@@ -98,8 +98,6 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 			Plot plot = GardenGnome.getGarden(gardenIndex).getPlot(plotIndex);
 			Plant plant = new Plant(plantName);
 			GardenGnome.addPlant(plot, plant);
-			if (PlotScreen.adapter != null)
-				PlotScreen.adapter.notifyDataSetChanged();
 		}
 	}
 	
@@ -179,8 +177,8 @@ public class EncyclopediaResult extends Activity implements Runnable, DialogInte
 			.create();
 	}
 	
-	@Override
-	public void onCancel(DialogInterface dialog) {
-		finish();
-	}
+	DialogInterface.OnCancelListener cancelled = new DialogInterface.OnCancelListener() {
+		@Override
+		public void onCancel(DialogInterface dialog) { finish(); }
+	};
 }

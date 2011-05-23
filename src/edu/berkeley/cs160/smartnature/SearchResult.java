@@ -10,11 +10,11 @@ public class SearchResult {
 	private String linkURL;
 	private Bitmap bmp;
 	
-	SearchResult(String n, String a, String p, String l){
-		name = n;
-		altNames = a;
-		picURL = p;
-		linkURL = l;
+	SearchResult(String name, String aliases, String picUrl, String url){
+		this.name = name;
+		altNames = aliases;
+		picURL = picUrl;
+		linkURL = url;
 	}
 	
 	public Bitmap getBitmap() {

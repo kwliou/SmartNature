@@ -8,7 +8,6 @@
 
 	<LinearLayout
 		android:orientation="horizontal"
-		android:gravity="center"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 		<EditText
@@ -23,13 +22,15 @@
 			android:id="@+id/addPlantButton"
 			android:text="Add Plant"
 			android:textSize="16sp"
+			style="@style/Widget.Button.Custom"
+			android:layout_marginBottom="1dp"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" />
+			android:layout_height="fill_parent" />
 
 	</LinearLayout>
 
 	<TextView
-		android:text="List of Plants"
+		android:text="List of plants"
 		style="@style/Widget.TextView.ListSeparator" />
 
 	<ListView

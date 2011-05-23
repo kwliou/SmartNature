@@ -15,6 +15,7 @@
 	<string name="btn_share">Share</string>
 	<string name="btn_sharing">Sharing...</string>
 	<string name="btn_shared">Shared</string>
+	<string name="btn_sync">Sync</string>
 	<string name="new_garden_prompt">Enter garden name</string>
 	<string name="rename_garden_prompt">Edit garden name</string>
 	<string name="new_region_prompt">Enter region name</string>

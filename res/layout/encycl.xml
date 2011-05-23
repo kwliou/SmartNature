@@ -10,6 +10,7 @@
 		android:focusableInTouchMode="true"
 		android:layout_width="0px"
 		android:layout_height="0px" />
+
 	<LinearLayout
 		android:orientation="horizontal"
 		android:paddingBottom="5dp"
@@ -18,18 +19,19 @@
 		android:layout_height="wrap_content">
 
 		<EditText
-			android:id="@+id/searchText"
+			android:id="@+id/search_text"
 			android:hint="Enter plant name"
-			android:nextFocusUp="@id/searchText"
-			android:nextFocusLeft="@id/searchText"
+			android:nextFocusUp="@id/search_text"
+			android:nextFocusLeft="@id/search_text"
 			android:layout_weight="1"
 			android:layout_marginLeft="5dp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" />
 
 		<Button
-			android:id="@+id/searchButton"
+			android:id="@+id/btn_search_encycl"
 			android:text="Search"
+			style="@style/Widget.Button.Custom"
 			android:layout_marginLeft="5dp"
 			android:layout_marginRight="5dp"
 			android:layout_width="wrap_content"

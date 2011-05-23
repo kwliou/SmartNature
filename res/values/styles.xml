@@ -17,15 +17,21 @@
 		<item name="android:shadowColor">#BB000000</item>
 		<item name="android:shadowRadius">2.5</item>
 	</style>
-	
+
 	<style name="Widget.TextView.ListSeparator" parent="@android:style/Widget.TextView">
-        <item name="android:background">#ffd4d4d4</item>
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">30dp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@android:color/secondary_text_light</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:paddingLeft">5sp</item>
+		<item name="android:background">#ffd4d4d4</item>
+		<item name="android:layout_width">fill_parent</item>
+		<item name="android:layout_height">30dp</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textColor">@android:color/secondary_text_light</item>
+		<item name="android:textSize">14sp</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:paddingLeft">5sp</item>
+	</style>
+	<style name="Widget.Button.Custom" parent="@android:style/Widget.Button">
+		<item name="android:background">@drawable/btn_custom</item>
+		<item name="android:shadowColor">#e0ffffff</item>
+		<item name="android:shadowDy">1.5</item>
+		<item name="android:shadowRadius">1.5</item>
 	</style>
 </resources>

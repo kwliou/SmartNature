@@ -220,6 +220,10 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.garden_menu, menu);
+		if (garden.getServerId() > 0) {
+			menu.findItem(R.id.m_sharegarden).setVisible(false);
+			menu.findItem(R.id.m_syncgarden).setVisible(true);
+		}
 		return true;
 	}
 	
@@ -233,6 +237,7 @@ public class GardenScreen extends Activity implements View.OnClickListener, View
 				startActivityForResult(intent, EDIT_GARDEN);
 				break;
 			case R.id.m_sharegarden:
+			case R.id.m_syncgarden:
 				intent = new Intent(this, ShareGarden.class).putExtra("garden_index", gardenIndex);
 				startActivityForResult(intent, SHARE_GARDEN);
 				break;

@@ -1,6 +1,5 @@
 package edu.berkeley.cs160.smartnature;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -56,11 +55,11 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		adapter = new ResultAdapter(this, R.layout.search_list_item, resultList);
 		getListView().setAdapter(adapter);
 		getListView().setOnItemClickListener(this);
-		Button searchBtn = (Button) findViewById(R.id.searchButton);
+		Button searchBtn = (Button) findViewById(R.id.btn_search_encycl);
 		searchBtn.setOnClickListener(this);
-		search = (EditText) findViewById(R.id.searchText);
+		search = (EditText) findViewById(R.id.search_text);
 		Intent intent = getIntent();
-	    
+		
 		history = new SearchRecentSuggestions(this, HistoryProvider.AUTHORITY, HistoryProvider.MODE);
 		if (previousData == null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			plantName = getIntent().getStringExtra(SearchManager.QUERY);
@@ -77,11 +76,11 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 	
 	@Override
 	public void run() {
-		String searchText = ((EditText) findViewById(R.id.searchText)).getText().toString();
+		String searchText = search.getText().toString();
 		String searchURL = "http://www.plantcare.com/encyclopedia/search.aspx?q=" + Uri.encode(searchText);
 		Element resultBox = null;
 		try {
-			Document doc = Jsoup.connect(searchURL).get();
+			Document doc = Jsoup.connect(searchURL).execute().parse(); //Jsoup.parse(new URL(searchURL), 3000);
 			resultBox = doc.getElementById("searchEncyclopedia");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -108,14 +107,16 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 			Elements results = resultBox.child(1).children();
 			for (int i = 0; i < results.size(); i++) {
 				Element next = results.get(i);
-				String plantURL = "http://www.plantcare.com" + next.child(0).child(0).child(0).attr("src");
+				String picURL = "http://www.plantcare.com" + next.child(0).child(0).child(0).attr("src");
 				String name = next.child(1).text();
-				String altNames = next.child(2).text().replaceFirst("Also known as:", "Known as:");
+				String aliases = next.child(2).text().replaceFirst("Also known as:", "Known as:");
 				String linkURL = "http://www.plantcare.com/encyclopedia/" + next.child(1).attr("href");
-				SearchResult result = new SearchResult(name, altNames, plantURL, linkURL);
+				SearchResult result = new SearchResult(name, aliases, picURL, linkURL);
 				new Thread(new LoadBitmap(result, i == results.size() - 1)).start();
 				resultList.add(result);
-				invalidate();
+				runOnUiThread(new Runnable() {
+					@Override public void run() { adapter.notifyDataSetChanged(); }
+				});
 			}
 		}
 	}
@@ -127,7 +128,6 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 		intent.putExtra("name", result.getName());
 		intent.putExtra("linkURL", result.getLinkURL());
 		startActivity(intent);
-		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 	}
 	
 	@Override
@@ -141,12 +141,6 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 			new Thread(this).start();
 			history.saveRecentQuery(query, null);
 		}
-	}
-	
-	public void invalidate() {
-		runOnUiThread(new Runnable() {
-			@Override public void run() { adapter.notifyDataSetChanged(); }
-		});
 	}
 	
 	class LoadBitmap implements Runnable {
@@ -165,7 +159,7 @@ public class Encyclopedia extends ListActivity implements View.OnClickListener, 
 				int scale = Helper.getSampleSize(Math.max(bmp.getWidth(), bmp.getWidth()), maxSize);
 				result.setBitmap(Bitmap.createScaledBitmap(bmp, bmp.getWidth()/scale, bmp.getHeight()/scale, false));
 				bmp.recycle();
-			} catch (IOException e) { e.printStackTrace(); }
+			} catch (Exception e) { e.printStackTrace(); }
 			runOnUiThread(new Runnable() {
 				@Override public void run() {
 					if (last)

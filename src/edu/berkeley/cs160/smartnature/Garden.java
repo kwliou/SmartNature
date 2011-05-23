@@ -41,6 +41,7 @@ public class Garden {
 		name = Helper.getString(cursor, "name");
 		db_id = Helper.getInt(cursor, "_id");
 		id = Helper.getInt(cursor, "server_id");
+		password = Helper.getString(cursor, "password");
 		setRawBounds(Helper.toRectF(Helper.getString(cursor, "bounds")));
 		city = Helper.getString(cursor, "city");
 		state = Helper.getString(cursor, "state");
@@ -53,10 +54,11 @@ public class Garden {
 		ContentValues values = new ContentValues();
 		values.put("server_id", id);
 		values.put("name", name);
+		values.put("password", password);
 		values.put("is_public", is_public ? 1 : 0);
 		values.put("bounds", Helper.toString(getBounds()));
 		values.put("city", city);
-		values.put("state", state);
+			values.put("state", state);
 		values.put("info", info);
 		return values;
 	}
